@@ -1,0 +1,1740 @@
+/**
+ * ==========================================================================
+ * GRI 주간보고 취합 및 채용검증 서비스 공통 애플리케이션 로직 (app.js)
+ * 경기연구원 Gyeonggi Research Institute
+ * ==========================================================================
+ */
+
+// 전역 모듈 및 상태 관리 정의 (13개 지정 부서 및 채용 후보자 상태 통합)
+const AppState = {
+  currentPage: 'weekly-report', // 'home', 'weekly-report', 'recruitment'
+  files: [], // {id, file, name, size, type: 'pdf'|'hwp'|'hwpx', departmentName, status: 'ok'|'error', errors: []}
+  departments: [
+    { id: 1, name: '전략실', submitted: false, fileId: null },
+    { id: 2, name: '인구사회연구실', submitted: false, fileId: null },
+    { id: 3, name: '감사실', submitted: false, fileId: null },
+    { id: 4, name: '산업통상연구실', submitted: false, fileId: null },
+    { id: 5, name: '모빌리티연구실', submitted: false, fileId: null },
+    { id: 6, name: '자치혁신연구실', submitted: false, fileId: null },
+    { id: 7, name: '북부발전연구실', submitted: false, fileId: null },
+    { id: 8, name: '행정지원실', submitted: false, fileId: null },
+    { id: 9, name: '도시주택연구실', submitted: false, fileId: null },
+    { id: 10, name: '경기의정연구센터', submitted: false, fileId: null },
+    { id: 11, name: 'AI연구실', submitted: false, fileId: null },
+    { id: 12, name: '연구기획', submitted: false, fileId: null },
+    { id: 13, name: '기후환경에너지연구실', submitted: false, fileId: null }
+  ],
+  
+  // 채용 후보자 데이터 상태 (AI 검증 시나리오 반영)
+  candidates: [
+    {
+      id: 1,
+      name: '홍길동',
+      field: 'AI연구실 (부연구위원)',
+      resumeSubmitted: true,
+      evidenceCount: 3,
+      aiVerification: 'passed', // 'passed', 'warning', 'failed'
+      finalStatus: 'approved', // 'approved', 'rejected', 'pending'
+      details: {
+        academic: { resume: '홍익대학교 컴퓨터공학 박사', evidence: '홍익대학교 컴퓨터공학 박사', match: true },
+        career: { resume: '네이버 AI Lab 3년 근무', evidence: '네이버 AI Lab 3년 근무', match: true },
+        license: { resume: '정보처리기사 (2020년)', evidence: '정보처리기사 (2020년)', match: true }
+      }
+    },
+    {
+      id: 2,
+      name: '김연구',
+      field: '전략실 (연구위원)',
+      resumeSubmitted: true,
+      evidenceCount: 2,
+      aiVerification: 'warning', // 경고: 경력 기간 오차 발생
+      finalStatus: 'pending',
+      details: {
+        academic: { resume: '서울대학교 행정학 박사', evidence: '서울대학교 행정학 박사', match: true },
+        career: { resume: '한국개발연구원 5년 근무 (15.03~20.03)', evidence: '한국개발연구원 4년 9개월 근무 (15.06~20.03)', match: false, diffReason: '경력 시작월 불일치 (기재: 3월 / 증빙: 6월)' },
+        license: { resume: '없음', evidence: '없음', match: true }
+      }
+    },
+    {
+      id: 3,
+      name: '이행정',
+      field: '행정지원실 (행정원)',
+      resumeSubmitted: true,
+      evidenceCount: 1,
+      aiVerification: 'failed', // 오류: 자격증 고유 번호 불일치
+      finalStatus: 'rejected',
+      details: {
+        academic: { resume: '경기대학교 경영학 학사', evidence: '경기대학교 경영학 학사', match: true },
+        career: { resume: '행정공제회 1년 인턴', evidence: '제출된 증빙서류 없음', match: false, diffReason: '경력 증빙서류 누락' },
+        license: { resume: '컴퓨터활용능력 1급 (검증번호 20-K9-12345)', evidence: '컴퓨터활용능력 1급 (검증번호 20-K9-99999)', match: false, diffReason: '자격증 검증 번호 불일치' }
+      }
+    },
+    {
+      id: 4,
+      name: '박에너지',
+      field: '기후환경에너지연구실 (연구원)',
+      resumeSubmitted: true,
+      evidenceCount: 3,
+      aiVerification: 'passed',
+      finalStatus: 'approved',
+      details: {
+        academic: { resume: '카이스트 환경공학 석사', evidence: '카이스트 환경공학 석사', match: true },
+        career: { resume: '에너지경제연구원 2년 위촉연구원', evidence: '에너지경제연구원 2년 위촉연구원', match: true },
+        license: { resume: '대기환경기사 (2022년)', evidence: '대기환경기사 (2022년)', match: true }
+      }
+    },
+    {
+      id: 5,
+      name: '최도시',
+      field: '도시주택연구실 (부연구위원)',
+      resumeSubmitted: true,
+      evidenceCount: 0,
+      aiVerification: 'warning', // 증빙 서류 없음
+      finalStatus: 'pending',
+      details: {
+        academic: { resume: '한양대학교 도시공학 박사', evidence: '미제출', match: false, diffReason: '학위증명서 미첨부' },
+        career: { resume: 'LH연구원 1년 6개월 근무', evidence: '미제출', match: false, diffReason: '경력증명서 미첨부' },
+        license: { resume: '도시계획기사 (2018년)', evidence: '미제출', match: false, diffReason: '자격증 사본 미첨부' }
+      }
+    }
+  ],
+
+  sessions: [], // 1차 ~ 23차 데이터
+  currentSession: 23,
+  mergedPdfBytes: null,
+  previewPdfDocument: null,
+  currentPreviewPage: 1,
+  totalPreviewPages: 1,
+  previewZoom: 1.0,
+  isDarkMode: false,
+  isFileListCollapsed: false,
+  isDeptPopupOpen: false,
+  nextDeptId: 14,
+};
+
+// ==========================================================================
+// 1. 라우터 모듈 (Router)
+// ==========================================================================
+const Router = {
+  init() {
+    this.navigate(AppState.currentPage);
+  },
+
+  navigate(pageId) {
+    AppState.currentPage = pageId;
+
+    const navItems = document.querySelectorAll('#navMenu .nav-item');
+    navItems.forEach(item => {
+      item.classList.toggle('nav-item--active', item.getAttribute('data-page') === pageId);
+    });
+
+    const pages = {
+      'home': document.getElementById('page-home'),
+      'weekly-report': document.getElementById('page-weekly-report'),
+      'recruitment': document.getElementById('page-recruitment')
+    };
+    Object.keys(pages).forEach(key => {
+      if (pages[key]) pages[key].style.display = key === pageId ? 'block' : 'none';
+    });
+
+    // 세션 사이드바는 주간보고 취합 페이지에서만 표시
+    const sidebar = document.getElementById('sessionSidebar');
+    if (sidebar) sidebar.style.display = pageId === 'weekly-report' ? 'flex' : 'none';
+
+    if (pageId === 'weekly-report') {
+      UploadModule.renderFileList();
+      DeptModule.renderDeptStatus();
+    } else if (pageId === 'recruitment') {
+      RecruitModule.init();
+    }
+
+    const labels = { home: '홈', 'weekly-report': '주간보고 취합', recruitment: '채용검증' };
+    showToast('info', '화면 전환', `[${labels[pageId]}] 화면으로 이동했습니다.`);
+  }
+};
+
+// ==========================================================================
+// 2. 파일 업로드 모듈 (UploadModule)
+// ==========================================================================
+const UploadModule = {
+  init() {
+    const uploadZone = document.getElementById('uploadZone');
+    const fileInput = document.getElementById('fileInput');
+
+    if (!uploadZone || !fileInput) return;
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+      uploadZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        uploadZone.classList.add('upload-zone--dragover');
+      }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      uploadZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        uploadZone.classList.remove('upload-zone--dragover');
+      }, false);
+    });
+
+    uploadZone.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      if (files.length > 0) {
+        this.handleFiles(files);
+      }
+    }, false);
+
+    fileInput.addEventListener('change', (e) => {
+      if (fileInput.files.length > 0) {
+        this.handleFiles(fileInput.files);
+        fileInput.value = '';
+      }
+    });
+  },
+
+  async handleFiles(fileList) {
+    const newFiles = Array.from(fileList);
+    
+    document.getElementById('globalLoading').style.display = 'flex';
+    document.getElementById('globalLoadingText').innerText = '업로드된 파일명 및 본문 전체 텍스트 추출 분석 중...';
+    document.getElementById('globalProgressBar').style.display = 'block';
+    
+    const progressFill = document.getElementById('globalProgressFill');
+    progressFill.style.width = '0%';
+
+    for (let i = 0; i < newFiles.length; i++) {
+      const file = newFiles[i];
+      const percent = Math.round(((i + 1) / newFiles.length) * 100);
+      progressFill.style.width = `${percent}%`;
+
+      const ext = file.name.split('.').pop().toLowerCase();
+      if (!['pdf', 'hwp', 'hwpx'].includes(ext)) {
+        document.getElementById('globalLoading').style.display = 'none';
+        ModalModule.showModal('format_error', { fileName: file.name });
+        return;
+      }
+
+      const maxSizeBytes = 50 * 1024 * 1024;
+      if (file.size > maxSizeBytes) {
+        document.getElementById('globalLoading').style.display = 'none';
+        ModalModule.showModal('size_error', { fileName: file.name });
+        return;
+      }
+
+      const parsedDeptName = await this.analyzeFileContentAndName(file);
+      let matchedDept = AppState.departments.find(d => d.name === parsedDeptName);
+
+      if (!matchedDept) {
+        document.getElementById('globalLoading').style.display = 'none';
+        ModalModule.showModal('dept_match_error', { fileName: file.name });
+        return;
+      }
+
+      const existingFile = AppState.files.find(f => f.departmentName === matchedDept.name);
+      if (existingFile) {
+        document.getElementById('globalLoading').style.display = 'none';
+        ModalModule.showModal('replace_confirm', {
+          oldFileName: existingFile.name,
+          newFileName: file.name,
+          file: file,
+          deptName: matchedDept.name
+        });
+        return;
+      }
+
+      this.addFileToState(file, matchedDept.name, ext);
+    }
+
+    document.getElementById('globalLoading').style.display = 'none';
+    this.renderFileList();
+    DeptModule.renderDeptStatus();
+
+    const listWrapper = document.getElementById('fileListWrapper');
+    if (listWrapper) {
+      listWrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    showToast('success', '업로드 및 매칭 완료', `${newFiles.length}개의 파일 본문 분석이 완료되어 부서별로 자동 매칭되었습니다.`);
+  },
+
+  async analyzeFileContentAndName(file) {
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    const cleanName = file.name.replace(/\.[^/.]+$/, "");
+    
+    for (const dept of AppState.departments) {
+      if (cleanName.includes(dept.name)) {
+        return dept.name;
+      }
+    }
+
+    const mockContentKeywords = {
+      '전략': '전략실',
+      '인구': '인구사회연구실',
+      '감사': '감사실',
+      '산업': '산업통상연구실',
+      '모빌리티': '모빌리티연구실',
+      '교통': '모빌리티연구실',
+      '자치': '자치혁신연구실',
+      '북부': '북부발전연구실',
+      '지원': '행정지원실',
+      '도시': '도시주택연구실',
+      '주택': '도시주택연구실',
+      '의정': '경기의정연구센터',
+      'AI': 'AI연구실',
+      '인공지능': 'AI연구실',
+      '기획': '연구기획',
+      '기후': '기후환경에너지연구실',
+      '환경': '기후환경에너지연구실'
+    };
+
+    for (const [key, value] of Object.entries(mockContentKeywords)) {
+      if (cleanName.toLowerCase().includes(key.toLowerCase())) {
+        return value;
+      }
+    }
+
+    return null;
+  },
+
+  addFileToState(file, departmentName, ext) {
+    const fileId = 'file_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+
+    AppState.files.push({
+      id: fileId,
+      file: file,
+      name: file.name,
+      size: file.size,
+      type: ext,
+      departmentName: departmentName,
+      status: 'ok',
+      errors: [],
+      uploadedAt: new Date().toISOString(),
+      replacedAt: null
+    });
+
+    const dept = AppState.departments.find(d => d.name === departmentName);
+    if (dept) {
+      dept.submitted = true;
+      dept.fileId = fileId;
+    }
+
+    this.saveFilesToLocalStorage();
+  },
+
+  replaceFile(file, departmentName) {
+    const oldFileIndex = AppState.files.findIndex(f => f.departmentName === departmentName);
+    if (oldFileIndex > -1) {
+      AppState.files.splice(oldFileIndex, 1);
+    }
+
+    const ext = file.name.split('.').pop().toLowerCase();
+    this.addFileToState(file, departmentName, ext);
+
+    // 교체 시각 별도 기록
+    const newFile = AppState.files.find(f => f.departmentName === departmentName);
+    if (newFile) newFile.replacedAt = new Date().toISOString();
+
+    this.renderFileList();
+    DeptModule.renderDeptStatus();
+    showToast('success', '파일 교체 완료', `[${departmentName}] 파일이 교체되었습니다.`);
+  },
+
+  removeFile(fileId) {
+    const fileIndex = AppState.files.findIndex(f => f.id === fileId);
+    if (fileIndex > -1) {
+      const deptName = AppState.files[fileIndex].departmentName;
+      AppState.files.splice(fileIndex, 1);
+
+      const dept = AppState.departments.find(d => d.name === deptName);
+      if (dept) {
+        dept.submitted = false;
+        dept.fileId = null;
+      }
+
+      this.saveFilesToLocalStorage();
+      this.renderFileList();
+      DeptModule.renderDeptStatus();
+      showToast('warning', '파일 삭제', `부서 [${deptName}]의 파일이 삭제되었습니다.`);
+    }
+  },
+
+  clearAllFiles() {
+    if (AppState.files.length === 0) return;
+
+    if (confirm('등록된 모든 주간보고 파일을 일괄 삭제하시겠습니까?')) {
+      AppState.files = [];
+      AppState.departments.forEach(dept => {
+        dept.submitted = false;
+        dept.fileId = null;
+      });
+
+      this.saveFilesToLocalStorage();
+      this.renderFileList();
+      DeptModule.renderDeptStatus();
+      showToast('error', '전체 파일 제거', '모든 제출 파일이 일괄 제거되었습니다.');
+    }
+  },
+
+  reassignDepartment(fileId, newDeptName) {
+    const fileData = AppState.files.find(f => f.id === fileId);
+    if (!fileData) return;
+
+    const oldDeptName = fileData.departmentName;
+    if (oldDeptName === newDeptName) return;
+
+    const conflict = AppState.files.find(f => f.departmentName === newDeptName && f.id !== fileId);
+    if (conflict) {
+      showToast('error', '부서 재지정 불가', `이미 [${newDeptName}] 부서의 파일이 존재합니다.`);
+      this.renderFileList();
+      return;
+    }
+
+    const oldDept = AppState.departments.find(d => d.name === oldDeptName);
+    if (oldDept) {
+      oldDept.submitted = false;
+      oldDept.fileId = null;
+    }
+
+    const newDept = AppState.departments.find(d => d.name === newDeptName);
+    if (newDept) {
+      newDept.submitted = true;
+      newDept.fileId = fileId;
+    }
+
+    fileData.departmentName = newDeptName;
+    this.saveFilesToLocalStorage();
+    
+    DeptModule.renderDeptStatus();
+    this.renderFileList();
+    showToast('success', '부서 수동 재지정', `파일의 연결 부서가 [${newDeptName}](으)로 변경되었습니다.`);
+  },
+
+  downloadFile(fileId) {
+    const fileData = AppState.files.find(f => f.id === fileId);
+    if (!fileData) return;
+
+    const blob = fileData.file.size > 0 ? fileData.file : new Blob(["가상 문서 구조"], { type: 'application/octet-stream' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileData.name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('success', '다운로드 완료', `부서 파일 [${fileData.name}] 다운로드가 시작되었습니다.`);
+  },
+
+  renderFileList() {
+    const fileListWrapper = document.getElementById('fileListWrapper');
+    const fileList = document.getElementById('fileList');
+    const fileCount = document.getElementById('fileCount');
+    const statTotalFiles = document.getElementById('statTotalFiles');
+
+    if (!fileListWrapper || !fileList) return;
+
+    const emptyState = document.getElementById('fileEmptyState');
+    if (fileCount) fileCount.innerText = AppState.files.length > 0 ? `${AppState.files.length}개` : '0개';
+    if (statTotalFiles) statTotalFiles.innerText = AppState.files.length;
+    fileList.innerHTML = '';
+    if (AppState.files.length === 0) {
+      fileListWrapper.style.display = 'none';
+      if (emptyState) emptyState.style.display = 'flex';
+      return;
+    }
+    fileListWrapper.style.display = 'block';
+    if (emptyState) emptyState.style.display = 'none';
+
+    AppState.files.forEach(fileData => {
+      const sizeStr = formatFileSize(fileData.size);
+      const fileTypeClass = `file-chip--${fileData.type}`;
+
+      const fileChip = document.createElement('div');
+      fileChip.className = `file-chip ${fileTypeClass} ${fileData.status === 'error' ? 'file-chip--error' : ''}`;
+      fileChip.innerHTML = `
+        <div class="file-chip__icon">${fileData.type.toUpperCase()}</div>
+        <div class="file-chip__info">
+          <span class="file-chip__name" title="${fileData.name}">${fileData.name}</span>
+          <span class="file-chip__meta">
+            <span class="file-chip__dept-badge">${fileData.departmentName}</span>
+            <span>${sizeStr}</span>
+          </span>
+        </div>
+        <div class="file-chip__actions">
+          <button class="file-chip__btn file-chip__btn--download" onclick="UploadModule.downloadFile('${fileData.id}')" title="다운로드">
+            <i data-lucide="download" style="width:14px;height:14px"></i>
+          </button>
+          <button class="file-chip__btn file-chip__btn--remove" onclick="UploadModule.removeFile('${fileData.id}')" title="삭제">
+            <i data-lucide="trash-2" style="width:14px;height:14px"></i>
+          </button>
+        </div>
+      `;
+      fileList.appendChild(fileChip);
+    });
+
+    lucide.createIcons();
+  },
+
+  toggleFileList() {
+    const fileListWrapper = document.getElementById('fileListWrapper');
+    if (!fileListWrapper) return;
+    
+    fileListWrapper.classList.toggle('file-list-wrapper--collapsed');
+  },
+
+  saveFilesToLocalStorage() {
+    const fileMeta = AppState.files.map(f => ({
+      id: f.id,
+      name: f.name,
+      size: f.size,
+      type: f.type,
+      departmentName: f.departmentName,
+      status: f.status
+    }));
+    localStorage.setItem('gri_uploaded_files_meta', JSON.stringify(fileMeta));
+  }
+};
+
+// ==========================================================================
+// 3. 부서 관리 모듈 (DeptModule)
+// ==========================================================================
+const DeptModule = {
+  // 기존 팝업 방식 제거 — 인라인 패널로 통합
+  openPopup() { /* no-op: dept panel is always visible inline */ },
+  closePopup() { /* no-op */ },
+
+  renderDeptStatus() {
+    const totalDepts = AppState.departments.length;
+    const submittedCount = AppState.departments.filter(d => d.submitted).length;
+    const missingCount = totalDepts - submittedCount;
+    const pct = totalDepts > 0 ? Math.round((submittedCount / totalDepts) * 100) : 0;
+
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
+    set('deptSubmittedCount', submittedCount);
+    set('deptMissingCount', missingCount);
+    set('deptTotalCount', totalDepts);
+    set('statPendingDepts', missingCount);
+    set('statTotalDepts', totalDepts);
+
+    const fill = document.getElementById('deptProgressFill');
+    if (fill) fill.style.width = `${pct}%`;
+
+    this.renderDeptList();
+  },
+
+  renderDeptList() {
+    const deptList = document.getElementById('deptList');
+    if (!deptList) return;
+
+    const existingForm = document.getElementById('deptAddForm');
+    deptList.innerHTML = '';
+
+    const sorted = [...AppState.departments].sort((a, b) => (a.submitted ? 1 : 0) - (b.submitted ? 1 : 0));
+
+    sorted.forEach((dept, index) => {
+      const matchedFile = AppState.files.find(f => f.id === dept.fileId);
+      const row = document.createElement('div');
+      row.className = `dept-row ${dept.submitted ? 'dept-row--submitted' : 'dept-row--missing'}`;
+
+      let subHtml = '';
+      if (dept.submitted && matchedFile) {
+        const isReplaced = !!matchedFile.replacedAt;
+        const timeStr = isReplaced
+          ? '교체 ' + formatUploadTime(matchedFile.replacedAt)
+          : formatUploadTime(matchedFile.uploadedAt);
+        subHtml = `
+          <div class="dept-row-file" title="${matchedFile.name}">${matchedFile.name}</div>
+          <div class="dept-row-time">${timeStr}</div>
+        `;
+      } else {
+        subHtml = `<div class="dept-row-placeholder"></div>`;
+      }
+
+      row.innerHTML = `
+        <div class="dept-row-left">
+          <span class="dept-row-dot"></span>
+          <div class="dept-row-info">
+            <span class="dept-row-name">${dept.name}</span>
+            ${subHtml}
+          </div>
+        </div>
+        <div class="dept-row-right">
+          <span class="dept-row-badge ${dept.submitted ? 'dept-row-badge--ok' : 'dept-row-badge--missing'}">
+            ${dept.submitted ? '제출완료' : '미제출'}
+          </span>
+          <div class="dept-row-actions">
+            <button onclick="${dept.submitted ? `UploadModule.downloadFile('${dept.fileId}')` : ''}" title="다운로드" style="${dept.submitted ? '' : 'visibility:hidden;pointer-events:none;'}"><i data-lucide="download" style="width:11px;height:11px"></i></button>
+            <button onclick="DeptModule.editDepartment(${dept.id})" title="수정"><i data-lucide="edit-3" style="width:11px;height:11px"></i></button>
+            <button onclick="DeptModule.deleteDepartment(${dept.id})" title="삭제"><i data-lucide="trash-2" style="width:11px;height:11px"></i></button>
+          </div>
+        </div>
+      `;
+      deptList.appendChild(row);
+    });
+
+    if (existingForm) deptList.appendChild(existingForm);
+    lucide.createIcons();
+  },
+
+  addDepartment() {
+    const deptList = document.getElementById('deptList');
+    if (!deptList) return;
+
+    if (document.getElementById('deptAddForm')) return;
+
+    const addForm = document.createElement('div');
+    addForm.className = 'dept-add-form animate-in';
+    addForm.id = 'deptAddForm';
+    addForm.innerHTML = `
+      <input type="text" class="dept-add-input" id="newDeptNameInput" placeholder="부서명을 입력하세요 (예: 전략기획실)" focus>
+      <div class="dept-add-form-actions">
+        <button class="btn btn--sm btn--secondary" onclick="DeptModule.cancelAdd()">취소</button>
+        <button class="btn btn--sm btn--primary" onclick="DeptModule.saveNewDepartment()">추가</button>
+      </div>
+    `;
+
+    deptList.appendChild(addForm);
+    document.getElementById('newDeptNameInput').focus();
+  },
+
+  cancelAdd() {
+    const form = document.getElementById('deptAddForm');
+    if (form) form.remove();
+  },
+
+  saveNewDepartment() {
+    const input = document.getElementById('newDeptNameInput');
+    if (!input) return;
+
+    const name = input.value.trim();
+    if (!name) {
+      showToast('error', '부서 등록 실패', '부서명을 입력해주세요.');
+      return;
+    }
+
+    if (AppState.departments.some(d => d.name === name)) {
+      showToast('error', '부서 중복', '이미 존재하는 부서명입니다.');
+      return;
+    }
+
+    const newDept = {
+      id: AppState.nextDeptId++,
+      name: name,
+      submitted: false,
+      fileId: null
+    };
+
+    AppState.departments.push(newDept);
+    this.cancelAdd();
+    this.renderDeptList();
+    this.renderDeptStatus();
+    showToast('success', '부서 추가 완료', `신규 부서 [${name}]가 추가되어 넘버링되었습니다.`);
+  },
+
+  editDepartment(deptId) {
+    const dept = AppState.departments.find(d => d.id === deptId);
+    if (!dept) return;
+
+    const newName = prompt('수정할 부서명을 입력하세요:', dept.name);
+    if (newName === null) return;
+
+    const cleanNewName = newName.trim();
+    if (!cleanNewName) {
+      showToast('error', '부서 수정 실패', '부서명이 공백일 수 없습니다.');
+      return;
+    }
+
+    if (AppState.departments.some(d => d.name === cleanNewName && d.id !== deptId)) {
+      showToast('error', '부서 중복', '이미 존재하는 부서명입니다.');
+      return;
+    }
+
+    const oldName = dept.name;
+    dept.name = cleanNewName;
+
+    AppState.files.forEach(file => {
+      if (file.departmentName === oldName) {
+        file.departmentName = cleanNewName;
+      }
+    });
+
+    this.renderDeptList();
+    UploadModule.renderFileList();
+    showToast('success', '부서명 수정', `부서명이 [${oldName}]에서 [${cleanNewName}]으로 변경되었습니다.`);
+  },
+
+  deleteDepartment(deptId) {
+    const dept = AppState.departments.find(d => d.id === deptId);
+    if (!dept) return;
+
+    ModalModule.showModal('delete_confirm', {
+      deptId: deptId,
+      deptName: dept.name
+    });
+  },
+
+  confirmDelete(deptId) {
+    const deptIndex = AppState.departments.findIndex(d => d.id === deptId);
+    if (deptIndex > -1) {
+      const deptName = AppState.departments[deptIndex].name;
+      const fileId = AppState.departments[deptIndex].fileId;
+
+      AppState.departments.splice(deptIndex, 1);
+
+      if (fileId) {
+        const fileIndex = AppState.files.findIndex(f => f.id === fileId);
+        if (fileIndex > -1) {
+          AppState.files.splice(fileIndex, 1);
+        }
+      }
+
+      this.renderDeptList();
+      this.renderDeptStatus();
+      UploadModule.renderFileList();
+      showToast('warning', '부서 삭제 완료', `부서 [${deptName}]가 삭제되었습니다.`);
+    }
+  }
+};
+
+// ==========================================================================
+// 4. PDF 병합 모듈 (MergerModule)
+// ==========================================================================
+const MergerModule = {
+  async merge() {
+    if (AppState.files.length === 0) {
+      ModalModule.showModal('no_files');
+      return;
+    }
+
+    const missingDepts = AppState.departments.filter(d => !d.submitted);
+    if (missingDepts.length > 0) {
+      const missingNames = missingDepts.map(d => d.name);
+      ModalModule.showModal('missing_depts', { missingNames: missingNames });
+      return;
+    }
+
+    await this.executeMerge();
+  },
+
+  async executeMerge() {
+    document.getElementById('globalLoading').style.display = 'flex';
+    document.getElementById('globalLoadingText').innerText = '부서별 주간보고 자료를 추출 및 통합하여 HWP 포맷을 연계 변환 중...';
+    document.getElementById('globalProgressBar').style.display = 'block';
+    
+    const progressFill = document.getElementById('globalProgressFill');
+    progressFill.style.width = '0%';
+
+    try {
+      for (let i = 0; i < 40; i++) {
+        await new Promise(r => setTimeout(r, 15));
+        progressFill.style.width = `${i}%`;
+      }
+
+      const mergedPdf = await PDFLib.PDFDocument.create();
+
+      for (let i = 0; i < AppState.files.length; i++) {
+        const fileData = AppState.files[i];
+        progressFill.style.width = `${40 + Math.round((i / AppState.files.length) * 40)}%`;
+
+        if (fileData.type === 'pdf') {
+          const arrayBuffer = await fileData.file.arrayBuffer();
+          const srcPdf = await PDFLib.PDFDocument.load(arrayBuffer);
+          const copiedPages = await mergedPdf.copyPages(srcPdf, srcPdf.getPageIndices());
+          copiedPages.forEach((page) => mergedPdf.addPage(page));
+        } else {
+          const dummyPage = mergedPdf.addPage([595.276, 841.89]);
+        }
+      }
+
+      if (mergedPdf.getPageCount() === 0) {
+        mergedPdf.addPage([595.276, 841.89]);
+      }
+
+      progressFill.style.width = '95%';
+      
+      const mergedPdfBytes = await mergedPdf.save();
+      AppState.mergedPdfBytes = mergedPdfBytes;
+
+      progressFill.style.width = '100%';
+      await new Promise(r => setTimeout(r, 200));
+
+      document.getElementById('globalLoading').style.display = 'none';
+
+      document.getElementById('downloadPdfBtn').removeAttribute('disabled');
+      document.getElementById('downloadHwpxBtn').removeAttribute('disabled');
+
+      // 미리보기 버튼 표시
+      const previewBtn = document.getElementById('previewOpenBtn');
+      if (previewBtn) previewBtn.style.display = 'inline-flex';
+
+      showToast('success', '병합 성공', '모든 부서의 파일들이 HWPX 기준 통합 문서로 병합 완료되었습니다. 미리보기를 확인하세요.');
+
+      PreviewModule.openPreview(mergedPdfBytes);
+
+    } catch (error) {
+      console.error(error);
+      document.getElementById('globalLoading').style.display = 'none';
+      ModalModule.showModal('upload_failed', { fileName: '취합 전체자료' });
+    }
+  },
+
+  downloadPdf() {
+    if (!AppState.mergedPdfBytes) return;
+
+    const blob = new Blob([AppState.mergedPdfBytes], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `[취합 완료] 제${AppState.currentSession}차 주간점검회의자료.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    showToast('success', 'PDF 다운로드', '통합 보고서 PDF 다운로드가 완료되었습니다.');
+  },
+
+  downloadHwpx() {
+    showToast('success', 'HWPX 다운로드 완료', `[최종] 제${AppState.currentSession}차 주간점검회의자료.hwpx 가 성공적으로 저장되었습니다.`);
+  }
+};
+
+// ==========================================================================
+// 5. 병합 미리보기 모듈 (PreviewModule) — 팝업 모달 방식
+// ==========================================================================
+const PreviewModule = {
+  async openPreview(pdfBytes) {
+    // 모달 열기
+    const overlay = document.getElementById('previewModalOverlay');
+    if (overlay) overlay.classList.add('preview-modal-overlay--open');
+
+    // 액션바 미리보기 버튼 표시
+    const previewBtn = document.getElementById('previewOpenBtn');
+    if (previewBtn) previewBtn.style.display = 'inline-flex';
+
+    document.getElementById('globalLoading').style.display = 'flex';
+    document.getElementById('globalLoadingText').innerText = '미리보기 렌더링 중...';
+    document.getElementById('globalProgressBar').style.display = 'none';
+
+    try {
+      const loadingTask = pdfjsLib.getDocument({ data: pdfBytes });
+      const pdf = await loadingTask.promise;
+
+      AppState.previewPdfDocument = pdf;
+      AppState.totalPreviewPages = pdf.numPages;
+      AppState.currentPreviewPage = 1;
+
+      document.getElementById('previewPageTotal').innerText = pdf.numPages;
+      await this.renderPage(1);
+      document.getElementById('globalLoading').style.display = 'none';
+    } catch (e) {
+      console.error(e);
+      document.getElementById('globalLoading').style.display = 'none';
+      showToast('error', '렌더링 실패', '미리보기 렌더링 도중 오류가 발생했습니다.');
+    }
+  },
+
+  openPreviewModal() {
+    const overlay = document.getElementById('previewModalOverlay');
+    if (overlay) overlay.classList.add('preview-modal-overlay--open');
+    if (AppState.previewPdfDocument) {
+      this.renderPage(AppState.currentPreviewPage);
+    }
+  },
+
+  handleOverlayClick(e) {
+    if (e.target && e.target.id === 'previewModalOverlay') {
+      this.closePreview();
+    }
+  },
+
+  async renderPage(pageNum) {
+    if (!AppState.previewPdfDocument) return;
+
+    const container = document.getElementById('previewCanvas');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    try {
+      const page = await AppState.previewPdfDocument.getPage(pageNum);
+      
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      const viewport = page.getViewport({ scale: AppState.previewZoom });
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+
+      const pageContainer = document.createElement('div');
+      pageContainer.className = 'pdf-page-container';
+      pageContainer.style.width = `${viewport.width}px`;
+      pageContainer.style.height = `${viewport.height}px`;
+      pageContainer.appendChild(canvas);
+
+      const textOverlay = document.createElement('div');
+      textOverlay.className = 'editor-text-overlay';
+      
+      textOverlay.innerHTML = `
+        <div class="editor-page-content" contenteditable="true" spellcheck="false" style="padding: 60px 50px; line-height: 1.6;">
+          <h2 style="text-align: center; font-size: 22px; margin-bottom: 24px; font-weight: 800; font-family: '함초롬바탕', serif;">
+            제${AppState.currentSession}차 주간업무보고 취합본
+          </h2>
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px;">
+            <tr style="background-color: var(--gri-bg); font-weight: bold;">
+              <th style="border: 1px solid var(--gri-border); padding: 8px; text-align: center;">실/부서명</th>
+              <th style="border: 1px solid var(--gri-border); padding: 8px; text-align: center;">주요 추진 업무</th>
+              <th style="border: 1px solid var(--gri-border); padding: 8px; text-align: center;">검토 결과</th>
+            </tr>
+            <tr>
+              <td style="border: 1px solid var(--gri-border); padding: 8px; text-align: center; font-weight: bold;">전략실</td>
+              <td style="border: 1px solid var(--gri-border); padding: 8px;">경기연구원 2026 중장기 발전계획 수립 및 정책 수립 세션 조율</td>
+              <td style="border: 1px solid var(--gri-border); padding: 8px; text-align: center; color: var(--gri-success); font-weight: bold;">제출완료</td>
+            </tr>
+            <tr>
+              <td style="border: 1px solid var(--gri-border); padding: 8px; text-align: center; font-weight: bold;">도시주택연구실</td>
+              <td style="border: 1px solid var(--gri-border); padding: 8px;">3기 신도시 광역교통체계 편익 분석 및 공간 구조 재편 전략 제언</td>
+              <td style="border: 1px solid var(--gri-border); padding: 8px; text-align: center; color: var(--gri-success); font-weight: bold;">제출완료</td>
+            </tr>
+            <tr>
+              <td style="border: 1px solid var(--gri-border); padding: 8px; text-align: center; font-weight: bold;">AI연구실</td>
+              <td style="border: 1px solid var(--gri-border); padding: 8px;">행정 AI 파이프라인 PoC 모델 구조 검토 및 도정 자동화 로드맵 발표</td>
+              <td style="border: 1px solid var(--gri-border); padding: 8px; text-align: center; color: var(--gri-success); font-weight: bold;">제출완료</td>
+            </tr>
+          </table>
+          <p style="font-size: 13px; font-family: '함초롬바탕', serif; text-indent: 10px;">
+            위 부서별 취합 결과보고서를 근거로 다음 주간점검회의 아젠다를 상정하고자 합니다. 기타 상세 개별 연구과제 추진실적은 개별 부서 자료(HWPX) 원본을 참고하여 주시기 바랍니다.
+          </p>
+        </div>
+      `;
+      pageContainer.appendChild(textOverlay);
+      container.appendChild(pageContainer);
+
+      const renderContext = {
+        canvasContext: ctx,
+        viewport: viewport
+      };
+
+      await page.render(renderContext).promise;
+
+      document.getElementById('previewPageNum').innerText = pageNum;
+      document.getElementById('prevPageBtn').disabled = (pageNum <= 1);
+      document.getElementById('nextPageBtn').disabled = (pageNum >= AppState.totalPreviewPages);
+
+    } catch (error) {
+      console.error('Page rendering error:', error);
+    }
+  },
+
+  async nextPage() {
+    if (AppState.currentPreviewPage < AppState.totalPreviewPages) {
+      AppState.currentPreviewPage++;
+      await this.renderPage(AppState.currentPreviewPage);
+    }
+  },
+
+  async prevPage() {
+    if (AppState.currentPreviewPage > 1) {
+      AppState.currentPreviewPage--;
+      await this.renderPage(AppState.currentPreviewPage);
+    }
+  },
+
+  async zoomIn() {
+    AppState.previewZoom += 0.15;
+    if (AppState.previewZoom > 2.0) AppState.previewZoom = 2.0;
+    await this.renderPage(AppState.currentPreviewPage);
+  },
+
+  async zoomOut() {
+    AppState.previewZoom -= 0.15;
+    if (AppState.previewZoom < 0.6) AppState.previewZoom = 0.6;
+    await this.renderPage(AppState.currentPreviewPage);
+  },
+
+  closePreview() {
+    const overlay = document.getElementById('previewModalOverlay');
+    if (overlay) overlay.classList.remove('preview-modal-overlay--open');
+    showToast('info', '미리보기 닫힘', '미리보기 팝업을 닫았습니다.');
+  }
+};
+
+// ==========================================================================
+// 6. 편집 기능 모듈 (EditorModule)
+// ==========================================================================
+const EditorModule = {
+  toolAction(actionType) {
+    showToast('info', '한글 서식 적용', `[${actionType}] 속성이 선택된 블록/단락 영역에 실시간 연계 적용되었습니다.`);
+  },
+
+  saveAction() {
+    ModalModule.showModal('save_complete_double_download');
+  }
+};
+
+// ==========================================================================
+// 6-2. 채용검증 비즈니스 모듈 (RecruitModule) 신설 구성
+// ==========================================================================
+const RecruitModule = {
+  init() {
+    this.renderCandidateList();
+    this.updateStats();
+  },
+
+  updateStats() {
+    const total = AppState.candidates.length;
+    const passed = AppState.candidates.filter(c => c.finalStatus === 'approved').length;
+    const failed = AppState.candidates.filter(c => c.finalStatus === 'rejected').length;
+    const warning = AppState.candidates.filter(c => c.aiVerification === 'warning' || c.aiVerification === 'failed').length;
+
+    document.getElementById('statRecruitTotal').innerText = total;
+    document.getElementById('statRecruitPassed').innerText = passed;
+    document.getElementById('statRecruitWarning').innerText = warning;
+    document.getElementById('statRecruitFailed').innerText = failed;
+  },
+
+  renderCandidateList() {
+    const tbody = document.getElementById('candidateListBody');
+    if (!tbody) return;
+
+    tbody.innerHTML = '';
+    AppState.candidates.forEach((cand, idx) => {
+      // AI 검증 결과 뱃지 매핑
+      let aiBadge = '';
+      if (cand.aiVerification === 'passed') {
+        aiBadge = '<span class="badge badge--success">일치 ✅</span>';
+      } else if (cand.aiVerification === 'warning') {
+        aiBadge = '<span class="badge badge--warning">확인필요 ⚠️</span>';
+      } else {
+        aiBadge = '<span class="badge badge--danger">불일치 ❌</span>';
+      }
+
+      // 최종 상태 매핑
+      let statusBadge = '';
+      if (cand.finalStatus === 'approved') {
+        statusBadge = '<span class="badge badge--success">승인됨</span>';
+      } else if (cand.finalStatus === 'rejected') {
+        statusBadge = '<span class="badge badge--danger">반려됨</span>';
+      } else {
+        statusBadge = '<span class="badge badge--info">대기중</span>';
+      }
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="padding:14px 16px; font-size:0.85rem; font-weight:700;">${idx + 1}</td>
+        <td style="padding:14px 16px; font-size:0.85rem; font-weight:700; color:var(--gri-primary);">${cand.name}</td>
+        <td style="padding:14px 16px; font-size:0.85rem; color:var(--gri-text-secondary);">${cand.field}</td>
+        <td style="padding:14px 16px; font-size:0.85rem;">
+          ${cand.resumeSubmitted ? '제출 완료' : '<span style="color:var(--gri-error)">미제출</span>'}
+        </td>
+        <td style="padding:14px 16px; font-size:0.85rem; font-weight:700; text-align:center;">
+          ${cand.evidenceCount > 0 ? `${cand.evidenceCount}개` : '<span style="color:var(--gri-error)">0개 (누락)</span>'}
+        </td>
+        <td style="padding:14px 16px; font-size:0.85rem;">${aiBadge}</td>
+        <td style="padding:14px 16px; font-size:0.85rem;">${statusBadge}</td>
+        <td style="padding:14px 16px; font-size:0.85rem; text-align:right;">
+          <button class="btn btn--secondary btn--sm" onclick="RecruitModule.openVerifyDetail(${cand.id})">
+            AI 자격 검증 대조
+          </button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  },
+
+  openVerifyDetail(candId) {
+    const cand = AppState.candidates.find(c => c.id === candId);
+    if (!cand) return;
+
+    // AI 검증 상세 대조 전용 가상 팝업 오버레이 빌드
+    const overlay = document.getElementById('modalOverlay');
+    const content = document.getElementById('modalContent');
+    if (!overlay || !content) return;
+
+    overlay.classList.add('modal-overlay--active');
+    
+    // 모달을 대형 가로형태로 임시 전환
+    content.style.maxWidth = '900px';
+
+    let detailsHtml = '';
+    
+    const renderRow = (title, dataKey) => {
+      const item = cand.details[dataKey];
+      const matchBadge = item.match 
+        ? '<span class="verify-highlight-match">일치</span>' 
+        : `<span class="verify-highlight-diff" title="${item.diffReason}">불일치 (경고)</span>`;
+      
+      return `
+        <tr>
+          <td style="font-weight:700; width:15%; background:var(--gri-border-light); border:1px solid var(--gri-border); padding:10px;">${title}</td>
+          <td style="border:1px solid var(--gri-border); padding:10px;">${item.resume}</td>
+          <td style="border:1px solid var(--gri-border); padding:10px; font-weight:600;">${item.evidence}</td>
+          <td style="border:1px solid var(--gri-border); padding:10px; text-align:center;">${matchBadge}</td>
+        </tr>
+      `;
+    };
+
+    html = `
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--gri-primary); padding-bottom:12px; margin-bottom:16px;">
+        <h3 style="font-size:1.2rem; font-weight:800; color:var(--gri-primary);">
+          [지원자 ${cand.name}] 증빙서류 AI OCR 정밀 대조 검증
+        </h3>
+        <button class="btn btn--ghost btn--sm" onclick="RecruitModule.closeVerifyDetail()" style="padding:4px;"><i data-lucide="x"></i></button>
+      </div>
+
+      <div style="font-size:0.9rem; color:var(--gri-text-secondary); margin-bottom:16px; display:flex; gap:16px;">
+        <span><strong>지원 부서:</strong> ${cand.field}</span>
+        <span><strong>제출 서류:</strong> 이력서 1부, 증빙 서류 ${cand.evidenceCount}부</span>
+      </div>
+
+      <div style="max-height:450px; overflow-y:auto; margin-bottom:20px;">
+        <table class="verify-table" style="width:100%; border-collapse:collapse;">
+          <thead>
+            <tr style="background-color:var(--gri-primary); color:white;">
+              <th style="padding:10px; border:1px solid var(--gri-border); text-align:left;">구분</th>
+              <th style="padding:10px; border:1px solid var(--gri-border); text-align:left;">지원서 기재 사항</th>
+              <th style="padding:10px; border:1px solid var(--gri-border); text-align:left;">증빙서류 추출 텍스트 (AI OCR)</th>
+              <th style="padding:10px; border:1px solid var(--gri-border); text-align:center; width:15%;">대조 상태</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${renderRow('학력 사항', 'academic')}
+            ${renderRow('경력 사항', 'career')}
+            ${renderRow('자격증', 'license')}
+          </tbody>
+        </table>
+
+        ${cand.aiVerification !== 'passed' ? `
+          <div style="background-color:rgba(239,68,68,0.05); border:1px dashed var(--gri-error); border-radius:8px; padding:12px; margin-top:16px; color:var(--gri-error); font-size:0.85rem; display:flex; align-items:center; gap:8px;">
+            <i data-lucide="alert-triangle" style="width:18px;height:18px;"></i>
+            <span><strong>자동 검출된 이상 징후:</strong> ${cand.details.career.diffReason || cand.details.license.diffReason || '학위 서류 미첨부'}</span>
+          </div>
+        ` : `
+          <div style="background-color:rgba(16,185,129,0.05); border:1px dashed var(--gri-success); border-radius:8px; padding:12px; margin-top:16px; color:var(--gri-success); font-size:0.85rem; display:flex; align-items:center; gap:8px;">
+            <i data-lucide="check-circle" style="width:18px;height:18px;"></i>
+            <span><strong>자동 검증 결과:</strong> 기재 사항과 원본 증빙서류의 모든 메타데이터가 100% 일치합니다.</span>
+          </div>
+        `}
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--gri-border); padding-top:16px;">
+        <button class="btn btn--secondary" onclick="RecruitModule.downloadReport('${cand.name}')">
+          <i data-lucide="printer" style="width:16px;height:16px;"></i> 자격 검증 보고서 출력 (PDF)
+        </button>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn--danger" onclick="RecruitModule.setFinalDecision(${cand.id}, 'rejected')">
+            검증 반려
+          </button>
+          <button class="btn btn--primary" onclick="RecruitModule.setFinalDecision(${cand.id}, 'approved')">
+            최종 승인
+          </button>
+        </div>
+      </div>
+    `;
+
+    content.innerHTML = html;
+    lucide.createIcons();
+  },
+
+  closeVerifyDetail() {
+    const overlay = document.getElementById('modalOverlay');
+    const content = document.getElementById('modalContent');
+    if (overlay && content) {
+      overlay.classList.remove('modal-overlay--active');
+      content.style.maxWidth = '460px'; // 기존 폭 규격 원복
+    }
+  },
+
+  setFinalDecision(candId, status) {
+    const cand = AppState.candidates.find(c => c.id === candId);
+    if (cand) {
+      cand.finalStatus = status;
+      this.closeVerifyDetail();
+      this.renderCandidateList();
+      this.updateStats();
+      showToast(status === 'approved' ? 'success' : 'error', '상태 결정 완료', `후보자 [${cand.name}]의 상태가 [${status === 'approved' ? '승인' : '반려'}]으로 확정되었습니다.`);
+    }
+  },
+
+  downloadReport(name) {
+    showToast('success', '보고서 생성', `[${name}_자격검증보고서.pdf] 파일이 빌드되어 브라우저에 임시 다운로드 되었습니다.`);
+  },
+
+  resetAllCandidates() {
+    if (confirm('지원자 데이터를 초기 사양으로 리셋하시겠습니까?')) {
+      AppState.candidates[1].finalStatus = 'pending';
+      AppState.candidates[2].finalStatus = 'pending';
+      AppState.candidates[4].finalStatus = 'pending';
+      this.renderCandidateList();
+      this.updateStats();
+      showToast('info', '데이터 리셋 완료', '지원자 자격 대조 목록이 초기 상태로 복구되었습니다.');
+    }
+  }
+};
+
+// ==========================================================================
+// 7. 모달 관리 모듈 (ModalModule)
+// ==========================================================================
+const ModalModule = {
+  showModal(type, data = {}) {
+    const overlay = document.getElementById('modalOverlay');
+    const content = document.getElementById('modalContent');
+    if (!overlay || !content) return;
+
+    overlay.classList.add('modal-overlay--active');
+
+    let html = '';
+
+    switch (type) {
+      case 'no_files':
+        html = `
+          <div class="modal__icon modal__icon--warning">
+            <i data-lucide="alert-triangle"></i>
+          </div>
+          <h3 class="modal__title">파일 미첨부</h3>
+          <p class="modal__message">파일이 첨부되지 않았습니다.<br>하나 이상의 PDF, HWP, HWPX 파일을 업로드한 후에 병합을 진행해주세요.</p>
+          <div class="modal__actions">
+            <button class="btn btn--primary" onclick="ModalModule.closeModal()">확인</button>
+          </div>
+        `;
+        break;
+
+      case 'format_error':
+        html = `
+          <div class="modal__icon modal__icon--warning">
+            <i data-lucide="file-warning"></i>
+          </div>
+          <h3 class="modal__title">파일 형식 오류</h3>
+          <p class="modal__message">PDF, HWP, HWPX 파일만 첨부 가능합니다.<br>(.jpg, .png 등 이미지 파일이나 타 폴더 구조는 업로드할 수 없습니다.)</p>
+          <div class="modal__actions">
+            <button class="btn btn--primary" onclick="ModalModule.closeModal()">확인</button>
+          </div>
+        `;
+        break;
+
+      case 'size_error':
+        html = `
+          <div class="modal__icon modal__icon--warning">
+            <i data-lucide="hard-drive"></i>
+          </div>
+          <h3 class="modal__title">파일 용량 제한 초과</h3>
+          <p class="modal__message">업로드 하신 파일 [${data.fileName}]의 용량이 초과되었습니다.<br>안정적 취합을 위해 파일 크기는 50MB 이하로 나눠서 올려주세요.</p>
+          <div class="modal__actions">
+            <button class="btn btn--primary" onclick="ModalModule.closeModal()">확인</button>
+          </div>
+        `;
+        break;
+
+      case 'replace_confirm':
+        html = `
+          <div class="modal__icon modal__icon--question">
+            <i data-lucide="help-circle"></i>
+          </div>
+          <h3 class="modal__title">부서 중복 파일 발생</h3>
+          <p class="modal__message">해당 부서에 이미 등록된 파일이 존재합니다.<br>기존 제출 자료를 [${data.newFileName}] 파일로 교체할까요?</p>
+          <div class="modal__actions">
+            <button class="btn btn--secondary" onclick="ModalModule.closeModal()">아니오 (유지)</button>
+            <button class="btn btn--primary" id="confirmReplaceBtn">네 (교체)</button>
+          </div>
+        `;
+        break;
+
+      case 'missing_depts':
+        html = `
+          <div class="modal__icon modal__icon--question">
+            <i data-lucide="help-circle"></i>
+          </div>
+          <h3 class="modal__title">미제출 부서 존재 경고</h3>
+          <p class="modal__message">아직 파일 업로드가 완료되지 않은 부서가 존재합니다.<br>이대로 진행할까요?</p>
+          <div class="modal__example" style="font-size:0.8rem; text-align:left; max-height:80px; overflow-y:auto;">
+            ${data.missingNames.join('<br>')}
+          </div>
+          <div class="modal__actions">
+            <button class="btn btn--secondary" onclick="ModalModule.closeModal()">취소</button>
+            <button class="btn btn--primary" id="confirmMergeBtn">이대로 병합 진행</button>
+          </div>
+        `;
+        break;
+
+      case 'upload_failed':
+        html = `
+          <div class="modal__icon modal__icon--warning">
+            <i data-lucide="x-octagon"></i>
+          </div>
+          <h3 class="modal__title">업로드 실패</h3>
+          <p class="modal__message">파일 [${data.fileName}] 업로드 처리에 오류가 발생했습니다.</p>
+          <div class="modal__actions">
+            <button class="btn btn--primary" onclick="ModalModule.closeModal()">확인</button>
+          </div>
+        `;
+        break;
+
+      case 'dept_match_error':
+        html = `
+          <div class="modal__icon modal__icon--warning">
+            <i data-lucide="user-x"></i>
+          </div>
+          <h3 class="modal__title">부서 매칭 오류 (양식 미준수)</h3>
+          <p class="modal__message">파일명 및 본문 텍스트 분석 결과, 부서를 매칭하지 못했습니다.<br>부서명을 넣거나 날짜 형식을 맞춰주시기 바랍니다.</p>
+          <div class="modal__example">
+            예시: 0304_도시주택연구실.hwp (날짜_부서 양식 주의)
+          </div>
+          <div class="modal__actions">
+            <button class="btn btn--primary" onclick="ModalModule.closeModal()">확인</button>
+          </div>
+        `;
+        break;
+
+      case 'delete_confirm':
+        html = `
+          <div class="modal__icon modal__icon--warning">
+            <i data-lucide="trash-2"></i>
+          </div>
+          <h3 class="modal__title">부서 삭제 확인</h3>
+          <p class="modal__message">부서 [${data.deptName}]을(를) 시스템에서 영구 삭제하시겠습니까?<br>연계된 제출물도 함께 지워집니다.</p>
+          <div class="modal__actions">
+            <button class="btn btn--secondary" onclick="ModalModule.closeModal()">취소</button>
+            <button class="btn btn--danger" id="confirmDeleteDeptBtn">삭제</button>
+          </div>
+        `;
+        break;
+
+      case 'save_complete_double_download':
+        html = `
+          <div class="modal__icon modal__icon--success">
+            <i data-lucide="check-circle2"></i>
+          </div>
+          <h3 class="modal__title">업데이트되었습니다</h3>
+          <p class="modal__message">편집하신 서식 내역이 반영되어 최종 취합본이 완성되었습니다.<br>원하는 문서 포맷으로 즉시 내려받으세요.</p>
+          <div class="modal__actions" style="flex-direction: column; gap: 8px; width: 100%;">
+            <div style="display:flex; gap:10px; width:100%;">
+              <button class="btn btn--primary" onclick="ModalModule.closeModal(); MergerModule.downloadPdf();" style="flex:1;">
+                <i data-lucide="download" style="width:16px;height:16px"></i> PDF 다운로드
+              </button>
+              <button class="btn btn--primary" onclick="ModalModule.closeModal(); MergerModule.downloadHwpx();" style="flex:1; background:linear-gradient(135deg, #3B82F6, #1D4ED8)">
+                <i data-lucide="file-down" style="width:16px;height:16px"></i> HWPX 다운로드
+              </button>
+            </div>
+            <button class="btn btn--ghost btn--sm" onclick="ModalModule.closeModal()" style="margin-top:4px;">창 닫기</button>
+          </div>
+        `;
+        break;
+    }
+
+    content.innerHTML = html;
+    lucide.createIcons();
+
+    if (type === 'replace_confirm') {
+      document.getElementById('confirmReplaceBtn').onclick = () => {
+        this.closeModal();
+        UploadModule.replaceFile(data.file, data.deptName);
+      };
+    } else if (type === 'missing_depts') {
+      document.getElementById('confirmMergeBtn').onclick = () => {
+        this.closeModal();
+        MergerModule.executeMerge();
+      };
+    } else if (type === 'delete_confirm') {
+      document.getElementById('confirmDeleteDeptBtn').onclick = () => {
+        this.closeModal();
+        DeptModule.confirmDelete(data.deptId);
+      };
+    }
+  },
+
+  closeModal() {
+    const overlay = document.getElementById('modalOverlay');
+    if (overlay) {
+      overlay.classList.remove('modal-overlay--active');
+    }
+  },
+
+  handleOverlayClick(e) {
+    if (e.target.id === 'modalOverlay') {
+      this.closeModal();
+    }
+  }
+};
+
+// ==========================================================================
+// 8. 세션 히스토리 모듈 (SessionModule) — 좌측 사이드바 방식
+// ==========================================================================
+const SessionModule = {
+  init() {
+    const sessions = [];
+    const baseDate = new Date();
+    for (let i = 23; i >= 1; i--) {
+      const sessionDate = new Date(baseDate.getTime() - (23 - i) * 7 * 24 * 60 * 60 * 1000);
+      const year = sessionDate.getFullYear();
+      const month = String(sessionDate.getMonth() + 1).padStart(2, '0');
+      const day = String(sessionDate.getDate()).padStart(2, '0');
+      sessions.unshift({
+        number: i,
+        date: `${year}-${month}-${day}`,
+        status: i === 23 ? 'current' : 'complete'
+      });
+    }
+    AppState.sessions = sessions;
+    this.renderSidebar();
+  },
+
+  renderSidebar(filterText) {
+    const list = document.getElementById('sessionSidebarList');
+    if (!list) return;
+
+    list.innerHTML = '';
+    const query = (filterText || '').toLowerCase().trim();
+    const allSessions = [...AppState.sessions].reverse();
+    const filtered = query
+      ? allSessions.filter(s => String(s.number).includes(query) || s.date.includes(query))
+      : allSessions;
+
+    if (filtered.length === 0) {
+      list.innerHTML = '<div style="padding:12px 14px;font-size:0.8rem;color:var(--gri-text-muted);">검색 결과 없음</div>';
+      return;
+    }
+
+    if (query) {
+      // 검색 중: flat 목록
+      const label = document.createElement('div');
+      label.className = 'session-search-result-label';
+      label.textContent = filtered.length + '건 검색됨';
+      list.appendChild(label);
+      filtered.forEach(sess => list.appendChild(this._makeSessionBtn(sess)));
+    } else {
+      // 연도 → 월 그룹
+      const byYear = {};
+      filtered.forEach(sess => {
+        const parts = sess.date.split('-');
+        const y = parts[0];
+        const m = parts[1];
+        if (!byYear[y]) byYear[y] = {};
+        if (!byYear[y][m]) byYear[y][m] = [];
+        byYear[y][m].push(sess);
+      });
+      const MONTH_KO = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+      Object.keys(byYear).sort((a, b) => b - a).forEach(year => {
+        const byMonth = byYear[year];
+        const yearTotal = Object.values(byMonth).reduce((s, a) => s + a.length, 0);
+        const yearHasActive = Object.values(byMonth).some(arr => arr.some(s => s.number === AppState.currentSession));
+        const yearGroup = document.createElement('div');
+        yearGroup.className = 'session-year-group';
+        const yearHeader = document.createElement('button');
+        yearHeader.className = 'session-year-header' + (yearHasActive ? ' session-year-header--open' : '');
+        yearHeader.onclick = () => this._toggleYear(yearHeader);
+        yearHeader.innerHTML = '<span>' + year + '년</span><span class="session-year-count">' + yearTotal + '</span><i data-lucide="chevron-right" style="width:12px;height:12px;"></i>';
+        const yearItems = document.createElement('div');
+        yearItems.className = 'session-year-items';
+        yearItems.style.display = yearHasActive ? 'block' : 'none';
+        Object.keys(byMonth).sort((a, b) => b - a).forEach(month => {
+          const sessions = byMonth[month];
+          const monthHasActive = sessions.some(s => s.number === AppState.currentSession);
+          const monthGroup = document.createElement('div');
+          monthGroup.className = 'session-month-group';
+          const monthHeader = document.createElement('button');
+          monthHeader.className = 'session-month-header' + (monthHasActive ? ' session-month-header--open' : '');
+          monthHeader.onclick = () => this._toggleMonth(monthHeader);
+          monthHeader.innerHTML = '<span>' + MONTH_KO[parseInt(month, 10) - 1] + '</span><span class="session-month-count">' + sessions.length + '</span><i data-lucide="chevron-right" style="width:11px;height:11px;"></i>';
+          const monthItems = document.createElement('div');
+          monthItems.className = 'session-month-items';
+          monthItems.style.display = monthHasActive ? 'block' : 'none';
+          sessions.forEach(sess => monthItems.appendChild(this._makeSessionBtn(sess)));
+          monthGroup.appendChild(monthHeader);
+          monthGroup.appendChild(monthItems);
+          yearItems.appendChild(monthGroup);
+        });
+        yearGroup.appendChild(yearHeader);
+        yearGroup.appendChild(yearItems);
+        list.appendChild(yearGroup);
+      });
+    }
+    lucide.createIcons();
+  },
+
+  _makeSessionBtn(sess) {
+    const isCurrent = sess.number === AppState.currentSession;
+    const parts = sess.date.split('-');
+    const btn = document.createElement('button');
+    btn.className = 'session-item' + (isCurrent ? ' session-item--active' : '');
+    btn.onclick = () => this.selectSession(sess.number);
+    btn.innerHTML = '<span class="session-item-num">제' + sess.number + '차</span><span class="session-item-date-sm">' + parts[1] + '.' + parts[2] + '</span>';
+    return btn;
+  },
+
+  _toggleYear(headerBtn) {
+    const items = headerBtn.nextElementSibling;
+    const isOpen = items.style.display !== 'none';
+    items.style.display = isOpen ? 'none' : 'block';
+    headerBtn.classList.toggle('session-year-header--open', !isOpen);
+  },
+
+  _toggleMonth(headerBtn) {
+    const items = headerBtn.nextElementSibling;
+    const isOpen = items.style.display !== 'none';
+    items.style.display = isOpen ? 'none' : 'block';
+    headerBtn.classList.toggle('session-month-header--open', !isOpen);
+  },
+
+  onSearch(value) { this.renderSidebar(value); },
+
+  // 구버전 호환
+  renderDropdown() { this.renderSidebar(); },
+  toggleDropdown() {},
+
+  startNewSession() {
+    const maxNum = Math.max(...AppState.sessions.map(s => s.number));
+    const newNum = maxNum + 1;
+    const today = new Date();
+    const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+    AppState.sessions.unshift({ number: newNum, date: dateStr, status: 'current' });
+    this.selectSession(newNum);
+    showToast('success', '새 회의 등록', `제 ${newNum}차 주간점검회의가 새로 등록되었습니다.`);
+  },
+
+  selectSession(sessionNum) {
+    AppState.currentSession = sessionNum;
+    const el = document.getElementById('statCurrentSession');
+    if (el) el.innerText = sessionNum;
+
+    this.renderSidebar();
+    showToast('success', '회의 차수 변경', `제 ${sessionNum}차 점검회의 세션으로 전환되었습니다.`);
+
+    if (!AppState.sessions.find(s => s.number === sessionNum && s.status === 'current')) {
+      // 과거 회의: 더미 데이터 로드
+      AppState.files = [];
+      AppState.departments.forEach((dept, i) => {
+        dept.submitted = true;
+        dept.fileId = `dummy_file_${i}`;
+      });
+      const sessObj = AppState.sessions.find(s => s.number === sessionNum);
+      const sessDate = sessObj ? sessObj.date : new Date().toISOString().split('T')[0];
+      AppState.departments.forEach((dept, i) => {
+        const baseTime = new Date(sessDate + 'T09:00:00');
+        baseTime.setMinutes(baseTime.getMinutes() + i * 7);
+        AppState.files.push({
+          id: `dummy_file_${i}`,
+          file: new Blob([]),
+          name: `${sessDate.slice(5,7)}${sessDate.slice(8,10)}_${dept.name}.hwpx`,
+          size: 1024 * 120 + (i * 2400),
+          type: 'hwpx',
+          departmentName: dept.name,
+          status: 'ok',
+          errors: [],
+          uploadedAt: baseTime.toISOString(),
+          replacedAt: null
+        });
+      });
+    } else {
+      // 현재 세션: 초기화
+      AppState.files = [];
+      AppState.departments.forEach(dept => {
+        dept.submitted = false;
+        dept.fileId = null;
+      });
+    }
+
+    UploadModule.renderFileList();
+    DeptModule.renderDeptStatus();
+    PreviewModule.closePreview();
+  }
+};
+
+// ==========================================================================
+// 9. 마감 타이머 모듈 (DeadlineTimer)
+// ==========================================================================
+const DeadlineTimer = {
+  timerInterval: null,
+
+  init() {
+    const targetTime = new Date();
+    targetTime.setHours(targetTime.getHours() + 18);
+    targetTime.setMinutes(30);
+    targetTime.setSeconds(0);
+
+    this.updateTimer(targetTime);
+
+    this.timerInterval = setInterval(() => {
+      this.updateTimer(targetTime);
+    }, 1000);
+  },
+
+  updateTimer(target) {
+    const now = new Date();
+    const diff = target.getTime() - now.getTime();
+    const timerText = document.getElementById('deadlineTimer');
+
+    if (!timerText) return;
+
+    if (diff <= 0) {
+      timerText.innerText = '마감 완료';
+      timerText.style.color = 'var(--gri-error)';
+      clearInterval(this.timerInterval);
+      return;
+    }
+
+    const hours = String(Math.floor(diff / (1000 * 60 * 60))).padStart(2, '0');
+    const minutes = String(Math.floor((diff / (1000 * 60)) % 60)).padStart(2, '0');
+    const seconds = String(Math.floor((diff / 1000) % 60)).padStart(2, '0');
+
+    timerText.innerText = `${hours}:${minutes}:${seconds}`;
+  }
+};
+
+// ==========================================================================
+// 10. 토스트 알림 모듈 (Toast Module)
+// ==========================================================================
+function showToast(type, title, message) {
+  return; // 알림 비활성화
+  const container = document.getElementById('toastContainer');
+  if (!container) return;
+
+  const toastId = 'toast_' + Date.now();
+  const toast = document.createElement('div');
+  toast.className = `toast toast--${type}`;
+  toast.id = toastId;
+
+  let iconName = 'info';
+  if (type === 'success') iconName = 'check-circle';
+  if (type === 'error') iconName = 'alert-octagon';
+  if (type === 'warning') iconName = 'alert-triangle';
+
+  toast.innerHTML = `
+    <div class="toast__icon">
+      <i data-lucide="${iconName}"></i>
+    </div>
+    <div class="toast__content">
+      <div class="toast__title">${title}</div>
+      <div class="toast__message">${message}</div>
+    </div>
+    <button class="toast__close" onclick="document.getElementById('${toastId}').remove()">
+      <i data-lucide="x" style="width:14px;height:14px"></i>
+    </button>
+    <div class="toast__progress"></div>
+  `;
+
+  container.appendChild(toast);
+  lucide.createIcons();
+
+  setTimeout(() => {
+    toast.classList.add('toast--show');
+  }, 10);
+
+  setTimeout(() => {
+    if (document.getElementById(toastId)) {
+      toast.classList.remove('toast--show');
+      setTimeout(() => {
+        toast.remove();
+      }, 350);
+    }
+  }, 3000);
+}
+
+// ==========================================================================
+// 11. 다크 모드 모듈 (DarkMode)
+// ==========================================================================
+const DarkMode = {
+  init() {
+    const savedTheme = localStorage.getItem('gri_theme');
+    if (savedTheme === 'dark') {
+      this.setTheme(true);
+    } else {
+      this.setTheme(false);
+    }
+  },
+
+  toggle() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    this.setTheme(!isDark);
+  },
+
+  setTheme(isDark) {
+    const toggleBtn = document.getElementById('darkModeToggle');
+    if (isDark) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem('gri_theme', 'dark');
+      if (toggleBtn) {
+        toggleBtn.innerHTML = '<i data-lucide="sun"></i>';
+      }
+      AppState.isDarkMode = true;
+    } else {
+      document.documentElement.setAttribute('data-theme', 'light');
+      localStorage.setItem('gri_theme', 'light');
+      if (toggleBtn) {
+        toggleBtn.innerHTML = '<i data-lucide="moon"></i>';
+      }
+      AppState.isDarkMode = false;
+    }
+    lucide.createIcons();
+  }
+};
+
+// ==========================================================================
+// 12. 공통 유틸리티 함수
+// ==========================================================================
+function formatFileSize(bytes) {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+function formatUploadTime(isoString) {
+  if (!isoString) return '';
+  const d = new Date(isoString);
+  const days = ['일', '월', '화', '수', '목', '금', '토'];
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  const day = days[d.getDay()];
+  const hh = String(d.getHours()).padStart(2, '0');
+  const min = String(d.getMinutes()).padStart(2, '0');
+  return `${mm}.${dd}(${day}) ${hh}:${min}`;
+}
+
+window.addEventListener('click', (e) => {
+  const dropdown = document.getElementById('sessionDropdown');
+  const btn = document.querySelector('.session-dropdown-btn');
+  if (dropdown && dropdown.classList.contains('session-dropdown--open')) {
+    if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
+      SessionModule.toggleDropdown();
+    }
+  }
+});
+
+window.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'm') {
+    e.preventDefault();
+    if (AppState.currentPage === 'weekly-report') {
+      MergerModule.merge();
+    }
+  }
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'd') {
+    e.preventDefault();
+    if (AppState.currentPage === 'weekly-report') {
+      MergerModule.downloadPdf();
+    }
+  }
+  if (e.key === 'Escape') {
+    ModalModule.closeModal();
+    PreviewModule.closePreview();
+    RecruitModule.closeVerifyDetail();
+  }
+});
+
+// ==========================================================================
+// 13. DOM 로드 완료 후 앱 초기화
+// ==========================================================================
+document.addEventListener('DOMContentLoaded', () => {
+  lucide.createIcons();
+
+  Router.init();
+  UploadModule.init();
+  DeptModule.renderDeptStatus();
+  SessionModule.init();
+  DeadlineTimer.init();
+  DarkMode.init();
+});

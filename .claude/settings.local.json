@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Start-Process \"C:\\\\Users\\\\1umbr\\\\ppt\\\\gri-weekly-report\\\\index.html\")"
+    ]
+  }
+}

@@ -28,74 +28,226 @@ const AppState = {
   // 채용 후보자 데이터 상태 (AI 검증 시나리오 반영)
   candidates: [
     {
-      id: 1,
-      name: '홍길동',
-      field: 'AI연구실 (부연구위원)',
-      resumeSubmitted: true,
-      evidenceCount: 3,
-      aiVerification: 'passed', // 'passed', 'warning', 'failed'
-      finalStatus: 'approved', // 'approved', 'rejected', 'pending'
-      details: {
-        academic: { resume: '홍익대학교 컴퓨터공학 박사', evidence: '홍익대학교 컴퓨터공학 박사', match: true },
-        career: { resume: '네이버 AI Lab 3년 근무', evidence: '네이버 AI Lab 3년 근무', match: true },
-        license: { resume: '정보처리기사 (2020년)', evidence: '정보처리기사 (2020년)', match: true }
-      }
+      id: 1, rawFileName: '250303_연구위원나급_교통계획및공학_홍길동',
+      date: '250303', position: '연구위원나급', field: '교통계획및공학', name: '홍길동', isResearch: true,
+      verification: {
+        documents: { status: 'warning', categories: [
+          { id: 'application', name: '입사지원서', status: 'ok', note: '', subItems: [
+            { name: '기본인적사항', status: 'ok', note: '' },
+            { name: '학력사항', status: 'ok', note: '' },
+            { name: '경력사항', status: 'ok', note: '' },
+            { name: '자기소개서', status: 'ok', note: '' }
+          ]},
+          { id: 'privacy', name: '개인정보동의서', status: 'ok', note: '', subItems: [
+            { name: '수집·이용 동의서', status: 'ok', note: '' },
+            { name: '제3자 제공 동의서', status: 'ok', note: '' }
+          ]},
+          { id: 'academic', name: '학력증명서', status: 'missing', note: '학위수여증명서 미첨부', subItems: [
+            { name: '학위수여증명서', status: 'missing', note: '미첨부' },
+            { name: '성적증명서', status: 'ok', note: '' }
+          ]},
+          { id: 'career', name: '경력증명서', status: 'ok', note: '', subItems: [
+            { name: '재직(경력)증명서', status: 'ok', note: '' },
+            { name: '건강보험료납부확인서', status: 'ok', note: '' }
+          ]},
+          { id: 'research', name: '연구실적', status: 'ok', note: '', subItems: [
+            { name: '연구실적목록', status: 'ok', note: '' },
+            { name: '대표논문 1편', status: 'ok', note: '' },
+            { name: '대표논문 2편', status: 'ok', note: '' }
+          ]},
+          { id: 'license', name: '자격증', status: 'ok', note: '', subItems: [
+            { name: '도로및공항기술사 사본', status: 'ok', note: '' }
+          ]}
+        ]},
+        paper: { applicable: true, status: 'ok', items: [
+          { title: '경기도 교통 네트워크 최적화 연구', journal: '대한교통학회지', year: 2023, authors: '홍길동, 이민수', status: 'ok' },
+          { title: '자율주행 기반 도심 교통류 시뮬레이션', journal: 'Transport Research', year: 2022, authors: '홍길동', status: 'ok' }
+        ]},
+        blind: { status: 'warning', issues: [
+          { type: '출신학교', excerpt: '"연세대학교 졸업 후 바로 연구소에..."', severity: 'high' }
+        ]},
+        evaluator: { status: 'ok', recommended: [
+          { name: '강민철', affil: '한국교통연구원', field: '교통계획', conflict: false, score: 8.4 },
+          { name: '이준호', affil: 'KAIST 건설환경공학과', field: '교통공학', conflict: false, score: 7.9 },
+          { name: '박성은', affil: '서울시립대학교', field: '도시계획', conflict: false, score: 7.2 }
+        ]}
+      },
+      reviewStatus: 'pending', reviewNote: ''
     },
     {
-      id: 2,
-      name: '김연구',
-      field: '전략실 (연구위원)',
-      resumeSubmitted: true,
-      evidenceCount: 2,
-      aiVerification: 'warning', // 경고: 경력 기간 오차 발생
-      finalStatus: 'pending',
-      details: {
-        academic: { resume: '서울대학교 행정학 박사', evidence: '서울대학교 행정학 박사', match: true },
-        career: { resume: '한국개발연구원 5년 근무 (15.03~20.03)', evidence: '한국개발연구원 4년 9개월 근무 (15.06~20.03)', match: false, diffReason: '경력 시작월 불일치 (기재: 3월 / 증빙: 6월)' },
-        license: { resume: '없음', evidence: '없음', match: true }
-      }
+      id: 2, rawFileName: '250303_부연구위원나급_도시및지역계획_김민준',
+      date: '250303', position: '부연구위원나급', field: '도시및지역계획', name: '김민준', isResearch: true,
+      verification: {
+        documents: { status: 'ok', categories: [
+          { id: 'application', name: '입사지원서', status: 'ok', note: '', subItems: [
+            { name: '기본인적사항', status: 'ok', note: '' },
+            { name: '학력사항', status: 'ok', note: '' },
+            { name: '경력사항', status: 'ok', note: '' },
+            { name: '자기소개서', status: 'ok', note: '' }
+          ]},
+          { id: 'privacy', name: '개인정보동의서', status: 'ok', note: '', subItems: [
+            { name: '수집·이용 동의서', status: 'ok', note: '' },
+            { name: '제3자 제공 동의서', status: 'ok', note: '' }
+          ]},
+          { id: 'academic', name: '학력증명서', status: 'ok', note: '', subItems: [
+            { name: '학위수여증명서', status: 'ok', note: '' },
+            { name: '성적증명서', status: 'ok', note: '' }
+          ]},
+          { id: 'career', name: '경력증명서', status: 'ok', note: '', subItems: [
+            { name: '재직(경력)증명서', status: 'ok', note: '' },
+            { name: '건강보험료납부확인서', status: 'ok', note: '' }
+          ]},
+          { id: 'research', name: '연구실적', status: 'ok', note: '', subItems: [
+            { name: '연구실적목록', status: 'ok', note: '' },
+            { name: '대표논문 1편', status: 'ok', note: '' }
+          ]},
+          { id: 'license', name: '자격증', status: 'ok', note: '', subItems: [
+            { name: '도시계획기사 사본', status: 'ok', note: '' }
+          ]}
+        ]},
+        paper: { applicable: true, status: 'warning', items: [
+          { title: '스마트시티 지표 개발 연구', journal: '국토연구', year: 2023, authors: '김민준 외 2인', status: 'ok' },
+          { title: '수도권 주거입지 패턴 분석', journal: '도시설계학회지', year: 2021, authors: '김민준', status: 'unverified', note: '해당 호 목차에서 미확인' }
+        ]},
+        blind: { status: 'ok', issues: [] },
+        evaluator: { status: 'ok', recommended: [
+          { name: '최현우', affil: '국토연구원', field: '도시계획', conflict: false, score: 8.1 },
+          { name: '정수연', affil: '경기대학교 도시공학과', field: '지역계획', conflict: false, score: 7.5 },
+          { name: '윤상혁', affil: '한국토지주택공사', field: '도시재생', conflict: false, score: 6.8 }
+        ]}
+      },
+      reviewStatus: 'pending', reviewNote: ''
     },
     {
-      id: 3,
-      name: '이행정',
-      field: '행정지원실 (행정원)',
-      resumeSubmitted: true,
-      evidenceCount: 1,
-      aiVerification: 'failed', // 오류: 자격증 고유 번호 불일치
-      finalStatus: 'rejected',
-      details: {
-        academic: { resume: '경기대학교 경영학 학사', evidence: '경기대학교 경영학 학사', match: true },
-        career: { resume: '행정공제회 1년 인턴', evidence: '제출된 증빙서류 없음', match: false, diffReason: '경력 증빙서류 누락' },
-        license: { resume: '컴퓨터활용능력 1급 (검증번호 20-K9-12345)', evidence: '컴퓨터활용능력 1급 (검증번호 20-K9-99999)', match: false, diffReason: '자격증 검증 번호 불일치' }
-      }
+      id: 3, rawFileName: '250303_연구위원가급_환경정책_이서연',
+      date: '250303', position: '연구위원가급', field: '환경정책', name: '이서연', isResearch: true,
+      verification: {
+        documents: { status: 'mismatch', categories: [
+          { id: 'application', name: '입사지원서', status: 'ok', note: '', subItems: [
+            { name: '기본인적사항', status: 'ok', note: '' },
+            { name: '학력사항', status: 'ok', note: '' },
+            { name: '경력사항', status: 'ok', note: '' },
+            { name: '자기소개서', status: 'ok', note: '' }
+          ]},
+          { id: 'privacy', name: '개인정보동의서', status: 'ok', note: '', subItems: [
+            { name: '수집·이용 동의서', status: 'ok', note: '' },
+            { name: '제3자 제공 동의서', status: 'ok', note: '' }
+          ]},
+          { id: 'academic', name: '학력증명서', status: 'ok', note: '', subItems: [
+            { name: '학위수여증명서', status: 'ok', note: '' },
+            { name: '성적증명서', status: 'ok', note: '' }
+          ]},
+          { id: 'career', name: '경력증명서', status: 'mismatch', note: '재직기간 불일치', subItems: [
+            { name: '재직(경력)증명서', status: 'mismatch', note: '기재 36개월 → 증빙 29개월' },
+            { name: '건강보험료납부확인서', status: 'ok', note: '' }
+          ]},
+          { id: 'research', name: '연구실적', status: 'ok', note: '', subItems: [
+            { name: '연구실적목록', status: 'ok', note: '' },
+            { name: '대표논문 1편', status: 'ok', note: '' },
+            { name: '대표논문 2편', status: 'ok', note: '' }
+          ]},
+          { id: 'license', name: '자격증', status: 'ok', note: '', subItems: [
+            { name: '환경기사 사본', status: 'ok', note: '' }
+          ]}
+        ]},
+        paper: { applicable: true, status: 'warning', items: [
+          { title: '기후변화 대응 환경정책 효과 분석', journal: '환경정책', year: 2023, authors: '이서연, 김태호', status: 'ok' },
+          { title: '탄소중립 이행 지방정부 역량 평가', journal: '한국환경정책학회보', year: 2022, authors: '박기훈, 이서연', status: 'warning', note: '공저 관계 확인 필요 (박기훈 — 현 경기연구원 재직)' }
+        ]},
+        blind: { status: 'warning', issues: [
+          { type: '가족관계', excerpt: '"부친이 환경부 근무 경력으로..."', severity: 'medium' },
+          { type: '지역정보', excerpt: '"경기도 수원 출신으로..."', severity: 'low' }
+        ]},
+        evaluator: { status: 'conflict', recommended: [
+          { name: '박기훈', affil: '경기연구원', field: '환경정책', conflict: true, conflictReason: '논문 공저 관계', score: null },
+          { name: '강태인', affil: '한국환경연구원', field: '환경정책', conflict: false, score: 7.6 },
+          { name: '오민영', affil: '서울대학교 환경대학원', field: '기후변화', conflict: false, score: 8.0 }
+        ]}
+      },
+      reviewStatus: 'pending', reviewNote: ''
     },
     {
-      id: 4,
-      name: '박에너지',
-      field: '기후환경에너지연구실 (연구원)',
-      resumeSubmitted: true,
-      evidenceCount: 3,
-      aiVerification: 'passed',
-      finalStatus: 'approved',
-      details: {
-        academic: { resume: '카이스트 환경공학 석사', evidence: '카이스트 환경공학 석사', match: true },
-        career: { resume: '에너지경제연구원 2년 위촉연구원', evidence: '에너지경제연구원 2년 위촉연구원', match: true },
-        license: { resume: '대기환경기사 (2022년)', evidence: '대기환경기사 (2022년)', match: true }
-      }
+      id: 4, rawFileName: '250303_전문연구원_경제분석_박준혁',
+      date: '250303', position: '전문연구원', field: '경제분석', name: '박준혁', isResearch: false,
+      verification: {
+        documents: { status: 'ok', categories: [
+          { id: 'application', name: '입사지원서', status: 'ok', note: '', subItems: [
+            { name: '기본인적사항', status: 'ok', note: '' },
+            { name: '학력사항', status: 'ok', note: '' },
+            { name: '경력사항', status: 'ok', note: '' },
+            { name: '자기소개서', status: 'ok', note: '' }
+          ]},
+          { id: 'privacy', name: '개인정보동의서', status: 'ok', note: '', subItems: [
+            { name: '수집·이용 동의서', status: 'ok', note: '' },
+            { name: '제3자 제공 동의서', status: 'ok', note: '' }
+          ]},
+          { id: 'academic', name: '학력증명서', status: 'ok', note: '', subItems: [
+            { name: '학위수여증명서', status: 'ok', note: '' },
+            { name: '성적증명서', status: 'ok', note: '' }
+          ]},
+          { id: 'career', name: '경력증명서', status: 'ok', note: '', subItems: [
+            { name: '재직(경력)증명서', status: 'ok', note: '' },
+            { name: '건강보험료납부확인서', status: 'ok', note: '' }
+          ]},
+          { id: 'research', name: '연구실적', status: 'na', note: '행정직 — 해당 없음', subItems: [] },
+          { id: 'license', name: '자격증', status: 'ok', note: '', subItems: [
+            { name: '공인회계사 사본', status: 'ok', note: '' }
+          ]}
+        ]},
+        paper: { applicable: false, status: 'na', items: [] },
+        blind: { status: 'ok', issues: [] },
+        evaluator: { status: 'ok', recommended: [
+          { name: '임재홍', affil: '한국개발연구원', field: '경제정책', conflict: false, score: 8.7 },
+          { name: '신동욱', affil: '경기연구원', field: '재정분석', conflict: false, score: 7.3 },
+          { name: '황지수', affil: '인천대학교 경제학과', field: '경제분석', conflict: false, score: 6.9 }
+        ]}
+      },
+      reviewStatus: 'completed', reviewNote: '서류 이상 없음. 면접 진행 추천.'
     },
     {
-      id: 5,
-      name: '최도시',
-      field: '도시주택연구실 (부연구위원)',
-      resumeSubmitted: true,
-      evidenceCount: 0,
-      aiVerification: 'warning', // 증빙 서류 없음
-      finalStatus: 'pending',
-      details: {
-        academic: { resume: '한양대학교 도시공학 박사', evidence: '미제출', match: false, diffReason: '학위증명서 미첨부' },
-        career: { resume: 'LH연구원 1년 6개월 근무', evidence: '미제출', match: false, diffReason: '경력증명서 미첨부' },
-        license: { resume: '도시계획기사 (2018년)', evidence: '미제출', match: false, diffReason: '자격증 사본 미첨부' }
-      }
+      id: 5, rawFileName: '250303_부연구위원나급_복지정책_최수진',
+      date: '250303', position: '부연구위원나급', field: '복지정책', name: '최수진', isResearch: true,
+      verification: {
+        documents: { status: 'missing', categories: [
+          { id: 'application', name: '입사지원서', status: 'ok', note: '', subItems: [
+            { name: '기본인적사항', status: 'ok', note: '' },
+            { name: '학력사항', status: 'ok', note: '' },
+            { name: '경력사항', status: 'ok', note: '' },
+            { name: '자기소개서', status: 'ok', note: '' }
+          ]},
+          { id: 'privacy', name: '개인정보동의서', status: 'ok', note: '', subItems: [
+            { name: '수집·이용 동의서', status: 'ok', note: '' },
+            { name: '제3자 제공 동의서', status: 'ok', note: '' }
+          ]},
+          { id: 'academic', name: '학력증명서', status: 'ok', note: '', subItems: [
+            { name: '학위수여증명서', status: 'ok', note: '' },
+            { name: '성적증명서', status: 'ok', note: '' }
+          ]},
+          { id: 'career', name: '경력증명서', status: 'ok', note: '', subItems: [
+            { name: '재직(경력)증명서', status: 'ok', note: '' },
+            { name: '건강보험료납부확인서', status: 'ok', note: '' }
+          ]},
+          { id: 'research', name: '연구실적', status: 'ok', note: '', subItems: [
+            { name: '연구실적목록', status: 'ok', note: '' },
+            { name: '대표논문 1편', status: 'ok', note: '' }
+          ]},
+          { id: 'license', name: '자격증', status: 'missing', note: '사회복지사 자격증 사본 미첨부', subItems: [
+            { name: '사회복지사 자격증 사본', status: 'missing', note: '미첨부' }
+          ]}
+        ]},
+        paper: { applicable: true, status: 'ok', items: [
+          { title: '경기도 고령화 복지 인프라 현황 및 개선방안', journal: '사회복지연구', year: 2023, authors: '최수진', status: 'ok' }
+        ]},
+        blind: { status: 'warning', issues: [
+          { type: '출신지역', excerpt: '"경기도 성남 토박이로서 지역 복지..."', severity: 'low' }
+        ]},
+        evaluator: { status: 'ok', recommended: [
+          { name: '노혜경', affil: '한국보건사회연구원', field: '복지정책', conflict: false, score: 8.2 },
+          { name: '김재원', affil: '성균관대학교 사회복지학과', field: '사회복지', conflict: false, score: 7.7 },
+          { name: '이광민', affil: '경기복지재단', field: '복지행정', conflict: false, score: 6.5 }
+        ]}
+      },
+      reviewStatus: 'pending', reviewNote: ''
     }
   ],
 
@@ -129,12 +281,12 @@ const Router = {
     });
 
     const pages = {
-      'home': document.getElementById('page-home'),
-      'weekly-report': document.getElementById('page-weekly-report'),
-      'recruitment': document.getElementById('page-recruitment')
+      'home': { el: document.getElementById('page-home'), display: 'block' },
+      'weekly-report': { el: document.getElementById('page-weekly-report'), display: 'flex' },
+      'recruitment': { el: document.getElementById('page-recruitment'), display: 'flex' }
     };
-    Object.keys(pages).forEach(key => {
-      if (pages[key]) pages[key].style.display = key === pageId ? 'block' : 'none';
+    Object.entries(pages).forEach(([key, { el, display }]) => {
+      if (el) el.style.display = key === pageId ? display : 'none';
     });
 
     // 세션 사이드바는 주간보고 취합 페이지에서만 표시
@@ -227,13 +379,7 @@ const UploadModule = {
       const parsedDeptName = await this.analyzeFileContentAndName(file);
       let matchedDept = AppState.departments.find(d => d.name === parsedDeptName);
 
-      if (!matchedDept) {
-        document.getElementById('globalLoading').style.display = 'none';
-        ModalModule.showModal('dept_match_error', { fileName: file.name });
-        return;
-      }
-
-      const existingFile = AppState.files.find(f => f.departmentName === matchedDept.name);
+      const existingFile = matchedDept && AppState.files.find(f => f.departmentName === matchedDept.name);
       if (existingFile) {
         document.getElementById('globalLoading').style.display = 'none';
         ModalModule.showModal('replace_confirm', {
@@ -245,7 +391,7 @@ const UploadModule = {
         return;
       }
 
-      this.addFileToState(file, matchedDept.name, ext);
+      this.addFileToState(file, matchedDept ? matchedDept.name : null, ext);
     }
 
     document.getElementById('globalLoading').style.display = 'none';
@@ -977,202 +1123,308 @@ const EditorModule = {
 };
 
 // ==========================================================================
-// 6-2. 채용검증 비즈니스 모듈 (RecruitModule) 신설 구성
+// 6-2. 채용검증 비즈니스 모듈 (RecruitModule)
 // ==========================================================================
 const RecruitModule = {
+  _filter: 'all',
+  _selectedId: null,
+  _hasUploaded: false,
+
   init() {
-    this.renderCandidateList();
-    this.updateStats();
+    // 페이지 진입마다 상태 유지
+    this._showView(this._hasUploaded);
+    if (this._hasUploaded) {
+      this._updateTabCounts();
+      this.renderTable();
+    }
   },
 
-  updateStats() {
+  _showView(uploaded) {
+    const zone = document.getElementById('recruitUploadZone');
+    const list = document.getElementById('recruitListView');
+    if (zone) zone.style.display = uploaded ? 'none' : 'flex';
+    if (list) list.style.display = uploaded ? 'flex' : 'none';
+  },
+
+  _isAnomalous(c) {
+    const doc = c.verification.documents.status !== 'ok' && c.verification.documents.status !== 'pending';
+    const paper = c.verification.paper.applicable && c.verification.paper.status !== 'ok' && c.verification.paper.status !== 'na' && c.verification.paper.status !== 'pending';
+    const blind = c.verification.blind.issues && c.verification.blind.issues.length > 0;
+    const ev = c.verification.evaluator.recommended && c.verification.evaluator.recommended.some(e => e.conflict);
+    return doc || paper || blind || ev;
+  },
+
+  _filtered() {
+    return AppState.candidates.filter(c => {
+      if (this._filter === 'anomaly') return this._isAnomalous(c);
+      if (this._filter === 'done') return c.reviewStatus === 'completed';
+      if (this._filter === 'pending') return c.reviewStatus !== 'completed';
+      return true;
+    });
+  },
+
+  _updateTabCounts() {
     const total = AppState.candidates.length;
-    const passed = AppState.candidates.filter(c => c.finalStatus === 'approved').length;
-    const failed = AppState.candidates.filter(c => c.finalStatus === 'rejected').length;
-    const warning = AppState.candidates.filter(c => c.aiVerification === 'warning' || c.aiVerification === 'failed').length;
-
-    document.getElementById('statRecruitTotal').innerText = total;
-    document.getElementById('statRecruitPassed').innerText = passed;
-    document.getElementById('statRecruitWarning').innerText = warning;
-    document.getElementById('statRecruitFailed').innerText = failed;
+    const anomaly = AppState.candidates.filter(c => this._isAnomalous(c)).length;
+    const done = AppState.candidates.filter(c => c.reviewStatus === 'completed').length;
+    const pending = total - done;
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
+    set('rtcAll', total); set('rtcAnomaly', anomaly); set('rtcPending', pending); set('rtcDone', done);
   },
 
-  renderCandidateList() {
-    const tbody = document.getElementById('candidateListBody');
+  // ── 폴더 드래그앤드롭 ──
+  onDragOver(e) {
+    e.preventDefault();
+    const zone = document.getElementById('recruitUploadZone');
+    if (zone) zone.classList.add('recruit-upload-zone--over');
+  },
+  onDragLeave(e) {
+    const zone = document.getElementById('recruitUploadZone');
+    if (zone) zone.classList.remove('recruit-upload-zone--over');
+  },
+  onDrop(e) {
+    e.preventDefault();
+    const zone = document.getElementById('recruitUploadZone');
+    if (zone) zone.classList.remove('recruit-upload-zone--over');
+    // 폴더 업로드는 실제 파일 파싱 대신 더미 데이터 로드
+    this._loadDummyData();
+  },
+
+  handleUpload(files) {
+    if (!files || files.length === 0) return;
+    this._loadDummyData();
+  },
+
+  _loadDummyData() {
+    // 더미 5명 데이터는 이미 AppState.candidates에 있음 — 그냥 뷰 전환
+    this._hasUploaded = true;
+    this._showView(true);
+    this._filter = 'all';
+    document.querySelectorAll('.recruit-tab').forEach(btn => {
+      btn.classList.toggle('recruit-tab--active', btn.dataset.filter === 'all');
+    });
+    this._updateTabCounts();
+    this.renderTable();
+  },
+
+  setFilter(filter) {
+    this._filter = filter;
+    document.querySelectorAll('.recruit-tab').forEach(btn => {
+      btn.classList.toggle('recruit-tab--active', btn.dataset.filter === filter);
+    });
+    this.renderTable();
+  },
+
+  _statusBadge(status) {
+    const map = {
+      ok:       ['ok',      '✓'],
+      warning:  ['warn',    '!'],
+      mismatch: ['warn',    '!'],
+      missing:  ['miss',    '✕'],
+      conflict: ['warn',    '!'],
+      pending:  ['pending', '…'],
+      na:       ['na',      '—']
+    };
+    const [cls, label] = map[status] || ['pending', '?'];
+    return `<span class="rc-badge rc-badge--${cls}">${label}</span>`;
+  },
+
+  renderTable() {
+    const tbody = document.getElementById('recruitTableBody');
     if (!tbody) return;
-
+    const list = this._filtered();
     tbody.innerHTML = '';
-    AppState.candidates.forEach((cand, idx) => {
-      // AI 검증 결과 뱃지 매핑
-      let aiBadge = '';
-      if (cand.aiVerification === 'passed') {
-        aiBadge = '<span class="badge badge--success">일치 ✅</span>';
-      } else if (cand.aiVerification === 'warning') {
-        aiBadge = '<span class="badge badge--warning">확인필요 ⚠️</span>';
-      } else {
-        aiBadge = '<span class="badge badge--danger">불일치 ❌</span>';
-      }
+    if (list.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--gri-text-secondary);font-size:0.82rem;">해당하는 지원자가 없습니다</td></tr>`;
+      return;
+    }
+    list.forEach((c, idx) => {
+      const anomaly = this._isAnomalous(c);
+      const isSelected = this._selectedId === c.id;
+      const docS = c.verification.documents.status;
+      const paperS = c.verification.paper.applicable ? c.verification.paper.status : 'na';
+      const blindS = (c.verification.blind.issues && c.verification.blind.issues.length > 0) ? 'warning'
+        : (c.verification.blind.status === 'pending' ? 'pending' : 'ok');
+      const evalS = (c.verification.evaluator.recommended && c.verification.evaluator.recommended.some(e => e.conflict)) ? 'conflict'
+        : c.verification.evaluator.status;
 
-      // 최종 상태 매핑
-      let statusBadge = '';
-      if (cand.finalStatus === 'approved') {
-        statusBadge = '<span class="badge badge--success">승인됨</span>';
-      } else if (cand.finalStatus === 'rejected') {
-        statusBadge = '<span class="badge badge--danger">반려됨</span>';
-      } else {
-        statusBadge = '<span class="badge badge--info">대기중</span>';
-      }
+      const reviewBadge = c.reviewStatus === 'completed'
+        ? '<span class="rc-status rc-status--done">검토완료</span>'
+        : (anomaly ? '<span class="rc-status rc-status--anomaly">이상탐지</span>' : '<span class="rc-status rc-status--pending">대기</span>');
 
       const tr = document.createElement('tr');
+      tr.className = `rc-row${isSelected ? ' rc-row--selected' : ''}`;
+      tr.onclick = () => this.selectCandidate(c.id);
       tr.innerHTML = `
-        <td style="padding:14px 16px; font-size:0.85rem; font-weight:700;">${idx + 1}</td>
-        <td style="padding:14px 16px; font-size:0.85rem; font-weight:700; color:var(--gri-primary);">${cand.name}</td>
-        <td style="padding:14px 16px; font-size:0.85rem; color:var(--gri-text-secondary);">${cand.field}</td>
-        <td style="padding:14px 16px; font-size:0.85rem;">
-          ${cand.resumeSubmitted ? '제출 완료' : '<span style="color:var(--gri-error)">미제출</span>'}
+        <td class="rc-td rc-td--num">${idx + 1}</td>
+        <td class="rc-td rc-td--main">
+          <div class="rc-cand-name">${c.name}</div>
+          <div class="rc-cand-meta">${c.position} · ${c.field}</div>
         </td>
-        <td style="padding:14px 16px; font-size:0.85rem; font-weight:700; text-align:center;">
-          ${cand.evidenceCount > 0 ? `${cand.evidenceCount}개` : '<span style="color:var(--gri-error)">0개 (누락)</span>'}
-        </td>
-        <td style="padding:14px 16px; font-size:0.85rem;">${aiBadge}</td>
-        <td style="padding:14px 16px; font-size:0.85rem;">${statusBadge}</td>
-        <td style="padding:14px 16px; font-size:0.85rem; text-align:right;">
-          <button class="btn btn--secondary btn--sm" onclick="RecruitModule.openVerifyDetail(${cand.id})">
-            AI 자격 검증 대조
-          </button>
-        </td>
+        <td class="rc-td rc-td--badge">${this._statusBadge(docS)}</td>
+        <td class="rc-td rc-td--badge">${this._statusBadge(paperS)}</td>
+        <td class="rc-td rc-td--badge">${this._statusBadge(blindS)}</td>
+        <td class="rc-td rc-td--badge">${this._statusBadge(evalS)}</td>
+        <td class="rc-td rc-td--status">${reviewBadge}</td>
       `;
       tbody.appendChild(tr);
     });
   },
 
-  openVerifyDetail(candId) {
-    const cand = AppState.candidates.find(c => c.id === candId);
-    if (!cand) return;
+  selectCandidate(id) {
+    this._selectedId = id;
+    this.renderTable();
+    const c = AppState.candidates.find(a => a.id === id);
+    if (c) this.renderDetail(c);
+  },
 
-    // AI 검증 상세 대조 전용 가상 팝업 오버레이 빌드
-    const overlay = document.getElementById('modalOverlay');
-    const content = document.getElementById('modalContent');
-    if (!overlay || !content) return;
+  _docIcon(status) {
+    return { ok: '✓', missing: '✕', mismatch: '!', na: '—', pending: '…' }[status] || '?';
+  },
+  _docCls(status) {
+    return { ok: 'ok', missing: 'miss', mismatch: 'warn', na: 'na', pending: 'pending' }[status] || 'pending';
+  },
 
-    overlay.classList.add('modal-overlay--active');
-    
-    // 모달을 대형 가로형태로 임시 전환
-    content.style.maxWidth = '900px';
+  renderDetail(c) {
+    const empty = document.getElementById('recruitDetailEmpty');
+    const content = document.getElementById('recruitDetailContent');
+    if (!empty || !content) return;
+    empty.style.display = 'none';
+    content.style.display = 'flex';
 
-    let detailsHtml = '';
-    
-    const renderRow = (title, dataKey) => {
-      const item = cand.details[dataKey];
-      const matchBadge = item.match 
-        ? '<span class="verify-highlight-match">일치</span>' 
-        : `<span class="verify-highlight-diff" title="${item.diffReason}">불일치 (경고)</span>`;
-      
+    // ── 서류 검증 (아코디언) ──
+    const docRows = c.verification.documents.categories.map((cat, ci) => {
+      const icon = this._docIcon(cat.status);
+      const cls  = this._docCls(cat.status);
+      const hasIssue = cat.status !== 'ok' && cat.status !== 'na';
+      const hasSub = cat.subItems && cat.subItems.length > 0;
+      const subHtml = hasSub ? cat.subItems.map(s => `
+        <div class="rd-sub-row">
+          <span class="rd-sub-icon rc-badge--${this._docCls(s.status)}">${this._docIcon(s.status)}</span>
+          <span class="rd-sub-name">${s.name}</span>
+          ${s.note ? `<span class="rd-sub-note">${s.note}</span>` : ''}
+        </div>`).join('') : '';
       return `
-        <tr>
-          <td style="font-weight:700; width:15%; background:var(--gri-border-light); border:1px solid var(--gri-border); padding:10px;">${title}</td>
-          <td style="border:1px solid var(--gri-border); padding:10px;">${item.resume}</td>
-          <td style="border:1px solid var(--gri-border); padding:10px; font-weight:600;">${item.evidence}</td>
-          <td style="border:1px solid var(--gri-border); padding:10px; text-align:center;">${matchBadge}</td>
-        </tr>
-      `;
-    };
-
-    html = `
-      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--gri-primary); padding-bottom:12px; margin-bottom:16px;">
-        <h3 style="font-size:1.2rem; font-weight:800; color:var(--gri-primary);">
-          [지원자 ${cand.name}] 증빙서류 AI OCR 정밀 대조 검증
-        </h3>
-        <button class="btn btn--ghost btn--sm" onclick="RecruitModule.closeVerifyDetail()" style="padding:4px;"><i data-lucide="x"></i></button>
-      </div>
-
-      <div style="font-size:0.9rem; color:var(--gri-text-secondary); margin-bottom:16px; display:flex; gap:16px;">
-        <span><strong>지원 부서:</strong> ${cand.field}</span>
-        <span><strong>제출 서류:</strong> 이력서 1부, 증빙 서류 ${cand.evidenceCount}부</span>
-      </div>
-
-      <div style="max-height:450px; overflow-y:auto; margin-bottom:20px;">
-        <table class="verify-table" style="width:100%; border-collapse:collapse;">
-          <thead>
-            <tr style="background-color:var(--gri-primary); color:white;">
-              <th style="padding:10px; border:1px solid var(--gri-border); text-align:left;">구분</th>
-              <th style="padding:10px; border:1px solid var(--gri-border); text-align:left;">지원서 기재 사항</th>
-              <th style="padding:10px; border:1px solid var(--gri-border); text-align:left;">증빙서류 추출 텍스트 (AI OCR)</th>
-              <th style="padding:10px; border:1px solid var(--gri-border); text-align:center; width:15%;">대조 상태</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${renderRow('학력 사항', 'academic')}
-            ${renderRow('경력 사항', 'career')}
-            ${renderRow('자격증', 'license')}
-          </tbody>
-        </table>
-
-        ${cand.aiVerification !== 'passed' ? `
-          <div style="background-color:rgba(239,68,68,0.05); border:1px dashed var(--gri-error); border-radius:8px; padding:12px; margin-top:16px; color:var(--gri-error); font-size:0.85rem; display:flex; align-items:center; gap:8px;">
-            <i data-lucide="alert-triangle" style="width:18px;height:18px;"></i>
-            <span><strong>자동 검출된 이상 징후:</strong> ${cand.details.career.diffReason || cand.details.license.diffReason || '학위 서류 미첨부'}</span>
+        <div class="rd-doc-accordion${hasIssue ? ' rd-doc-accordion--issue' : ''}">
+          <div class="rd-doc-header" onclick="this.parentElement.classList.toggle('rd-doc-accordion--open')">
+            <span class="rc-badge rc-badge--${cls} rd-doc-badge">${icon}</span>
+            <span class="rd-doc-name">${cat.name}</span>
+            ${cat.note ? `<span class="rd-doc-note">${cat.note}</span>` : ''}
+            ${hasSub ? `<span class="rd-doc-chevron">›</span>` : ''}
           </div>
-        ` : `
-          <div style="background-color:rgba(16,185,129,0.05); border:1px dashed var(--gri-success); border-radius:8px; padding:12px; margin-top:16px; color:var(--gri-success); font-size:0.85rem; display:flex; align-items:center; gap:8px;">
-            <i data-lucide="check-circle" style="width:18px;height:18px;"></i>
-            <span><strong>자동 검증 결과:</strong> 기재 사항과 원본 증빙서류의 모든 메타데이터가 100% 일치합니다.</span>
-          </div>
-        `}
-      </div>
+          ${hasSub ? `<div class="rd-doc-subs">${subHtml}</div>` : ''}
+        </div>`;
+    }).join('');
 
-      <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--gri-border); padding-top:16px;">
-        <button class="btn btn--secondary" onclick="RecruitModule.downloadReport('${cand.name}')">
-          <i data-lucide="printer" style="width:16px;height:16px;"></i> 자격 검증 보고서 출력 (PDF)
-        </button>
-        <div style="display:flex; gap:8px;">
-          <button class="btn btn--danger" onclick="RecruitModule.setFinalDecision(${cand.id}, 'rejected')">
-            검증 반려
-          </button>
-          <button class="btn btn--primary" onclick="RecruitModule.setFinalDecision(${cand.id}, 'approved')">
-            최종 승인
-          </button>
+    // ── 논문 검증 ──
+    let paperHtml = '';
+    if (!c.verification.paper.applicable) {
+      paperHtml = `<p class="rd-na">연구직이 아니므로 해당 없음</p>`;
+    } else if (!c.verification.paper.items || c.verification.paper.items.length === 0) {
+      paperHtml = `<p class="rd-na">논문 정보 없음</p>`;
+    } else {
+      paperHtml = c.verification.paper.items.map(p => {
+        const cls = p.status === 'ok' ? 'ok' : 'warn';
+        const label = { ok: '등재확인', warning: '주의', unverified: '미확인' }[p.status] || p.status;
+        return `<div class="rd-paper-item">
+          <div class="rd-paper-row">
+            <span class="rd-paper-title">${p.title}</span>
+            <span class="rc-badge rc-badge--${cls} rd-paper-badge">${label}</span>
+          </div>
+          <div class="rd-paper-meta">${p.journal} · ${p.year} · ${p.authors}</div>
+          ${p.note ? `<div class="rd-paper-note">${p.note}</div>` : ''}
+        </div>`;
+      }).join('');
+    }
+
+    // ── 블라인드 ──
+    let blindHtml = '';
+    if (!c.verification.blind.issues || c.verification.blind.issues.length === 0) {
+      blindHtml = `<div class="rd-blind-clear"><span class="rc-badge rc-badge--ok" style="margin-right:6px;">✓</span>위반 문구 미탐지</div>`;
+    } else {
+      blindHtml = c.verification.blind.issues.map(issue => `
+        <div class="rd-blind-item rd-blind-item--${issue.severity}">
+          <span class="rd-blind-type">${issue.type}</span>
+          <span class="rd-blind-excerpt">${issue.excerpt}</span>
+        </div>`).join('');
+    }
+
+    // ── 평가위원 (점수) ──
+    let evalHtml = '';
+    if (!c.verification.evaluator.recommended || c.verification.evaluator.recommended.length === 0) {
+      evalHtml = `<p class="rd-na">평가위원 추천 정보 없음</p>`;
+    } else {
+      evalHtml = c.verification.evaluator.recommended.map(ev => {
+        const scorePart = ev.conflict
+          ? `<span class="rd-eval-conflict-badge">이해충돌${ev.conflictReason ? ' · ' + ev.conflictReason : ''}</span>`
+          : `<span class="rd-eval-score">${ev.score != null ? ev.score.toFixed(1) : '—'}<small>/10</small></span>`;
+        return `<div class="rd-eval-row${ev.conflict ? ' rd-eval-row--conflict' : ''}">
+          <span class="rd-eval-name">${ev.name}</span>
+          <span class="rd-eval-affil">${ev.affil}</span>
+          ${scorePart}
+        </div>`;
+      }).join('');
+    }
+
+    content.innerHTML = `
+      <div class="rd-header">
+        <div>
+          <div class="rd-cand-name">${c.name}</div>
+          <div class="rd-cand-meta">${c.position} · ${c.field}</div>
         </div>
+        ${c.reviewStatus === 'completed'
+          ? `<span class="rc-status rc-status--done" style="padding:3px 10px;">✓ 검토완료</span>`
+          : `<button class="btn btn--primary btn--sm" onclick="RecruitModule.markReviewed(${c.id})">검토완료</button>`}
+      </div>
+      <div class="rd-body">
+        <div class="rd-section">
+          <div class="rd-section-title"><i data-lucide="file-check" style="width:12px;height:12px"></i> 서류 검증</div>
+          <div class="rd-doc-list">${docRows}</div>
+        </div>
+        <div class="rd-section">
+          <div class="rd-section-title"><i data-lucide="book-open" style="width:12px;height:12px"></i> 논문 검증</div>
+          ${paperHtml}
+        </div>
+        <div class="rd-section">
+          <div class="rd-section-title"><i data-lucide="eye-off" style="width:12px;height:12px"></i> 블라인드 검토</div>
+          ${blindHtml}
+        </div>
+        <div class="rd-section">
+          <div class="rd-section-title"><i data-lucide="users" style="width:12px;height:12px"></i> 평가위원 매칭</div>
+          ${evalHtml}
+        </div>
+        ${c.reviewNote ? `<div class="rd-note"><strong>검토 메모:</strong> ${c.reviewNote}</div>` : ''}
       </div>
     `;
-
-    content.innerHTML = html;
     lucide.createIcons();
   },
 
-  closeVerifyDetail() {
-    const overlay = document.getElementById('modalOverlay');
-    const content = document.getElementById('modalContent');
-    if (overlay && content) {
-      overlay.classList.remove('modal-overlay--active');
-      content.style.maxWidth = '460px'; // 기존 폭 규격 원복
-    }
+  markReviewed(id) {
+    const c = AppState.candidates.find(a => a.id === id);
+    if (!c) return;
+    c.reviewStatus = 'completed';
+    this._updateTabCounts();
+    this.renderTable();
+    this.renderDetail(c);
   },
 
-  setFinalDecision(candId, status) {
-    const cand = AppState.candidates.find(c => c.id === candId);
-    if (cand) {
-      cand.finalStatus = status;
-      this.closeVerifyDetail();
-      this.renderCandidateList();
-      this.updateStats();
-      showToast(status === 'approved' ? 'success' : 'error', '상태 결정 완료', `후보자 [${cand.name}]의 상태가 [${status === 'approved' ? '승인' : '반려'}]으로 확정되었습니다.`);
-    }
-  },
-
-  downloadReport(name) {
-    showToast('success', '보고서 생성', `[${name}_자격검증보고서.pdf] 파일이 빌드되어 브라우저에 임시 다운로드 되었습니다.`);
-  },
-
-  resetAllCandidates() {
-    if (confirm('지원자 데이터를 초기 사양으로 리셋하시겠습니까?')) {
-      AppState.candidates[1].finalStatus = 'pending';
-      AppState.candidates[2].finalStatus = 'pending';
-      AppState.candidates[4].finalStatus = 'pending';
-      this.renderCandidateList();
-      this.updateStats();
-      showToast('info', '데이터 리셋 완료', '지원자 자격 대조 목록이 초기 상태로 복구되었습니다.');
-    }
+  downloadExcel() {
+    const rows = [['지원자', '직책', '분야', '서류', '논문', '블라인드', '평가위원', '검토상태']];
+    AppState.candidates.forEach(c => {
+      rows.push([
+        c.name, c.position, c.field,
+        c.verification.documents.status,
+        c.verification.paper.applicable ? c.verification.paper.status : 'N/A',
+        (c.verification.blind.issues && c.verification.blind.issues.length > 0) ? '이슈' : '이상없음',
+        (c.verification.evaluator.recommended && c.verification.evaluator.recommended.some(e => e.conflict)) ? '이해충돌' : '이상없음',
+        c.reviewStatus === 'completed' ? '검토완료' : '대기'
+      ]);
+    });
+    const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = '채용검증_결과.csv'; a.click();
+    URL.revokeObjectURL(url);
   }
 };
 

@@ -44,11 +44,6 @@
 
     <!-- ===== SESSION SIDEBAR (GPT style, left) ===== -->
     <aside class="session-sidebar" id="sessionSidebar">
-      <!-- 검색 -->
-      <div class="session-search-wrapper">
-        <i data-lucide="search" style="width:14px;height:14px;color:var(--gri-text-muted);flex-shrink:0;"></i>
-        <input type="text" class="session-search-input" id="sessionSearchInput" placeholder="차수·날짜 검색" oninput="SessionModule.onSearch(this.value)">
-      </div>
 
       <!-- 새 회의 등록 -->
       <button class="new-session-btn" onclick="SessionModule.startNewSession()">
@@ -78,13 +73,6 @@
             <div class="meeting-badge">
               <i data-lucide="hash" style="width:11px;height:11px"></i>
               <span>제 <strong id="statCurrentSession">23</strong>차</span>
-            </div>
-          </div>
-          <div class="deadline-widget">
-            <i data-lucide="clock" style="width:14px;height:14px;opacity:0.8"></i>
-            <div>
-              <div class="deadline-time" id="deadlineTimer">--:--:--</div>
-              <div class="deadline-label">마감까지 남은 시간</div>
             </div>
           </div>
         </div>
@@ -118,7 +106,6 @@
                     <i data-lucide="cloud-upload" class="upload-icon"></i>
                   </div>
                   <div class="upload-text">클릭 또는 드래그</div>
-                  <div class="upload-formats">PDF · HWP · HWPX</div>
                 </div>
               </div>
             </div>
@@ -222,62 +209,87 @@
 
       <!-- ===== RECRUITMENT PAGE ===== -->
       <div id="page-recruitment" style="display:none;">
-        <div class="dashboard-header">
-          <div class="dashboard-title-row">
-            <h1 class="dashboard-title">
-              <i data-lucide="user-check" style="width:28px;height:28px;color:#1B4F8F"></i>
-              채용 자격 검증 시스템
+
+        <!-- 헤더 -->
+        <div class="page-header" style="margin-bottom:10px;">
+          <div class="page-title-row">
+            <h1 class="page-title">
+              <i data-lucide="user-check" style="width:20px;height:20px;color:#1B4F8F"></i>
+              채용 자격 검증
             </h1>
-            <div class="meeting-badge" style="background:rgba(16,185,129,0.1);color:#10B981;border-color:rgba(16,185,129,0.2);">
-              <span>AI 검증 모드 동작중</span>
-            </div>
-          </div>
-          <p class="dashboard-subtitle">지원서 기재사항과 증빙서류의 일치 여부를 AI OCR 기반으로 자동 검증합니다</p>
-        </div>
-        <div class="stats-bar">
-          <div class="stat-card">
-            <div class="stat-icon" style="background:rgba(27,79,143,0.1);color:var(--gri-primary)"><i data-lucide="users"></i></div>
-            <div class="stat-content"><div class="stat-value" id="statRecruitTotal">5</div><div class="stat-label">총 지원자</div></div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon" style="background:rgba(16,185,129,0.1);color:var(--gri-success)"><i data-lucide="check-square"></i></div>
-            <div class="stat-content"><div class="stat-value" id="statRecruitPassed">2</div><div class="stat-label">검증 완료 (일치)</div></div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon" style="background:rgba(245,158,11,0.1);color:var(--gri-warning)"><i data-lucide="alert-triangle"></i></div>
-            <div class="stat-content"><div class="stat-value" id="statRecruitWarning">2</div><div class="stat-label">확인 필요 (경고)</div></div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon" style="background:rgba(239,68,68,0.1);color:var(--gri-error)"><i data-lucide="x-circle"></i></div>
-            <div class="stat-content"><div class="stat-value" id="statRecruitFailed">1</div><div class="stat-label">불일치 및 반려</div></div>
           </div>
         </div>
-        <section class="upload-section card">
-          <div class="section-header">
-            <div class="section-title"><span>지원자 자격 검증 목록</span></div>
-            <div class="section-actions">
-              <button class="btn btn--secondary btn--sm" onclick="RecruitModule.resetAllCandidates()">데이터 리셋</button>
+
+        <!-- 2분할 메인 레이아웃 -->
+        <div class="recruit-layout">
+
+          <!-- LEFT: 업로드 존 or 지원자 목록 -->
+          <div class="recruit-list-col card">
+
+            <!-- 초기 업로드 상태 -->
+            <div class="recruit-upload-zone" id="recruitUploadZone"
+              ondragover="RecruitModule.onDragOver(event)"
+              ondragleave="RecruitModule.onDragLeave(event)"
+              ondrop="RecruitModule.onDrop(event)">
+              <i data-lucide="folder-up" style="width:44px;height:44px;opacity:0.2"></i>
+              <div class="recruit-upload-title">지원자 폴더를 드래그&드롭하세요</div>
+              <div class="recruit-upload-desc">폴더 1개 = 지원자 1명 &nbsp;·&nbsp; PDF · HWPX · DOCX</div>
+              <label class="btn btn--primary btn--sm" for="recruitFolderInput" style="cursor:pointer;margin-top:4px;">
+                <i data-lucide="folder-open" style="width:13px;height:13px"></i> 폴더 선택
+              </label>
+              <input type="file" id="recruitFolderInput" webkitdirectory multiple hidden
+                onchange="RecruitModule.handleUpload(this.files)">
             </div>
+
+            <!-- 업로드 후 목록 뷰 -->
+            <div id="recruitListView" style="display:none;flex-direction:column;flex:1;min-height:0;">
+              <div class="recruit-list-toolbar">
+                <div class="recruit-filter-tabs" id="recruitTabs">
+                  <button class="recruit-tab recruit-tab--active" data-filter="all"    onclick="RecruitModule.setFilter('all')">전체 <span class="rc-tab-cnt" id="rtcAll">0</span></button>
+                  <button class="recruit-tab"                     data-filter="anomaly" onclick="RecruitModule.setFilter('anomaly')">이상탐지 <span class="rc-tab-cnt" id="rtcAnomaly">0</span></button>
+                  <button class="recruit-tab"                     data-filter="pending" onclick="RecruitModule.setFilter('pending')">검토대기 <span class="rc-tab-cnt" id="rtcPending">0</span></button>
+                  <button class="recruit-tab"                     data-filter="done"   onclick="RecruitModule.setFilter('done')">검토완료 <span class="rc-tab-cnt" id="rtcDone">0</span></button>
+                </div>
+                <label class="btn btn--ghost btn--sm" for="recruitFolderInput2" style="cursor:pointer;white-space:nowrap;">
+                  <i data-lucide="folder-plus" style="width:13px;height:13px"></i> 폴더 업로드
+                </label>
+                <input type="file" id="recruitFolderInput2" webkitdirectory multiple hidden
+                  onchange="RecruitModule.handleUpload(this.files)">
+                <button class="btn btn--ghost btn--sm" onclick="RecruitModule.downloadExcel()" style="white-space:nowrap;">
+                  <i data-lucide="file-spreadsheet" style="width:13px;height:13px"></i> 엑셀
+                </button>
+              </div>
+              <div class="recruit-table-wrapper">
+                <table class="rc-table">
+                  <thead>
+                    <tr>
+                      <th style="width:30px;">#</th>
+                      <th>지원자 / 직책 / 분야</th>
+                      <th title="서류검증" style="width:38px;">서류</th>
+                      <th title="논문검증" style="width:38px;">논문</th>
+                      <th title="블라인드검토" style="width:44px;">블라인드</th>
+                      <th title="평가위원" style="width:44px;">평가위원</th>
+                      <th style="width:56px;">상태</th>
+                    </tr>
+                  </thead>
+                  <tbody id="recruitTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+          </div><!-- /recruit-list-col -->
+
+          <!-- RIGHT: 상세 패널 -->
+          <div class="recruit-detail-col" id="recruitDetailCol">
+            <div class="recruit-detail-empty" id="recruitDetailEmpty">
+              <i data-lucide="mouse-pointer-click" style="width:32px;height:32px;opacity:0.2"></i>
+              <span>지원자를 선택하면<br>상세 검증 결과가 표시됩니다</span>
+            </div>
+            <div id="recruitDetailContent" style="display:none;height:100%;flex-direction:column;overflow:hidden;"></div>
           </div>
-          <div style="overflow-x:auto;width:100%;">
-            <table class="recruit-table" style="width:100%;border-collapse:collapse;margin-top:12px;">
-              <thead>
-                <tr style="border-bottom:2px solid var(--gri-border);text-align:left;background:var(--gri-border-light);">
-                  <th style="padding:14px 16px;font-weight:700;font-size:0.9rem;">번호</th>
-                  <th style="padding:14px 16px;font-weight:700;font-size:0.9rem;">성명</th>
-                  <th style="padding:14px 16px;font-weight:700;font-size:0.9rem;">지원 분야</th>
-                  <th style="padding:14px 16px;font-weight:700;font-size:0.9rem;">이력서</th>
-                  <th style="padding:14px 16px;font-weight:700;font-size:0.9rem;">증빙 서류</th>
-                  <th style="padding:14px 16px;font-weight:700;font-size:0.9rem;">AI 검증 결과</th>
-                  <th style="padding:14px 16px;font-weight:700;font-size:0.9rem;">최종 상태</th>
-                  <th style="padding:14px 16px;font-weight:700;font-size:0.9rem;text-align:right;">검증 관리</th>
-                </tr>
-              </thead>
-              <tbody id="candidateListBody"></tbody>
-            </table>
-          </div>
-        </section>
-      </div>
+
+        </div><!-- /recruit-layout -->
+      </div><!-- /page-recruitment -->
 
     </main><!-- /main-content -->
   </div><!-- /app-layout -->

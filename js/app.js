@@ -1129,6 +1129,8 @@ const RecruitModule = {
   _filter: 'all',
   _selectedId: null,
   _hasUploaded: false,
+  _sortField: null,
+  _sortDir: 'asc',
 
   init() {
     // 페이지 진입마다 상태 유지
@@ -1155,12 +1157,45 @@ const RecruitModule = {
   },
 
   _filtered() {
-    return AppState.candidates.filter(c => {
+    let list = AppState.candidates.filter(c => {
       if (this._filter === 'anomaly') return this._isAnomalous(c);
       if (this._filter === 'done') return c.reviewStatus === 'completed';
       if (this._filter === 'pending') return c.reviewStatus !== 'completed';
       return true;
     });
+    if (this._sortField) {
+      const f = this._sortField;
+      const dir = this._sortDir === 'asc' ? 1 : -1;
+      list = [...list].sort((a, b) => {
+        const av = (a[f] || '').localeCompare(b[f] || '', 'ko');
+        return av * dir;
+      });
+    }
+    return list;
+  },
+
+  sortBy(field) {
+    if (this._sortField === field) {
+      this._sortDir = this._sortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      this._sortField = field;
+      this._sortDir = 'asc';
+    }
+    // 버튼 활성 표시 업데이트
+    ['position', 'field'].forEach(f => {
+      const btn = document.getElementById('sortBtn' + (f === 'position' ? 'Position' : 'Field'));
+      if (!btn) return;
+      btn.classList.toggle('rc-sort-btn--active', this._sortField === f);
+      btn.dataset.dir = (this._sortField === f) ? this._sortDir : '';
+    });
+    this.renderTable();
+  },
+
+  _evalAvg(c) {
+    const scores = (c.verification.evaluator.recommended || [])
+      .filter(e => !e.conflict && e.score != null)
+      .map(e => e.score);
+    return scores.length ? scores.reduce((s, v) => s + v, 0) / scores.length : null;
   },
 
   _updateTabCounts() {
@@ -1245,8 +1280,11 @@ const RecruitModule = {
       const paperS = c.verification.paper.applicable ? c.verification.paper.status : 'na';
       const blindS = (c.verification.blind.issues && c.verification.blind.issues.length > 0) ? 'warning'
         : (c.verification.blind.status === 'pending' ? 'pending' : 'ok');
-      const evalS = (c.verification.evaluator.recommended && c.verification.evaluator.recommended.some(e => e.conflict)) ? 'conflict'
-        : c.verification.evaluator.status;
+      const evalAvg = this._evalAvg(c);
+      const hasConflict = c.verification.evaluator.recommended && c.verification.evaluator.recommended.some(e => e.conflict);
+      const evalCell = evalAvg != null
+        ? `<span class="rc-eval-avg${hasConflict ? ' rc-eval-avg--conflict' : ''}">${evalAvg.toFixed(1)}</span>`
+        : `<span class="rc-badge rc-badge--pending">—</span>`;
 
       const reviewBadge = c.reviewStatus === 'completed'
         ? '<span class="rc-status rc-status--done">검토완료</span>'
@@ -1264,7 +1302,7 @@ const RecruitModule = {
         <td class="rc-td rc-td--badge">${this._statusBadge(docS)}</td>
         <td class="rc-td rc-td--badge">${this._statusBadge(paperS)}</td>
         <td class="rc-td rc-td--badge">${this._statusBadge(blindS)}</td>
-        <td class="rc-td rc-td--badge">${this._statusBadge(evalS)}</td>
+        <td class="rc-td rc-td--badge">${evalCell}</td>
         <td class="rc-td rc-td--status">${reviewBadge}</td>
       `;
       tbody.appendChild(tr);
@@ -1349,16 +1387,24 @@ const RecruitModule = {
         </div>`).join('');
     }
 
-    // ── 평가위원 (점수) ──
+    // ── 평가위원 (점수 내림차순 정렬) ──
     let evalHtml = '';
-    if (!c.verification.evaluator.recommended || c.verification.evaluator.recommended.length === 0) {
+    const evalList = c.verification.evaluator.recommended || [];
+    if (evalList.length === 0) {
       evalHtml = `<p class="rd-na">평가위원 추천 정보 없음</p>`;
     } else {
-      evalHtml = c.verification.evaluator.recommended.map(ev => {
+      const sorted = [...evalList].sort((a, b) => {
+        if (a.conflict && !b.conflict) return 1;
+        if (!a.conflict && b.conflict) return -1;
+        return (b.score || 0) - (a.score || 0);
+      });
+      evalHtml = sorted.map((ev, i) => {
+        const rank = !ev.conflict ? `<span class="rd-eval-rank">${i + 1}</span>` : '';
         const scorePart = ev.conflict
           ? `<span class="rd-eval-conflict-badge">이해충돌${ev.conflictReason ? ' · ' + ev.conflictReason : ''}</span>`
           : `<span class="rd-eval-score">${ev.score != null ? ev.score.toFixed(1) : '—'}<small>/10</small></span>`;
         return `<div class="rd-eval-row${ev.conflict ? ' rd-eval-row--conflict' : ''}">
+          ${rank}
           <span class="rd-eval-name">${ev.name}</span>
           <span class="rd-eval-affil">${ev.affil}</span>
           ${scorePart}

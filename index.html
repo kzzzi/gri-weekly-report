@@ -233,7 +233,7 @@
               ondrop="RecruitModule.onDrop(event)">
               <i data-lucide="folder-up" style="width:44px;height:44px;opacity:0.2"></i>
               <div class="recruit-upload-title">지원자 폴더를 드래그&드롭하세요</div>
-              <div class="recruit-upload-desc">폴더 1개 = 지원자 1명 &nbsp;·&nbsp; PDF · HWPX · DOCX</div>
+              <div class="recruit-upload-desc">PDF · HWPX · DOCX</div>
               <label class="btn btn--primary btn--sm" for="recruitFolderInput" style="cursor:pointer;margin-top:4px;">
                 <i data-lucide="folder-open" style="width:13px;height:13px"></i> 폴더 선택
               </label>
@@ -250,13 +250,13 @@
                   <button class="recruit-tab"                     data-filter="pending" onclick="RecruitModule.setFilter('pending')">검토대기 <span class="rc-tab-cnt" id="rtcPending">0</span></button>
                   <button class="recruit-tab"                     data-filter="done"   onclick="RecruitModule.setFilter('done')">검토완료 <span class="rc-tab-cnt" id="rtcDone">0</span></button>
                 </div>
-                <label class="btn btn--ghost btn--sm" for="recruitFolderInput2" style="cursor:pointer;white-space:nowrap;">
+                <label class="btn btn--secondary btn--sm" for="recruitFolderInput2" style="cursor:pointer;white-space:nowrap;">
                   <i data-lucide="folder-plus" style="width:13px;height:13px"></i> 폴더 업로드
                 </label>
                 <input type="file" id="recruitFolderInput2" webkitdirectory multiple hidden
                   onchange="RecruitModule.handleUpload(this.files)">
-                <button class="btn btn--ghost btn--sm" onclick="RecruitModule.downloadExcel()" style="white-space:nowrap;">
-                  <i data-lucide="file-spreadsheet" style="width:13px;height:13px"></i> 엑셀
+                <button class="btn btn--secondary btn--sm" onclick="RecruitModule.downloadExcel()" style="white-space:nowrap;">
+                  <i data-lucide="file-spreadsheet" style="width:13px;height:13px"></i> Excel
                 </button>
               </div>
               <div class="recruit-table-wrapper">
@@ -264,11 +264,15 @@
                   <thead>
                     <tr>
                       <th style="width:30px;">#</th>
-                      <th>지원자 / 직책 / 분야</th>
+                      <th>
+                        <span style="color:var(--gri-text-secondary);font-weight:600;">지원자</span>
+                        <button class="rc-sort-btn" id="sortBtnPosition" onclick="RecruitModule.sortBy('position')">직책</button>
+                        <button class="rc-sort-btn" id="sortBtnField"    onclick="RecruitModule.sortBy('field')">분야</button>
+                      </th>
                       <th title="서류검증" style="width:38px;">서류</th>
                       <th title="논문검증" style="width:38px;">논문</th>
                       <th title="블라인드검토" style="width:44px;">블라인드</th>
-                      <th title="평가위원" style="width:44px;">평가위원</th>
+                      <th title="평가위원평균" style="width:46px;">평가위원</th>
                       <th style="width:56px;">상태</th>
                     </tr>
                   </thead>

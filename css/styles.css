@@ -3474,6 +3474,70 @@ ul, ol {
   padding: 6px 8px;
 }
 
+/* ── 직책/분야 정렬 버튼 ── */
+.rc-sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 4px;
+  padding: 1px 6px;
+  border: 1px solid var(--gri-border);
+  border-radius: 10px;
+  background: var(--gri-surface);
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--gri-text-secondary);
+  cursor: pointer;
+  transition: var(--gri-transition-fast);
+}
+
+.rc-sort-btn:hover { background: var(--gri-border-light); color: var(--gri-text-primary); }
+
+.rc-sort-btn--active {
+  background: var(--gri-primary);
+  border-color: var(--gri-primary);
+  color: white;
+}
+
+.rc-sort-btn--active::after {
+  content: attr(data-dir);
+  font-size: 0.6rem;
+  margin-left: 1px;
+}
+
+/* ── 평가위원 평균 점수 (테이블) ── */
+.rc-eval-avg {
+  display: inline-block;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--gri-primary);
+}
+
+.rc-eval-avg--conflict { color: var(--gri-warning); }
+
+/* ── 평가위원 순위 번호 ── */
+.rd-eval-rank {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--gri-primary);
+  color: white;
+  font-size: 0.62rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── 논문 뱃지 줄바꿈 방지 ── */
+.rd-paper-badge {
+  white-space: nowrap !important;
+  width: auto !important;
+  padding: 1px 5px !important;
+  height: auto !important;
+}
+
 /* ── 업로드 존 ── */
 .recruit-upload-zone {
   flex: 1;

@@ -1226,7 +1226,6 @@ const RecruitModule = {
   },
 
   handleUpload(files) {
-    if (!files || files.length === 0) return;
     this._loadDummyData();
   },
 

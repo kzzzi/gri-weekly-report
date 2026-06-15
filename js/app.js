@@ -248,6 +248,122 @@ const AppState = {
         ]}
       },
       reviewStatus: 'pending', reviewNote: ''
+    },
+    {
+      id: 6, rawFileName: '250303_부연구위원나급_기후에너지정책_윤지현',
+      date: '250303', position: '부연구위원나급', field: '기후에너지정책', name: '윤지현', isResearch: true,
+      verification: {
+        documents: { status: 'ok', categories: [
+          { id: 'application', name: '입사지원서', status: 'ok', note: '', subItems: [{ name: '기본인적사항', status: 'ok', note: '' }, { name: '학력사항', status: 'ok', note: '' }, { name: '경력사항', status: 'ok', note: '' }, { name: '자기소개서', status: 'ok', note: '' }] },
+          { id: 'privacy', name: '개인정보동의서', status: 'ok', note: '', subItems: [{ name: '수집·이용 동의서', status: 'ok', note: '' }, { name: '제3자 제공 동의서', status: 'ok', note: '' }] },
+          { id: 'academic', name: '학력증명서', status: 'ok', note: '', subItems: [{ name: '학위수여증명서', status: 'ok', note: '' }, { name: '성적증명서', status: 'ok', note: '' }] },
+          { id: 'career', name: '경력증명서', status: 'ok', note: '', subItems: [{ name: '재직(경력)증명서', status: 'ok', note: '' }, { name: '건강보험료납부확인서', status: 'ok', note: '' }] },
+          { id: 'research', name: '연구실적', status: 'ok', note: '', subItems: [{ name: '연구실적목록', status: 'ok', note: '' }, { name: '대표논문 1편', status: 'ok', note: '' }] },
+          { id: 'license', name: '자격증', status: 'ok', note: '', subItems: [{ name: '에너지관리기사 사본', status: 'ok', note: '' }] }
+        ]},
+        paper: { applicable: true, status: 'ok', items: [{ title: '재생에너지 보급 정책의 지역 수용성 분석', journal: '에너지공학', year: 2023, authors: '윤지현', status: 'ok' }] },
+        blind: { status: 'ok', issues: [] },
+        evaluator: { status: 'ok', recommended: [
+          { name: '조현석', affil: '에너지경제연구원', field: '기후정책', conflict: false, score: 8.6 },
+          { name: '류재원', affil: '한국환경연구원', field: '에너지정책', conflict: false, score: 7.4 },
+          { name: '정민아', affil: '서울대학교 환경대학원', field: '기후변화', conflict: false, score: 7.9 }
+        ]}
+      },
+      reviewStatus: 'pending', reviewNote: ''
+    },
+    {
+      id: 7, rawFileName: '250303_연구위원나급_스마트시티_장민서',
+      date: '250303', position: '연구위원나급', field: '스마트시티', name: '장민서', isResearch: true,
+      verification: {
+        documents: { status: 'warning', categories: [
+          { id: 'application', name: '입사지원서', status: 'ok', note: '', subItems: [{ name: '기본인적사항', status: 'ok', note: '' }, { name: '학력사항', status: 'ok', note: '' }, { name: '경력사항', status: 'ok', note: '' }, { name: '자기소개서', status: 'ok', note: '' }] },
+          { id: 'privacy', name: '개인정보동의서', status: 'ok', note: '', subItems: [{ name: '수집·이용 동의서', status: 'ok', note: '' }, { name: '제3자 제공 동의서', status: 'ok', note: '' }] },
+          { id: 'academic', name: '학력증명서', status: 'ok', note: '', subItems: [{ name: '학위수여증명서', status: 'ok', note: '' }, { name: '성적증명서', status: 'ok', note: '' }] },
+          { id: 'career', name: '경력증명서', status: 'ok', note: '', subItems: [{ name: '재직(경력)증명서', status: 'ok', note: '' }, { name: '건강보험료납부확인서', status: 'ok', note: '' }] },
+          { id: 'research', name: '연구실적', status: 'missing', note: '연구실적목록 미첨부', subItems: [{ name: '연구실적목록', status: 'missing', note: '미첨부' }, { name: '대표논문 1편', status: 'ok', note: '' }] },
+          { id: 'license', name: '자격증', status: 'ok', note: '', subItems: [{ name: '정보처리기사 사본', status: 'ok', note: '' }] }
+        ]},
+        paper: { applicable: true, status: 'ok', items: [{ title: 'IoT 기반 도시 데이터 플랫폼 설계', journal: '스마트시티학회지', year: 2023, authors: '장민서, 김도현', status: 'ok' }] },
+        blind: { status: 'warning', issues: [{ type: '출신학교', excerpt: '"KAIST 출신으로 AI 융합 연구에..."', severity: 'high' }] },
+        evaluator: { status: 'ok', recommended: [
+          { name: '박현수', affil: '한국전자통신연구원', field: '스마트시티', conflict: false, score: 9.1 },
+          { name: '김태우', affil: '국토연구원', field: '도시정보', conflict: false, score: 8.3 },
+          { name: '이수빈', affil: 'KAIST 도시공학과', conflict: true, conflictReason: '동일 출신 대학', score: null }
+        ]}
+      },
+      reviewStatus: 'pending', reviewNote: ''
+    },
+    {
+      id: 8, rawFileName: '250303_전문연구원_데이터분석_한동훈',
+      date: '250303', position: '전문연구원', field: '데이터분석', name: '한동훈', isResearch: false,
+      verification: {
+        documents: { status: 'mismatch', categories: [
+          { id: 'application', name: '입사지원서', status: 'ok', note: '', subItems: [{ name: '기본인적사항', status: 'ok', note: '' }, { name: '학력사항', status: 'ok', note: '' }, { name: '경력사항', status: 'ok', note: '' }, { name: '자기소개서', status: 'ok', note: '' }] },
+          { id: 'privacy', name: '개인정보동의서', status: 'ok', note: '', subItems: [{ name: '수집·이용 동의서', status: 'ok', note: '' }, { name: '제3자 제공 동의서', status: 'ok', note: '' }] },
+          { id: 'academic', name: '학력증명서', status: 'mismatch', note: '전공 불일치', subItems: [{ name: '학위수여증명서', status: 'mismatch', note: '기재: 통계학 → 증빙: 수학' }, { name: '성적증명서', status: 'ok', note: '' }] },
+          { id: 'career', name: '경력증명서', status: 'ok', note: '', subItems: [{ name: '재직(경력)증명서', status: 'ok', note: '' }, { name: '건강보험료납부확인서', status: 'ok', note: '' }] },
+          { id: 'research', name: '연구실적', status: 'na', note: '행정직 — 해당 없음', subItems: [] },
+          { id: 'license', name: '자격증', status: 'ok', note: '', subItems: [{ name: '데이터분석준전문가 사본', status: 'ok', note: '' }] }
+        ]},
+        paper: { applicable: false, status: 'na', items: [] },
+        blind: { status: 'ok', issues: [] },
+        evaluator: { status: 'ok', recommended: [
+          { name: '최영진', affil: '통계청', field: '데이터분석', conflict: false, score: 7.8 },
+          { name: '송민희', affil: '한국정보화진흥원', field: '빅데이터', conflict: false, score: 8.2 },
+          { name: '권대웅', affil: '경기연구원', field: '데이터정책', conflict: false, score: 6.7 }
+        ]}
+      },
+      reviewStatus: 'completed', reviewNote: '전공 불일치 확인 후 면접에서 소명 필요.'
+    },
+    {
+      id: 9, rawFileName: '250303_부연구위원나급_지역경제_오수아',
+      date: '250303', position: '부연구위원나급', field: '지역경제', name: '오수아', isResearch: true,
+      verification: {
+        documents: { status: 'ok', categories: [
+          { id: 'application', name: '입사지원서', status: 'ok', note: '', subItems: [{ name: '기본인적사항', status: 'ok', note: '' }, { name: '학력사항', status: 'ok', note: '' }, { name: '경력사항', status: 'ok', note: '' }, { name: '자기소개서', status: 'ok', note: '' }] },
+          { id: 'privacy', name: '개인정보동의서', status: 'ok', note: '', subItems: [{ name: '수집·이용 동의서', status: 'ok', note: '' }, { name: '제3자 제공 동의서', status: 'ok', note: '' }] },
+          { id: 'academic', name: '학력증명서', status: 'ok', note: '', subItems: [{ name: '학위수여증명서', status: 'ok', note: '' }, { name: '성적증명서', status: 'ok', note: '' }] },
+          { id: 'career', name: '경력증명서', status: 'ok', note: '', subItems: [{ name: '재직(경력)증명서', status: 'ok', note: '' }, { name: '건강보험료납부확인서', status: 'ok', note: '' }] },
+          { id: 'research', name: '연구실적', status: 'ok', note: '', subItems: [{ name: '연구실적목록', status: 'ok', note: '' }, { name: '대표논문 1편', status: 'ok', note: '' }] },
+          { id: 'license', name: '자격증', status: 'ok', note: '', subItems: [{ name: '경제학사 자격 사본', status: 'ok', note: '' }] }
+        ]},
+        paper: { applicable: true, status: 'warning', items: [
+          { title: '수도권 역외유출 산업 재편 전략', journal: '지역경제연구', year: 2023, authors: '오수아', status: 'ok' },
+          { title: '경기북부 산업클러스터 효과 분석', journal: '한국지역학회지', year: 2022, authors: '오수아, 박민준', status: 'unverified', note: '게재 여부 확인 중' }
+        ]},
+        blind: { status: 'ok', issues: [] },
+        evaluator: { status: 'ok', recommended: [
+          { name: '강수현', affil: '한국은행 경기본부', field: '지역경제', conflict: false, score: 8.5 },
+          { name: '유재현', affil: '경기연구원', field: '산업경제', conflict: false, score: 7.6 },
+          { name: '문성식', affil: '인하대학교 경제학과', field: '지역개발', conflict: false, score: 7.1 }
+        ]}
+      },
+      reviewStatus: 'pending', reviewNote: ''
+    },
+    {
+      id: 10, rawFileName: '250303_연구위원가급_사회문화정책_임채원',
+      date: '250303', position: '연구위원가급', field: '사회문화정책', name: '임채원', isResearch: true,
+      verification: {
+        documents: { status: 'missing', categories: [
+          { id: 'application', name: '입사지원서', status: 'ok', note: '', subItems: [{ name: '기본인적사항', status: 'ok', note: '' }, { name: '학력사항', status: 'ok', note: '' }, { name: '경력사항', status: 'ok', note: '' }, { name: '자기소개서', status: 'ok', note: '' }] },
+          { id: 'privacy', name: '개인정보동의서', status: 'missing', note: '동의서 미첨부', subItems: [{ name: '수집·이용 동의서', status: 'missing', note: '미첨부' }, { name: '제3자 제공 동의서', status: 'missing', note: '미첨부' }] },
+          { id: 'academic', name: '학력증명서', status: 'ok', note: '', subItems: [{ name: '학위수여증명서', status: 'ok', note: '' }, { name: '성적증명서', status: 'ok', note: '' }] },
+          { id: 'career', name: '경력증명서', status: 'ok', note: '', subItems: [{ name: '재직(경력)증명서', status: 'ok', note: '' }, { name: '건강보험료납부확인서', status: 'ok', note: '' }] },
+          { id: 'research', name: '연구실적', status: 'ok', note: '', subItems: [{ name: '연구실적목록', status: 'ok', note: '' }, { name: '대표논문 1편', status: 'ok', note: '' }, { name: '대표논문 2편', status: 'ok', note: '' }] },
+          { id: 'license', name: '자격증', status: 'ok', note: '', subItems: [{ name: '문화예술교육사 사본', status: 'ok', note: '' }] }
+        ]},
+        paper: { applicable: true, status: 'ok', items: [
+          { title: '경기도 문화다양성 정책 효과 연구', journal: '문화정책논총', year: 2023, authors: '임채원', status: 'ok' },
+          { title: '지역 문화재단 운영 성과 평가 지표 개발', journal: '한국문화행정학회보', year: 2022, authors: '임채원, 서지민', status: 'ok' }
+        ]},
+        blind: { status: 'warning', issues: [{ type: '성별유추', excerpt: '"여성 연구자로서 젠더 관점을..."', severity: 'medium' }] },
+        evaluator: { status: 'ok', recommended: [
+          { name: '백승민', affil: '한국문화관광연구원', field: '문화정책', conflict: false, score: 8.8 },
+          { name: '전혜진', affil: '경기문화재단', field: '사회문화', conflict: false, score: 8.0 },
+          { name: '손재민', affil: '중앙대학교 문화콘텐츠학과', field: '문화정책', conflict: false, score: 7.3 }
+        ]}
+      },
+      reviewStatus: 'pending', reviewNote: ''
     }
   ],
 
@@ -1221,11 +1337,19 @@ const RecruitModule = {
     e.preventDefault();
     const zone = document.getElementById('recruitUploadZone');
     if (zone) zone.classList.remove('recruit-upload-zone--over');
-    // 폴더 업로드는 실제 파일 파싱 대신 더미 데이터 로드
-    this._loadDummyData();
+    const files = e.dataTransfer ? e.dataTransfer.files : null;
+    this.handleUpload(files);
   },
 
   handleUpload(files) {
+    if (files && files.length > 0) {
+      const validExts = ['pdf', 'hwpx', 'docx'];
+      const invalid = Array.from(files).find(f => !validExts.includes(f.name.split('.').pop().toLowerCase()));
+      if (invalid) {
+        ModalModule.showModal('recruit_format_error', { fileName: invalid.name });
+        return;
+      }
+    }
     this._loadDummyData();
   },
 
@@ -1507,6 +1631,19 @@ const ModalModule = {
           </div>
           <h3 class="modal__title">파일 형식 오류</h3>
           <p class="modal__message">PDF, HWP, HWPX 파일만 첨부 가능합니다.<br>(.jpg, .png 등 이미지 파일이나 타 폴더 구조는 업로드할 수 없습니다.)</p>
+          <div class="modal__actions">
+            <button class="btn btn--primary" onclick="ModalModule.closeModal()">확인</button>
+          </div>
+        `;
+        break;
+
+      case 'recruit_format_error':
+        html = `
+          <div class="modal__icon modal__icon--warning">
+            <i data-lucide="file-warning"></i>
+          </div>
+          <h3 class="modal__title">파일 형식 오류</h3>
+          <p class="modal__message">PDF, HWPX, DOCX 파일만 업로드 가능합니다.<br>지원되지 않는 파일: <strong>${data && data.fileName ? data.fileName : ''}</strong></p>
           <div class="modal__actions">
             <button class="btn btn--primary" onclick="ModalModule.closeModal()">확인</button>
           </div>

@@ -1274,9 +1274,8 @@ const RecruitModule = {
 
   _filtered() {
     let list = AppState.candidates.filter(c => {
-      if (this._filter === 'anomaly') return this._isAnomalous(c);
       if (this._filter === 'done') return c.reviewStatus === 'completed';
-      if (this._filter === 'pending') return c.reviewStatus !== 'completed';
+      if (this._filter === 'pending') return this._isAnomalous(c) && c.reviewStatus !== 'completed';
       return true;
     });
     if (this._sortField) {
@@ -1316,11 +1315,10 @@ const RecruitModule = {
 
   _updateTabCounts() {
     const total = AppState.candidates.length;
-    const anomaly = AppState.candidates.filter(c => this._isAnomalous(c)).length;
     const done = AppState.candidates.filter(c => c.reviewStatus === 'completed').length;
-    const pending = total - done;
+    const pending = AppState.candidates.filter(c => this._isAnomalous(c) && c.reviewStatus !== 'completed').length;
     const set = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
-    set('rtcAll', total); set('rtcAnomaly', anomaly); set('rtcPending', pending); set('rtcDone', done);
+    set('rtcAll', total); set('rtcPending', pending); set('rtcDone', done);
   },
 
   // ── 폴더 드래그앤드롭 ──
@@ -1542,7 +1540,7 @@ const RecruitModule = {
           <div class="rd-cand-meta">${c.position} · ${c.field}</div>
         </div>
         ${c.reviewStatus === 'completed'
-          ? `<span class="rc-status rc-status--done" style="padding:3px 10px;">✓ 검토완료</span>`
+          ? `<button class="btn btn--sm" style="border:1px solid var(--gri-border);color:var(--gri-text-secondary);" onclick="RecruitModule.cancelReviewed(${c.id})">검토취소</button>`
           : `<button class="btn btn--primary btn--sm" onclick="RecruitModule.markReviewed(${c.id})">검토완료</button>`}
       </div>
       <div class="rd-body">
@@ -1572,6 +1570,15 @@ const RecruitModule = {
     const c = AppState.candidates.find(a => a.id === id);
     if (!c) return;
     c.reviewStatus = 'completed';
+    this._updateTabCounts();
+    this.renderTable();
+    this.renderDetail(c);
+  },
+
+  cancelReviewed(id) {
+    const c = AppState.candidates.find(a => a.id === id);
+    if (!c) return;
+    c.reviewStatus = 'pending';
     this._updateTabCounts();
     this.renderTable();
     this.renderDetail(c);

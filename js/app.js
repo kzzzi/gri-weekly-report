@@ -1058,7 +1058,7 @@ const MergerModule = {
       document.getElementById('downloadHwpxBtn').removeAttribute('disabled');
       document.getElementById('previewOpenBtn').removeAttribute('disabled');
 
-      showToast('success', '자료병합 완료', '파일이 순서대로 병합되었습니다. 미리보기 또는 다운로드하세요.');
+      ModalModule.showModal('merge_complete');
 
     } catch (error) {
       console.error(error);
@@ -1128,17 +1128,11 @@ const PreviewModule = {
   },
 
   async openPreviewModal() {
-    if (AppState.mergedPdfBytes) {
-      const overlay = document.getElementById('previewModalOverlay');
-      if (overlay) overlay.classList.add('preview-modal-overlay--open');
-      return;
+    if (!AppState.mergedPdfBytes) {
+      await MergerModule.executeMerge();
     }
-    // 병합 전이면 먼저 병합 실행 후 미리보기
-    await MergerModule.executeMerge();
-    const overlay = document.getElementById('previewModalOverlay');
-    if (overlay) overlay.classList.add('preview-modal-overlay--open');
-    if (AppState.previewPdfDocument) {
-      this.renderPage(AppState.currentPreviewPage);
+    if (AppState.mergedPdfBytes) {
+      await this.openPreview(AppState.mergedPdfBytes);
     }
   },
 
@@ -1670,6 +1664,97 @@ const RecruitModule = {
 };
 
 // ==========================================================================
+// 6-1. 일반 파일 병합 모듈 (GeneralMerge)
+// ==========================================================================
+const GeneralMerge = {
+  _files: [],
+  _mergedBytes: null,
+
+  open() {
+    this._files = [];
+    this._mergedBytes = null;
+    ModalModule.showModal('general_merge');
+  },
+
+  addFiles(fileList) {
+    Array.from(fileList).forEach(file => {
+      const ext = file.name.split('.').pop().toLowerCase();
+      if (!['pdf', 'hwp', 'hwpx'].includes(ext)) {
+        showToast('error', '형식 오류', `${file.name}: PDF/HWP/HWPX만 가능합니다.`);
+        return;
+      }
+      this._files.push({ id: 'gm_' + Date.now() + '_' + Math.random().toString(36).substr(2,4), file, name: file.name, ext });
+    });
+    this._renderList();
+  },
+
+  _renderList() {
+    const el = document.getElementById('gmFileList');
+    if (!el) return;
+    el.innerHTML = '';
+    this._files.forEach((f, idx) => {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:6px;background:var(--gri-bg);font-size:0.8rem;';
+      row.innerHTML = `
+        <span style="width:18px;height:18px;border-radius:50%;background:var(--gri-primary);color:#fff;font-size:0.6rem;font-weight:800;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">${idx+1}</span>
+        <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${f.name}">${f.name}</span>
+        <button style="border:none;background:none;cursor:pointer;color:var(--gri-text-muted);padding:2px;" onclick="GeneralMerge.removeFile('${f.id}')">✕</button>
+      `;
+      el.appendChild(row);
+    });
+  },
+
+  removeFile(id) {
+    this._files = this._files.filter(f => f.id !== id);
+    this._renderList();
+  },
+
+  async merge() {
+    if (this._files.length === 0) { showToast('warning', '파일 없음', '파일을 먼저 추가하세요.'); return; }
+    document.getElementById('globalLoading').style.display = 'flex';
+    document.getElementById('globalLoadingText').innerText = '파일 병합 중...';
+    document.getElementById('globalProgressBar').style.display = 'none';
+    try {
+      const mergedPdf = await PDFLib.PDFDocument.create();
+      for (const f of this._files) {
+        if (f.ext === 'pdf') {
+          const buf = await f.file.arrayBuffer();
+          const src = await PDFLib.PDFDocument.load(buf);
+          const pages = await mergedPdf.copyPages(src, src.getPageIndices());
+          pages.forEach(p => mergedPdf.addPage(p));
+        } else {
+          mergedPdf.addPage([595.276, 841.89]);
+        }
+      }
+      if (mergedPdf.getPageCount() === 0) mergedPdf.addPage([595.276, 841.89]);
+      this._mergedBytes = await mergedPdf.save();
+      document.getElementById('globalLoading').style.display = 'none';
+      ['gmDownloadHwp','gmDownloadPdf','gmDownloadHwpx'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.disabled = false;
+      });
+      showToast('success', '병합 완료', '병합 완료! 다운로드 버튼을 눌러 저장하세요.');
+    } catch(e) {
+      document.getElementById('globalLoading').style.display = 'none';
+      showToast('error', '병합 실패', '파일 병합 중 오류가 발생했습니다.');
+    }
+  },
+
+  download(format) {
+    if (!this._mergedBytes) return;
+    const blob = new Blob([this._mergedBytes], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `[병합완료]_통합자료.${format}`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('success', `${format.toUpperCase()} 다운로드`, '파일이 저장되었습니다.');
+  },
+
+  reset() { this._files = []; this._mergedBytes = null; }
+};
+
+// ==========================================================================
 // 7. 모달 관리 모듈 (ModalModule)
 // ==========================================================================
 const ModalModule = {
@@ -1805,6 +1890,62 @@ const ModalModule = {
           <div class="modal__actions">
             <button class="btn btn--secondary" onclick="ModalModule.closeModal()">취소</button>
             <button class="btn btn--danger" id="confirmDeleteDeptBtn">삭제</button>
+          </div>
+        `;
+        break;
+
+      case 'merge_complete':
+        html = `
+          <div class="modal__icon modal__icon--success">
+            <i data-lucide="check-circle-2"></i>
+          </div>
+          <h3 class="modal__title">자료병합 완료</h3>
+          <p class="modal__message">파일이 순서대로 병합되었습니다.<br>다운로드 형식을 선택하세요.</p>
+          <div class="modal__actions" style="flex-direction:column;gap:8px;width:100%;">
+            <div style="display:flex;gap:8px;width:100%;">
+              <button class="btn btn--secondary" onclick="ModalModule.closeModal();MergerModule.downloadHwp();" style="flex:1;">
+                <i data-lucide="download" style="width:14px;height:14px"></i> HWP
+              </button>
+              <button class="btn btn--secondary" onclick="ModalModule.closeModal();MergerModule.downloadPdf();" style="flex:1;">
+                <i data-lucide="download" style="width:14px;height:14px"></i> PDF
+              </button>
+              <button class="btn btn--secondary" onclick="ModalModule.closeModal();MergerModule.downloadHwpx();" style="flex:1;">
+                <i data-lucide="download" style="width:14px;height:14px"></i> HWPX
+              </button>
+            </div>
+            <div style="display:flex;gap:8px;width:100%;">
+              <button class="btn btn--primary" onclick="ModalModule.closeModal();PreviewModule.openPreviewModal();" style="flex:1;">
+                <i data-lucide="eye" style="width:14px;height:14px"></i> 미리보기
+              </button>
+              <button class="btn btn--ghost" onclick="ModalModule.closeModal();" style="flex:1;">닫기</button>
+            </div>
+          </div>
+        `;
+        break;
+
+      case 'general_merge':
+        html = `
+          <h3 class="modal__title" style="margin-bottom:12px;">
+            <i data-lucide="layers" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;color:#1B4F8F"></i>
+            일반 파일 병합
+          </h3>
+          <p class="modal__message" style="margin-bottom:10px;">부서와 무관하게 파일을 선택해 하나로 병합합니다.</p>
+          <div style="border:2px dashed var(--gri-border);border-radius:8px;padding:14px;text-align:center;cursor:pointer;margin-bottom:8px;font-size:0.83rem;color:var(--gri-text-muted);"
+               onclick="document.getElementById('gmFileInput').click()">
+            <input type="file" id="gmFileInput" multiple accept=".pdf,.hwp,.hwpx" hidden onchange="GeneralMerge.addFiles(this.files)">
+            클릭 또는 드래그 · PDF / HWP / HWPX
+          </div>
+          <div id="gmFileList" style="max-height:160px;overflow-y:auto;margin-bottom:10px;display:flex;flex-direction:column;gap:4px;"></div>
+          <div class="modal__actions" style="flex-direction:column;gap:8px;width:100%;">
+            <div style="display:flex;gap:8px;width:100%;">
+              <button class="btn btn--primary" onclick="GeneralMerge.merge();" style="flex:1;">
+                <i data-lucide="layers" style="width:13px;height:13px"></i> 병합
+              </button>
+              <button class="btn btn--secondary" id="gmDownloadHwp" onclick="GeneralMerge.download('hwp')" disabled style="flex:1;">HWP</button>
+              <button class="btn btn--secondary" id="gmDownloadPdf" onclick="GeneralMerge.download('pdf')" disabled style="flex:1;">PDF</button>
+              <button class="btn btn--secondary" id="gmDownloadHwpx" onclick="GeneralMerge.download('hwpx')" disabled style="flex:1;">HWPX</button>
+            </div>
+            <button class="btn btn--ghost btn--sm" onclick="ModalModule.closeModal();GeneralMerge.reset();" style="width:100%;">닫기</button>
           </div>
         `;
         break;

@@ -2154,6 +2154,21 @@ ul, ol {
   color: var(--gri-text-muted);
 }
 
+.session-section-label {
+  padding: 10px 14px 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--gri-text-muted);
+  text-transform: uppercase;
+}
+
+.session-section-label--history {
+  margin-top: 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--gri-border-light);
+}
+
 .new-session-btn {
   margin: 12px 14px 8px;
   padding: 9px 14px;

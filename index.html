@@ -45,12 +45,6 @@
     <!-- ===== SESSION SIDEBAR (GPT style, left) ===== -->
     <aside class="session-sidebar" id="sessionSidebar">
 
-      <!-- 새 회의 등록 -->
-      <button class="new-session-btn" onclick="SessionModule.startNewSession()">
-        <i data-lucide="plus" style="width:14px;height:14px"></i>
-        새 회의 등록
-      </button>
-
       <!-- 세션 목록 (연도별 그룹) -->
       <div class="session-list" id="sessionSidebarList">
         <!-- Rendered by JS -->
@@ -68,12 +62,8 @@
           <div class="page-title-row">
             <h1 class="page-title">
               <i data-lucide="clipboard-list" style="width:20px;height:20px;color:#1B4F8F"></i>
-              주간점검회의 자료 취합
+              주간점검회의 <span id="statCurrentSession">23</span>주차
             </h1>
-            <div class="meeting-badge">
-              <i data-lucide="hash" style="width:11px;height:11px"></i>
-              <span>제 <strong id="statCurrentSession">23</strong>차</span>
-            </div>
           </div>
         </div>
 
@@ -117,7 +107,7 @@
             </div>
           </section>
 
-          <div class="wr-stat-circles">
+          <div class="wr-stat-circles" id="wrStatCircles" style="display:none;">
             <div class="wr-stat-circle wr-stat-circle--submitted">
               <span class="wr-stat-num" id="deptSubmittedCount">0</span>
               <span class="wr-stat-label">제출</span>
@@ -133,8 +123,8 @@
         <section class="wr-action-row card">
           <div class="wr-action-merge">
             <span class="col-step">2</span>
-            <button class="btn btn--primary" id="mergeBtn" onclick="MergerModule.merge()">
-              <i data-lucide="merge" style="width:15px;height:15px"></i>
+            <button class="btn btn--primary btn--sm" id="mergeBtn" onclick="MergerModule.merge()">
+              <i data-lucide="merge" style="width:13px;height:13px"></i>
               파일 합치기
             </button>
           </div>
@@ -146,7 +136,7 @@
             <button class="btn btn--secondary btn--sm" id="downloadHwpxBtn" onclick="MergerModule.downloadHwpx()" disabled>
               <i data-lucide="download" style="width:13px;height:13px"></i> HWPX
             </button>
-            <button class="btn btn--ghost btn--sm preview-open-btn" id="previewOpenBtn" style="display:none;" onclick="PreviewModule.openPreviewModal()">
+            <button class="btn btn--secondary btn--sm preview-open-btn" id="previewOpenBtn" style="display:none;" onclick="PreviewModule.openPreviewModal()">
               <i data-lucide="eye" style="width:13px;height:13px"></i> 미리보기
             </button>
           </div>

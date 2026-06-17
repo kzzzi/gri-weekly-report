@@ -806,6 +806,9 @@ const DeptModule = {
     const fill = document.getElementById('deptProgressFill');
     if (fill) fill.style.width = `${pct}%`;
 
+    const circles = document.getElementById('wrStatCircles');
+    if (circles) circles.style.display = AppState.files.length > 0 ? 'flex' : 'none';
+
     this.renderDeptList();
   },
 
@@ -1843,76 +1846,82 @@ const SessionModule = {
     this.renderSidebar();
   },
 
-  renderSidebar(filterText) {
+  renderSidebar() {
     const list = document.getElementById('sessionSidebarList');
     if (!list) return;
-
     list.innerHTML = '';
-    const query = (filterText || '').toLowerCase().trim();
-    const allSessions = [...AppState.sessions].reverse();
-    const filtered = query
-      ? allSessions.filter(s => String(s.number).includes(query) || s.date.includes(query))
-      : allSessions;
 
-    if (filtered.length === 0) {
-      list.innerHTML = '<div style="padding:12px 14px;font-size:0.8rem;color:var(--gri-text-muted);">검색 결과 없음</div>';
-      return;
-    }
+    const currentSess = AppState.sessions.find(s => s.status === 'current');
+    const pastSessions = [...AppState.sessions]
+      .filter(s => s.status !== 'current')
+      .sort((a, b) => b.number - a.number);
 
-    if (query) {
-      // 검색 중: flat 목록
-      const label = document.createElement('div');
-      label.className = 'session-search-result-label';
-      label.textContent = filtered.length + '건 검색됨';
-      list.appendChild(label);
-      filtered.forEach(sess => list.appendChild(this._makeSessionBtn(sess)));
+    // ── 금주 회의 ──
+    const thisWeekLabel = document.createElement('div');
+    thisWeekLabel.className = 'session-section-label';
+    thisWeekLabel.textContent = '금주 회의';
+    list.appendChild(thisWeekLabel);
+
+    if (currentSess) {
+      list.appendChild(this._makeSessionBtn(currentSess));
     } else {
-      // 연도 → 월 그룹
-      const byYear = {};
-      filtered.forEach(sess => {
-        const parts = sess.date.split('-');
-        const y = parts[0];
-        const m = parts[1];
-        if (!byYear[y]) byYear[y] = {};
-        if (!byYear[y][m]) byYear[y][m] = [];
-        byYear[y][m].push(sess);
-      });
-      const MONTH_KO = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
-      Object.keys(byYear).sort((a, b) => b - a).forEach(year => {
-        const byMonth = byYear[year];
-        const yearTotal = Object.values(byMonth).reduce((s, a) => s + a.length, 0);
-        const yearHasActive = Object.values(byMonth).some(arr => arr.some(s => s.number === AppState.currentSession));
-        const yearGroup = document.createElement('div');
-        yearGroup.className = 'session-year-group';
-        const yearHeader = document.createElement('button');
-        yearHeader.className = 'session-year-header' + (yearHasActive ? ' session-year-header--open' : '');
-        yearHeader.onclick = () => this._toggleYear(yearHeader);
-        yearHeader.innerHTML = '<span>' + year + '년</span><span class="session-year-count">' + yearTotal + '</span><i data-lucide="chevron-right" style="width:12px;height:12px;"></i>';
-        const yearItems = document.createElement('div');
-        yearItems.className = 'session-year-items';
-        yearItems.style.display = yearHasActive ? 'block' : 'none';
-        Object.keys(byMonth).sort((a, b) => b - a).forEach(month => {
-          const sessions = byMonth[month];
-          const monthHasActive = sessions.some(s => s.number === AppState.currentSession);
-          const monthGroup = document.createElement('div');
-          monthGroup.className = 'session-month-group';
-          const monthHeader = document.createElement('button');
-          monthHeader.className = 'session-month-header' + (monthHasActive ? ' session-month-header--open' : '');
-          monthHeader.onclick = () => this._toggleMonth(monthHeader);
-          monthHeader.innerHTML = '<span>' + MONTH_KO[parseInt(month, 10) - 1] + '</span><span class="session-month-count">' + sessions.length + '</span><i data-lucide="chevron-right" style="width:11px;height:11px;"></i>';
-          const monthItems = document.createElement('div');
-          monthItems.className = 'session-month-items';
-          monthItems.style.display = monthHasActive ? 'block' : 'none';
-          sessions.forEach(sess => monthItems.appendChild(this._makeSessionBtn(sess)));
-          monthGroup.appendChild(monthHeader);
-          monthGroup.appendChild(monthItems);
-          yearItems.appendChild(monthGroup);
-        });
-        yearGroup.appendChild(yearHeader);
-        yearGroup.appendChild(yearItems);
-        list.appendChild(yearGroup);
-      });
+      const empty = document.createElement('div');
+      empty.style.cssText = 'padding:8px 14px;font-size:0.78rem;color:var(--gri-text-muted);';
+      empty.textContent = '등록된 금주 회의 없음';
+      list.appendChild(empty);
     }
+
+    if (pastSessions.length === 0) { lucide.createIcons(); return; }
+
+    // ── 이전 회의 ──
+    const histLabel = document.createElement('div');
+    histLabel.className = 'session-section-label session-section-label--history';
+    histLabel.textContent = '이전 회의';
+    list.appendChild(histLabel);
+
+    const byYear = {};
+    pastSessions.forEach(sess => {
+      const [y, m] = sess.date.split('-');
+      if (!byYear[y]) byYear[y] = {};
+      if (!byYear[y][m]) byYear[y][m] = [];
+      byYear[y][m].push(sess);
+    });
+    const MONTH_KO = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+    Object.keys(byYear).sort((a, b) => b - a).forEach(year => {
+      const byMonth = byYear[year];
+      const yearTotal = Object.values(byMonth).reduce((s, a) => s + a.length, 0);
+      const yearHasActive = Object.values(byMonth).some(arr => arr.some(s => s.number === AppState.currentSession));
+      const yearGroup = document.createElement('div');
+      yearGroup.className = 'session-year-group';
+      const yearHeader = document.createElement('button');
+      yearHeader.className = 'session-year-header' + (yearHasActive ? ' session-year-header--open' : '');
+      yearHeader.onclick = () => this._toggleYear(yearHeader);
+      yearHeader.innerHTML = '<span>' + year + '년</span><span class="session-year-count">' + yearTotal + '</span><i data-lucide="chevron-right" style="width:12px;height:12px;"></i>';
+      const yearItems = document.createElement('div');
+      yearItems.className = 'session-year-items';
+      yearItems.style.display = yearHasActive ? 'block' : 'none';
+      Object.keys(byMonth).sort((a, b) => b - a).forEach(month => {
+        const sessions = byMonth[month];
+        const monthHasActive = sessions.some(s => s.number === AppState.currentSession);
+        const monthGroup = document.createElement('div');
+        monthGroup.className = 'session-month-group';
+        const monthHeader = document.createElement('button');
+        monthHeader.className = 'session-month-header' + (monthHasActive ? ' session-month-header--open' : '');
+        monthHeader.onclick = () => this._toggleMonth(monthHeader);
+        monthHeader.innerHTML = '<span>' + MONTH_KO[parseInt(month, 10) - 1] + '</span><span class="session-month-count">' + sessions.length + '</span><i data-lucide="chevron-right" style="width:11px;height:11px;"></i>';
+        const monthItems = document.createElement('div');
+        monthItems.className = 'session-month-items';
+        monthItems.style.display = monthHasActive ? 'block' : 'none';
+        sessions.forEach(sess => monthItems.appendChild(this._makeSessionBtn(sess)));
+        monthGroup.appendChild(monthHeader);
+        monthGroup.appendChild(monthItems);
+        yearItems.appendChild(monthGroup);
+      });
+      yearGroup.appendChild(yearHeader);
+      yearGroup.appendChild(yearItems);
+      list.appendChild(yearGroup);
+    });
+
     lucide.createIcons();
   },
 
@@ -1940,9 +1949,6 @@ const SessionModule = {
     headerBtn.classList.toggle('session-month-header--open', !isOpen);
   },
 
-  onSearch(value) { this.renderSidebar(value); },
-
-  // 구버전 호환
   renderDropdown() { this.renderSidebar(); },
   toggleDropdown() {},
 

@@ -33,7 +33,7 @@ const EVAL_PROFILES = {
 
 // 전역 모듈 및 상태 관리 정의 (13개 지정 부서 및 채용 후보자 상태 통합)
 const AppState = {
-  currentPage: 'weekly-report', // 'home', 'weekly-report', 'recruitment'
+  currentPage: 'recruitment', // 'home', 'weekly-report', 'recruitment'
   files: [], // {id, file, name, size, type: 'pdf'|'hwp'|'hwpx', departmentName, status: 'ok'|'error', errors: []}
   departments: [
     { id: 1, name: '전략실', submitted: false, fileId: null },

@@ -1411,7 +1411,7 @@ const RecruitModule = {
 
   handleUpload(files) {
     if (files && files.length > 0) {
-      const validExts = ['pdf', 'hwpx', 'docx'];
+      const validExts = ['pdf', 'hwp', 'hwpx', 'docx'];
       const invalid = Array.from(files).find(f => !validExts.includes(f.name.split('.').pop().toLowerCase()));
       if (invalid) {
         ModalModule.showModal('recruit_format_error', { fileName: invalid.name });

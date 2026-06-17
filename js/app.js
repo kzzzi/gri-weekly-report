@@ -787,9 +787,13 @@ const DeptModule = {
     if (circles) circles.style.display = hasFiles ? 'flex' : 'none';
     const deptListEl = document.getElementById('deptList');
     if (deptListEl) deptListEl.style.display = hasFiles ? 'grid' : 'none';
+    const previewBtn = document.getElementById('previewOpenBtn');
+    if (previewBtn) previewBtn.disabled = !hasFiles;
 
     this.renderDeptList();
   },
+
+  _dragSrcIdx: null,
 
   renderDeptList() {
     const deptList = document.getElementById('deptList');
@@ -800,8 +804,8 @@ const DeptModule = {
       const matchedFile = AppState.files.find(f => f.id === dept.fileId);
       const card = document.createElement('div');
       card.className = `dept-card ${dept.submitted ? 'dept-card--submitted' : 'dept-card--missing'}`;
-      const isFirst = idx === 0;
-      const isLast = idx === AppState.departments.length - 1;
+      card.draggable = true;
+      card.dataset.idx = idx;
 
       let bodyHtml = '';
       if (dept.submitted && matchedFile) {
@@ -809,13 +813,7 @@ const DeptModule = {
           <div class="dept-card-file" title="${matchedFile.name}">${matchedFile.name}</div>
           <div class="dept-card-time">${formatUploadTime(matchedFile.uploadedAt)}</div>
           <div class="dept-card-actions">
-            <button class="dept-card-action-btn" title="위로" ${isFirst ? 'disabled' : ''} onclick="DeptModule.moveDept(${dept.id},'up')">
-              <i data-lucide="chevron-up" style="width:12px;height:12px"></i>
-            </button>
-            <button class="dept-card-action-btn" title="아래로" ${isLast ? 'disabled' : ''} onclick="DeptModule.moveDept(${dept.id},'down')">
-              <i data-lucide="chevron-down" style="width:12px;height:12px"></i>
-            </button>
-            <button class="dept-card-action-btn dept-card-action-btn--del" title="삭제" onclick="UploadModule.removeFile('${dept.fileId}')">
+            <button class="dept-card-action-btn dept-card-action-btn--del" title="파일 삭제" onclick="UploadModule.removeFile('${dept.fileId}')">
               <i data-lucide="trash-2" style="width:12px;height:12px"></i>
             </button>
           </div>
@@ -826,38 +824,47 @@ const DeptModule = {
             <i data-lucide="plus" style="width:12px;height:12px"></i>
             <input type="file" accept=".pdf,.hwp,.hwpx" hidden onchange="UploadModule.handleDeptUpload(this.files,${dept.id})">
           </label>
-          <div class="dept-card-actions">
-            <button class="dept-card-action-btn" title="위로" ${isFirst ? 'disabled' : ''} onclick="DeptModule.moveDept(${dept.id},'up')">
-              <i data-lucide="chevron-up" style="width:12px;height:12px"></i>
-            </button>
-            <button class="dept-card-action-btn" title="아래로" ${isLast ? 'disabled' : ''} onclick="DeptModule.moveDept(${dept.id},'down')">
-              <i data-lucide="chevron-down" style="width:12px;height:12px"></i>
-            </button>
-          </div>
         `;
       }
 
       card.innerHTML = `
         <div class="dept-card-top">
+          <div class="dept-card-drag-handle" title="드래그하여 순서 변경">
+            <i data-lucide="grip-vertical" style="width:13px;height:13px"></i>
+          </div>
           <span class="dept-card-name" title="${dept.name}">${dept.name}</span>
         </div>
         ${bodyHtml}
       `;
+
+      card.addEventListener('dragstart', e => {
+        DeptModule._dragSrcIdx = idx;
+        e.dataTransfer.effectAllowed = 'move';
+        setTimeout(() => card.classList.add('dept-card--dragging'), 0);
+      });
+      card.addEventListener('dragend', () => {
+        card.classList.remove('dept-card--dragging');
+        deptList.querySelectorAll('.dept-card--over').forEach(c => c.classList.remove('dept-card--over'));
+      });
+      card.addEventListener('dragover', e => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        deptList.querySelectorAll('.dept-card--over').forEach(c => c.classList.remove('dept-card--over'));
+        if (DeptModule._dragSrcIdx !== idx) card.classList.add('dept-card--over');
+      });
+      card.addEventListener('drop', e => {
+        e.preventDefault();
+        const src = DeptModule._dragSrcIdx;
+        if (src === null || src === idx) return;
+        const moved = AppState.departments.splice(src, 1)[0];
+        AppState.departments.splice(idx, 0, moved);
+        DeptModule.renderDeptList();
+      });
+
       deptList.appendChild(card);
     });
 
     lucide.createIcons();
-  },
-
-  moveDept(deptId, direction) {
-    const idx = AppState.departments.findIndex(d => d.id === deptId);
-    if (idx === -1) return;
-    if (direction === 'up' && idx > 0) {
-      [AppState.departments[idx - 1], AppState.departments[idx]] = [AppState.departments[idx], AppState.departments[idx - 1]];
-    } else if (direction === 'down' && idx < AppState.departments.length - 1) {
-      [AppState.departments[idx], AppState.departments[idx + 1]] = [AppState.departments[idx + 1], AppState.departments[idx]];
-    }
-    this.renderDeptList();
   },
 
   addDepartment() {
@@ -989,14 +996,6 @@ const MergerModule = {
       ModalModule.showModal('no_files');
       return;
     }
-
-    const missingDepts = AppState.departments.filter(d => !d.submitted);
-    if (missingDepts.length > 0) {
-      const missingNames = missingDepts.map(d => d.name);
-      ModalModule.showModal('missing_depts', { missingNames: missingNames });
-      return;
-    }
-
     await this.executeMerge();
   },
 
@@ -1120,7 +1119,14 @@ const PreviewModule = {
     }
   },
 
-  openPreviewModal() {
+  async openPreviewModal() {
+    if (AppState.mergedPdfBytes) {
+      const overlay = document.getElementById('previewModalOverlay');
+      if (overlay) overlay.classList.add('preview-modal-overlay--open');
+      return;
+    }
+    // 병합 전이면 먼저 병합 실행 후 미리보기
+    await MergerModule.executeMerge();
     const overlay = document.getElementById('previewModalOverlay');
     if (overlay) overlay.classList.add('preview-modal-overlay--open');
     if (AppState.previewPdfDocument) {

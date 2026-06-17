@@ -1427,8 +1427,8 @@ const RecruitModule = {
     this._filter = 'all';
     this._filterPosition = null;
     this._filterField = null;
-    document.querySelectorAll('.recruit-tab').forEach(btn => {
-      btn.classList.toggle('recruit-tab--active', btn.dataset.filter === 'all');
+    document.querySelectorAll('.rc-tab').forEach(btn => {
+      btn.classList.toggle('rc-tab--active', btn.dataset.filter === 'all');
     });
     this._renderPositionFilters();
     this._renderFieldFilters();
@@ -1438,8 +1438,8 @@ const RecruitModule = {
 
   setFilter(filter) {
     this._filter = filter;
-    document.querySelectorAll('.recruit-tab').forEach(btn => {
-      btn.classList.toggle('recruit-tab--active', btn.dataset.filter === filter);
+    document.querySelectorAll('.rc-tab').forEach(btn => {
+      btn.classList.toggle('rc-tab--active', btn.dataset.filter === filter);
     });
     this.renderTable();
   },
@@ -1459,34 +1459,41 @@ const RecruitModule = {
   },
 
   renderTable() {
-    const tbody = document.getElementById('recruitTableBody');
-    if (!tbody) return;
+    const container = document.getElementById('recruitTableBody');
+    if (!container) return;
     const list = this._filtered();
-    tbody.innerHTML = '';
+    container.innerHTML = '';
     if (list.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:24px;color:var(--gri-text-secondary);font-size:0.82rem;">해당하는 지원자가 없습니다</td></tr>`;
+      container.innerHTML = `<div class="rc-empty">해당하는 지원자가 없습니다</div>`;
       return;
     }
     list.forEach((c, idx) => {
       const anomaly = this._isAnomalous(c);
       const isSelected = this._selectedId === c.id;
-      const statusBadge = c.reviewStatus === 'completed'
-        ? '<span class="rc-status rc-status--done">완료</span>'
-        : (anomaly ? '<span class="rc-status rc-status--anomaly">이상</span>' : '<span class="rc-status rc-status--pending">대기</span>');
+      let statusHtml;
+      if (c.reviewStatus === 'completed') {
+        statusHtml = '<span class="rc-status rc-status--done">완료</span>';
+      } else if (anomaly) {
+        statusHtml = '<span class="rc-status rc-status--anomaly">검토필요</span>';
+      } else {
+        statusHtml = '<span class="rc-status rc-status--pending">대기</span>';
+      }
 
-      const tr = document.createElement('tr');
-      tr.className = `rc-row${isSelected ? ' rc-row--selected' : ''}`;
-      tr.onclick = () => this.selectCandidate(c.id);
-      tr.innerHTML = `
-        <td class="rc-td rc-td--num">${idx + 1}</td>
-        <td class="rc-td rc-td--main">
+      const row = document.createElement('div');
+      row.className = `rc-row${isSelected ? ' rc-row--selected' : ''}${anomaly && c.reviewStatus !== 'completed' ? ' rc-row--anomaly' : ''}`;
+      row.onclick = () => this.selectCandidate(c.id);
+      row.innerHTML = `
+        <span class="rc-row-num">${idx + 1}</span>
+        <div class="rc-row-body">
           <div class="rc-cand-name">${c.name}</div>
-          <div class="rc-cand-meta">${c.position}</div>
-          <div class="rc-cand-meta">${c.field}</div>
-        </td>
-        <td class="rc-td rc-td--status">${statusBadge}</td>
+          <div class="rc-cand-tags">
+            <span class="rc-tag">${c.position}</span>
+            <span class="rc-tag">${c.field}</span>
+          </div>
+        </div>
+        ${statusHtml}
       `;
-      tbody.appendChild(tr);
+      container.appendChild(row);
     });
   },
 
@@ -1593,34 +1600,63 @@ const RecruitModule = {
       }).join('');
     }
 
+    const docStatus = c.verification.documents.status;
+    const docDot = docStatus === 'ok' ? 'ok' : (docStatus === 'missing' || docStatus === 'mismatch' ? 'miss' : 'warn');
+    const paperStatus = c.verification.paper.status;
+    const paperDot = !c.verification.paper.applicable ? 'na' : (paperStatus === 'ok' ? 'ok' : 'warn');
+    const blindDot = (!c.verification.blind.issues || c.verification.blind.issues.length === 0) ? 'ok' : 'warn';
+    const evalConflict = (c.verification.evaluator.recommended || []).some(e => e.conflict);
+    const evalDot = evalConflict ? 'warn' : 'ok';
+
     content.innerHTML = `
       <div class="rd-header">
-        <div>
+        <div class="rd-header-info">
           <div class="rd-cand-name">${c.name}</div>
           <div class="rd-cand-meta">${c.position} · ${c.field}</div>
         </div>
         ${c.reviewStatus === 'completed'
-          ? `<button class="btn btn--sm" style="border:1px solid var(--gri-border);color:var(--gri-text-secondary);" onclick="RecruitModule.cancelReviewed(${c.id})">검토취소</button>`
-          : `<button class="btn btn--primary btn--sm" onclick="RecruitModule.markReviewed(${c.id})">검토완료</button>`}
+          ? `<button class="btn btn--sm rd-btn-cancel" onclick="RecruitModule.cancelReviewed(${c.id})"><i data-lucide="check" style="width:13px;height:13px"></i> 검토완료</button>`
+          : `<button class="btn btn--primary btn--sm" onclick="RecruitModule.markReviewed(${c.id})">검토완료 →</button>`}
       </div>
       <div class="rd-body">
+
         <div class="rd-section">
-          <div class="rd-section-title"><i data-lucide="file-check" style="width:12px;height:12px"></i> 서류 검증</div>
+          <div class="rd-section-label">
+            <i data-lucide="file-check" style="width:13px;height:13px"></i>
+            서류 검증
+            <span class="rc-badge rc-badge--${docDot} rd-section-badge">${docDot === 'ok' ? '✓' : '!'}</span>
+          </div>
           <div class="rd-doc-list">${docRows}</div>
         </div>
+
         <div class="rd-section">
-          <div class="rd-section-title"><i data-lucide="book-open" style="width:12px;height:12px"></i> 논문 검증</div>
+          <div class="rd-section-label">
+            <i data-lucide="book-open" style="width:13px;height:13px"></i>
+            논문 검증
+            <span class="rc-badge rc-badge--${paperDot} rd-section-badge">${paperDot === 'ok' ? '✓' : paperDot === 'na' ? '—' : '!'}</span>
+          </div>
           ${paperHtml}
         </div>
+
         <div class="rd-section">
-          <div class="rd-section-title"><i data-lucide="eye-off" style="width:12px;height:12px"></i> 블라인드 검토</div>
+          <div class="rd-section-label">
+            <i data-lucide="eye-off" style="width:13px;height:13px"></i>
+            블라인드 검토
+            <span class="rc-badge rc-badge--${blindDot} rd-section-badge">${blindDot === 'ok' ? '✓' : '!'}</span>
+          </div>
           ${blindHtml}
         </div>
+
         <div class="rd-section">
-          <div class="rd-section-title"><i data-lucide="users" style="width:12px;height:12px"></i> 평가위원 매칭</div>
+          <div class="rd-section-label">
+            <i data-lucide="users" style="width:13px;height:13px"></i>
+            평가위원 매칭
+            <span class="rc-badge rc-badge--${evalDot} rd-section-badge">${evalDot === 'ok' ? '✓' : '!'}</span>
+          </div>
           ${evalHtml}
         </div>
-        ${c.reviewNote ? `<div class="rd-note"><strong>검토 메모:</strong> ${c.reviewNote}</div>` : ''}
+
+        ${c.reviewNote ? `<div class="rd-note"><strong>메모</strong> ${c.reviewNote}</div>` : ''}
       </div>
     `;
     lucide.createIcons();

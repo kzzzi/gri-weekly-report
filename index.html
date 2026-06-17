@@ -162,17 +162,19 @@
         <div class="recruit-layout">
 
           <!-- LEFT: 업로드 존 or 지원자 목록 -->
-          <div class="recruit-list-col card">
+          <div class="recruit-list-col">
 
             <!-- 초기 업로드 상태 -->
             <div class="recruit-upload-zone" id="recruitUploadZone"
               ondragover="RecruitModule.onDragOver(event)"
               ondragleave="RecruitModule.onDragLeave(event)"
               ondrop="RecruitModule.onDrop(event)">
-              <i data-lucide="folder-up" style="width:44px;height:44px;opacity:0.2"></i>
-              <div class="recruit-upload-title">지원자 폴더를 드래그&드롭하세요</div>
-              <div class="recruit-upload-desc">PDF · HWPX · DOCX</div>
-              <label class="btn btn--primary btn--sm" for="recruitFolderInput" style="cursor:pointer;margin-top:4px;">
+              <div class="recruit-upload-icon">
+                <i data-lucide="folder-up" style="width:32px;height:32px;color:var(--gri-primary);opacity:0.6"></i>
+              </div>
+              <div class="recruit-upload-title">지원자 폴더를 드래그하세요</div>
+              <div class="recruit-upload-desc">PDF · HWPX · DOCX 파일 포함 폴더</div>
+              <label class="btn btn--primary btn--sm" for="recruitFolderInput" style="cursor:pointer;margin-top:6px;">
                 <i data-lucide="folder-open" style="width:13px;height:13px"></i> 폴더 선택
               </label>
               <input type="file" id="recruitFolderInput" webkitdirectory multiple hidden
@@ -181,38 +183,39 @@
 
             <!-- 업로드 후 목록 뷰 -->
             <div id="recruitListView" style="display:none;flex-direction:column;flex:1;min-height:0;">
-              <!-- 상태 탭 + 업로드/Excel -->
-              <div class="recruit-list-toolbar">
-                <div class="recruit-filter-tabs" id="recruitTabs">
-                  <button class="recruit-tab recruit-tab--active" data-filter="all"     onclick="RecruitModule.setFilter('all')">전체 <span class="rc-tab-cnt" id="rtcAll">0</span></button>
-                  <button class="recruit-tab"                     data-filter="pending" onclick="RecruitModule.setFilter('pending')">대기 <span class="rc-tab-cnt" id="rtcPending">0</span></button>
-                  <button class="recruit-tab"                     data-filter="done"    onclick="RecruitModule.setFilter('done')">완료 <span class="rc-tab-cnt" id="rtcDone">0</span></button>
+
+              <!-- 상단 탭바 -->
+              <div class="rc-tabbar">
+                <div class="rc-tabs" id="recruitTabs">
+                  <button class="rc-tab rc-tab--active" data-filter="all" onclick="RecruitModule.setFilter('all')">
+                    전체 <span class="rc-tab-cnt" id="rtcAll">0</span>
+                  </button>
+                  <button class="rc-tab" data-filter="pending" onclick="RecruitModule.setFilter('pending')">
+                    검토필요 <span class="rc-tab-cnt" id="rtcPending">0</span>
+                  </button>
+                  <button class="rc-tab" data-filter="done" onclick="RecruitModule.setFilter('done')">
+                    완료 <span class="rc-tab-cnt" id="rtcDone">0</span>
+                  </button>
                 </div>
-                <label class="btn btn--secondary btn--sm" for="recruitFolderInput2" style="cursor:pointer;white-space:nowrap;">
-                  <i data-lucide="folder-plus" style="width:13px;height:13px"></i> 폴더 업로드
-                </label>
-                <input type="file" id="recruitFolderInput2" webkitdirectory multiple hidden
-                  onchange="RecruitModule.handleUpload(this.files)">
-                <button class="btn btn--secondary btn--sm" onclick="RecruitModule.downloadExcel()" style="white-space:nowrap;">
-                  <i data-lucide="file-spreadsheet" style="width:13px;height:13px"></i> Excel
-                </button>
+                <div class="rc-tabbar-actions">
+                  <label class="btn btn--icon btn--ghost" for="recruitFolderInput2" style="cursor:pointer;" title="폴더 추가">
+                    <i data-lucide="folder-plus" style="width:14px;height:14px"></i>
+                  </label>
+                  <input type="file" id="recruitFolderInput2" webkitdirectory multiple hidden
+                    onchange="RecruitModule.handleUpload(this.files)">
+                  <button class="btn btn--icon btn--ghost" onclick="RecruitModule.downloadExcel()" title="Excel 내보내기">
+                    <i data-lucide="file-spreadsheet" style="width:14px;height:14px"></i>
+                  </button>
+                </div>
               </div>
-              <!-- 직책 필터 -->
+
+              <!-- 필터 칩 -->
               <div class="rc-filter-row" id="rcPositionFilters"></div>
-              <!-- 분야 필터 -->
               <div class="rc-filter-row" id="rcFieldFilters"></div>
-              <!-- 지원자 리스트 -->
-              <div class="recruit-table-wrapper">
-                <table class="rc-table">
-                  <thead>
-                    <tr>
-                      <th style="width:26px;">#</th>
-                      <th>지원자</th>
-                      <th style="width:52px;">상태</th>
-                    </tr>
-                  </thead>
-                  <tbody id="recruitTableBody"></tbody>
-                </table>
+
+              <!-- 지원자 목록 -->
+              <div class="rc-list-scroll">
+                <div id="recruitTableBody"></div>
               </div>
             </div>
 
@@ -221,7 +224,7 @@
           <!-- RIGHT: 상세 패널 -->
           <div class="recruit-detail-col" id="recruitDetailCol">
             <div class="recruit-detail-empty" id="recruitDetailEmpty">
-              <i data-lucide="mouse-pointer-click" style="width:32px;height:32px;opacity:0.2"></i>
+              <i data-lucide="mouse-pointer-click" style="width:28px;height:28px;opacity:0.15"></i>
               <span>지원자를 선택하면<br>상세 검증 결과가 표시됩니다</span>
             </div>
             <div id="recruitDetailContent" style="display:none;height:100%;flex-direction:column;overflow:hidden;"></div>

@@ -4,7 +4,9 @@
       "PowerShell(Start-Process \"C:\\\\Users\\\\1umbr\\\\ppt\\\\gri-weekly-report\\\\index.html\")",
       "PowerShell(node --check \"C:\\\\Users\\\\1umbr\\\\ppt\\\\gri-weekly-report\\\\js\\\\app.js\" 2>&1)",
       "PowerShell(node --check \"C:\\\\Users\\\\1umbr\\\\ppt\\\\gri-weekly-report\\\\js\\\\app.js\" 2>&1; if \\($?\\) { \"OK\" })",
-      "PowerShell(git *)"
+      "PowerShell(git *)",
+      "PowerShell(git push *)",
+      "WebFetch(domain:laivdata.github.io)"
     ]
   }
 }

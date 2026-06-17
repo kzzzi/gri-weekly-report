@@ -794,22 +794,31 @@ const DeptModule = {
   renderDeptList() {
     const deptList = document.getElementById('deptList');
     if (!deptList) return;
-
-    const existingForm = document.getElementById('deptAddForm');
     deptList.innerHTML = '';
 
-    const sorted = [...AppState.departments].sort((a, b) => (a.submitted ? 1 : 0) - (b.submitted ? 1 : 0));
-
-    sorted.forEach(dept => {
+    AppState.departments.forEach((dept, idx) => {
       const matchedFile = AppState.files.find(f => f.id === dept.fileId);
       const card = document.createElement('div');
       card.className = `dept-card ${dept.submitted ? 'dept-card--submitted' : 'dept-card--missing'}`;
+      const isFirst = idx === 0;
+      const isLast = idx === AppState.departments.length - 1;
 
       let bodyHtml = '';
       if (dept.submitted && matchedFile) {
         bodyHtml = `
           <div class="dept-card-file" title="${matchedFile.name}">${matchedFile.name}</div>
           <div class="dept-card-time">${formatUploadTime(matchedFile.uploadedAt)}</div>
+          <div class="dept-card-actions">
+            <button class="dept-card-action-btn" title="위로" ${isFirst ? 'disabled' : ''} onclick="DeptModule.moveDept(${dept.id},'up')">
+              <i data-lucide="chevron-up" style="width:12px;height:12px"></i>
+            </button>
+            <button class="dept-card-action-btn" title="아래로" ${isLast ? 'disabled' : ''} onclick="DeptModule.moveDept(${dept.id},'down')">
+              <i data-lucide="chevron-down" style="width:12px;height:12px"></i>
+            </button>
+            <button class="dept-card-action-btn dept-card-action-btn--del" title="삭제" onclick="UploadModule.removeFile('${dept.fileId}')">
+              <i data-lucide="trash-2" style="width:12px;height:12px"></i>
+            </button>
+          </div>
         `;
       } else {
         bodyHtml = `
@@ -817,6 +826,14 @@ const DeptModule = {
             <i data-lucide="plus" style="width:12px;height:12px"></i>
             <input type="file" accept=".pdf,.hwp,.hwpx" hidden onchange="UploadModule.handleDeptUpload(this.files,${dept.id})">
           </label>
+          <div class="dept-card-actions">
+            <button class="dept-card-action-btn" title="위로" ${isFirst ? 'disabled' : ''} onclick="DeptModule.moveDept(${dept.id},'up')">
+              <i data-lucide="chevron-up" style="width:12px;height:12px"></i>
+            </button>
+            <button class="dept-card-action-btn" title="아래로" ${isLast ? 'disabled' : ''} onclick="DeptModule.moveDept(${dept.id},'down')">
+              <i data-lucide="chevron-down" style="width:12px;height:12px"></i>
+            </button>
+          </div>
         `;
       }
 
@@ -829,8 +846,18 @@ const DeptModule = {
       deptList.appendChild(card);
     });
 
-    if (existingForm) deptList.appendChild(existingForm);
     lucide.createIcons();
+  },
+
+  moveDept(deptId, direction) {
+    const idx = AppState.departments.findIndex(d => d.id === deptId);
+    if (idx === -1) return;
+    if (direction === 'up' && idx > 0) {
+      [AppState.departments[idx - 1], AppState.departments[idx]] = [AppState.departments[idx], AppState.departments[idx - 1]];
+    } else if (direction === 'down' && idx < AppState.departments.length - 1) {
+      [AppState.departments[idx], AppState.departments[idx + 1]] = [AppState.departments[idx + 1], AppState.departments[idx]];
+    }
+    this.renderDeptList();
   },
 
   addDepartment() {

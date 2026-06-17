@@ -2581,27 +2581,34 @@ ul, ol {
   display: flex;
   gap: 3px;
   margin-top: 8px;
-  opacity: 0;
-  transition: opacity 0.15s;
 }
 
-.dept-card-actions button {
+.dept-card-action-btn {
   width: 22px;
   height: 22px;
+  border: none;
+  background: transparent;
   border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--gri-text-muted);
+  cursor: pointer;
   transition: var(--gri-transition-fast);
+  padding: 0;
 }
 
-.dept-card-actions button:hover {
+.dept-card-action-btn:hover:not(:disabled) {
   background-color: var(--gri-border-light);
   color: var(--gri-text-primary);
 }
 
-.dept-card-actions button.del:hover {
+.dept-card-action-btn:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.dept-card-action-btn--del:hover:not(:disabled) {
   background-color: rgba(var(--gri-error-rgb), 0.1);
   color: var(--gri-error);
 }

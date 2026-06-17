@@ -10,26 +10,28 @@
    1. CSS 변수 선언 (:root)
    ========================================================================== */
 :root {
-  /* 브랜드 컬러 시스템 (GRI 로고 기반) */
-  --gri-primary: #1B4F8F;
-  --gri-primary-rgb: 27, 79, 143;
-  --gri-primary-dark: #0D2B52;
-  --gri-primary-light: #3A7BD5;
+  /* 브랜드 컬러 시스템 */
+  --gri-primary: #2563eb;
+  --gri-primary-rgb: 37, 99, 235;
+  --gri-primary-dark: #1d4ed8;
+  --gri-primary-light: #3b82f6;
+  --gri-primary-50: #eff6ff;
+  --gri-primary-100: #dbeafe;
   --gri-accent: #F5A623;
   --gri-accent-hover: #E8951A;
   --gri-accent-rgb: 245, 166, 35;
-  
+
   /* 상태 컬러 */
-  --gri-bg: #F4F6FA;
+  --gri-bg: #f9fafb;
   --gri-surface: #FFFFFF;
   --gri-surface-rgb: 255, 255, 255;
-  --gri-border: #E2E8F0;
-  --gri-border-light: #F1F5F9;
-  
-  --gri-text-primary: #1A1A2E;
-  --gri-text-secondary: #64748B;
-  --gri-text-muted: #94A3B8;
-  
+  --gri-border: #e5e7eb;
+  --gri-border-light: #f3f4f6;
+
+  --gri-text-primary: #111827;
+  --gri-text-secondary: #6b7280;
+  --gri-text-muted: #9ca3af;
+
   --gri-success: #10B981;
   --gri-success-rgb: 16, 185, 129;
   --gri-error: #EF4444;
@@ -37,23 +39,23 @@
   --gri-warning: #F59E0B;
   --gri-warning-rgb: 245, 158, 11;
   --gri-info: #3B82F6;
-  
+
   /* 레이아웃 & 둥글기 */
-  --gri-radius-sm: 6px;
-  --gri-radius-md: 12px;
-  --gri-radius-lg: 16px;
-  --gri-radius-xl: 24px;
+  --gri-radius-sm: 4px;
+  --gri-radius-md: 8px;
+  --gri-radius-lg: 12px;
+  --gri-radius-xl: 16px;
   --gri-radius-circle: 50%;
-  
-  /* 그림자 효과 (Glassmorphism & Depth) */
-  --gri-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.04);
-  --gri-shadow-md: 0 8px 16px rgba(13, 43, 82, 0.06);
-  --gri-shadow-lg: 0 16px 32px rgba(13, 43, 82, 0.1);
-  --gri-shadow-xl: 0 24px 48px rgba(13, 43, 82, 0.16);
-  --gri-shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.06);
-  
+
+  /* 그림자 효과 */
+  --gri-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --gri-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  --gri-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+  --gri-shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.06);
+  --gri-shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.04);
+
   /* 애니메이션 & 트랜지션 */
-  --gri-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --gri-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   --gri-transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -205,8 +207,8 @@ ul, ol {
 }
 
 .nav-item--active {
-  color: white !important;
-  background-color: var(--gri-primary) !important;
+  color: var(--gri-primary-dark) !important;
+  background-color: var(--gri-primary-50) !important;
   box-shadow: 0 4px 10px rgba(var(--gri-primary-rgb), 0.2);
 }
 
@@ -733,7 +735,7 @@ ul, ol {
 }
 
 .file-chip--error .file-chip__icon {
-  background: #64748B;
+  background: #6b7280;
   box-shadow: none;
 }
 
@@ -1437,7 +1439,7 @@ ul, ol {
   height: 100%;
   outline: none;
   font-family: 'Pretendard', sans-serif;
-  color: #1A1A2E;
+  color: var(--gri-text-primary);
   overflow: hidden;
 }
 

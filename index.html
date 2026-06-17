@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GRI 주간보고 취합 | 경기연구원</title>
+  <title>GRI 二쇨컙蹂닿퀬 痍⑦빀 | 寃쎄린?곌뎄??/title>
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -17,18 +17,18 @@
   <nav class="navbar">
     <div class="nav-container">
       <div class="nav-logo">
-        <img src="assets/logo.png" alt="GRI 경기연구원" style="height:40px;width:auto;display:inline-block;vertical-align:middle;">
+        <img src="assets/logo.png" alt="GRI 寃쎄린?곌뎄?? style="height:40px;width:auto;display:inline-block;vertical-align:middle;">
         <span style="width:1px;height:24px;background:var(--gri-border);margin:0 12px;display:inline-block;vertical-align:middle;"></span>
-        <span style="font-size:0.95rem;color:var(--gri-text-secondary);font-weight:700;display:inline-block;vertical-align:middle;">업무 자동화 포털</span>
+        <span style="font-size:0.95rem;color:var(--gri-text-secondary);font-weight:700;display:inline-block;vertical-align:middle;">?낅Т ?먮룞???ы꽭</span>
       </div>
       <div class="nav-menu" id="navMenu">
-        <button class="nav-item" data-page="home" onclick="Router.navigate('home')">홈</button>
-        <button class="nav-item nav-item--active" data-page="weekly-report" onclick="Router.navigate('weekly-report')">주간보고 취합</button>
-        <button class="nav-item" data-page="recruitment" onclick="Router.navigate('recruitment')">채용검증</button>
+        <button class="nav-item" data-page="home" onclick="Router.navigate('home')">??/button>
+        <button class="nav-item nav-item--active" data-page="weekly-report" onclick="Router.navigate('weekly-report')">二쇨컙蹂닿퀬 痍⑦빀</button>
+        <button class="nav-item" data-page="recruitment" onclick="Router.navigate('recruitment')">梨꾩슜寃利?/button>
       </div>
       <div class="nav-actions">
         <button class="btn btn--ghost btn--sm" style="gap:5px;" onclick="GeneralMerge.open()">
-          <i data-lucide="layers" style="width:13px;height:13px"></i> 일반 파일병합
+          <i data-lucide="layers" style="width:13px;height:13px"></i> ?쇰컲 ?뚯씪蹂묓빀
         </button>
       </div>
     </div>
@@ -40,7 +40,7 @@
     <!-- ===== SESSION SIDEBAR (GPT style, left) ===== -->
     <aside class="session-sidebar" id="sessionSidebar">
 
-      <!-- 세션 목록 (연도별 그룹) -->
+      <!-- ?몄뀡 紐⑸줉 (?곕룄蹂?洹몃９) -->
       <div class="session-list" id="sessionSidebarList">
         <!-- Rendered by JS -->
       </div>
@@ -56,13 +56,13 @@
         <div class="page-header">
           <div class="page-title-row">
             <h1 class="page-title">
-              <i data-lucide="clipboard-list" style="width:20px;height:20px;color:#1B4F8F"></i>
-              주간점검회의 6월2주차
+              <i data-lucide="clipboard-list" style="width:20px;height:20px;color:#2563eb"></i>
+              二쇨컙?먭??뚯쓽 6??二쇱감
             </h1>
           </div>
         </div>
 
-        <!-- 상단: 파일 업로드 + 통계 원 -->
+        <!-- ?곷떒: ?뚯씪 ?낅줈??+ ?듦퀎 ??-->
         <div class="wr-top-row">
           <section class="card" id="wrUploadSection" style="flex:1;min-width:0;">
             <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
@@ -71,51 +71,50 @@
                 <div class="upload-icon-wrapper">
                   <i data-lucide="cloud-upload" class="upload-icon"></i>
                 </div>
-                <div class="upload-text">클릭 또는 드래그</div>
-                <div class="upload-subtext">PDF · HWP · HWPX</div>
+                <div class="upload-text">?대┃ ?먮뒗 ?쒕옒洹?/div>
+                <div class="upload-subtext">PDF 쨌 HWP 쨌 HWPX</div>
               </div>
             </div>
           </section>
 
-          <!-- 통계 원 (파일 업로드 시 표시) -->
+          <!-- ?듦퀎 ??(?뚯씪 ?낅줈?????쒖떆) -->
           <div class="wr-stat-circles" id="wrStatCircles" style="display:none;">
             <div class="wr-stat-circle wr-stat-circle--submitted">
               <span class="wr-stat-num" id="deptSubmittedCount">0</span>
-              <span class="wr-stat-label">제출</span>
+              <span class="wr-stat-label">?쒖텧</span>
             </div>
             <div class="wr-stat-circle wr-stat-circle--missing">
               <span class="wr-stat-num" id="deptMissingCount">0</span>
-              <span class="wr-stat-label">미 제출</span>
+              <span class="wr-stat-label">誘??쒖텧</span>
             </div>
           </div>
         </div>
 
-        <!-- 액션 바 -->
+        <!-- ?≪뀡 諛?-->
         <section class="wr-action-row card">
-          <!-- ① 작업 -->
+          <!-- ???묒뾽 -->
           <div class="wr-action-group">
             <button class="btn btn--primary btn--sm" id="mergeBtn" onclick="MergerModule.merge()">
-              <i data-lucide="layers" style="width:13px;height:13px"></i> 자료병합
+              <i data-lucide="layers" style="width:13px;height:13px"></i> ?먮즺蹂묓빀
             </button>
             <button class="btn btn--secondary btn--sm" id="previewOpenBtn" onclick="PreviewModule.openPreviewModal()" disabled>
-              <i data-lucide="eye" style="width:13px;height:13px"></i> 미리보기
+              <i data-lucide="eye" style="width:13px;height:13px"></i> 誘몃━蹂닿린
             </button>
           </div>
-          <!-- ② 다운로드 -->
+          <!-- ???ㅼ슫濡쒕뱶 -->
           <div class="wr-action-group wr-action-group--downloads">
 <button class="btn btn--secondary btn--sm" id="downloadHwpBtn" onclick="MergerModule.downloadHwp()" disabled>HWP</button>
             <button class="btn btn--secondary btn--sm" id="downloadPdfBtn" onclick="MergerModule.downloadPdf()" disabled>PDF</button>
             <button class="btn btn--secondary btn--sm" id="downloadHwpxBtn" onclick="MergerModule.downloadHwpx()" disabled>HWPX</button>
           </div>
-          <!-- ③ 저장 -->
+          <!-- ?????-->
           <div class="wr-action-group wr-action-group--save">
             <button class="btn btn--sm btn--ghost" onclick="SessionModule.saveSession()">
-              <i data-lucide="save" style="width:13px;height:13px"></i> 저장
-            </button>
+              <i data-lucide="save" style="width:13px;height:13px"></i> ???            </button>
           </div>
         </section>
 
-        <!-- 실별 부서 카드 (파일 업로드 시 표시) -->
+        <!-- ?ㅻ퀎 遺??移대뱶 (?뚯씪 ?낅줈?????쒖떆) -->
         <div class="dept-grid" id="deptList" style="display:none;"></div>
 
       </div><!-- /page-weekly-report -->
@@ -125,22 +124,22 @@
         <div class="home-welcome">
           <div class="home-welcome-bg"></div>
           <div class="home-welcome-content">
-            <h1 class="home-title"><span class="home-title-accent">GRI</span> 업무 자동화 플랫폼</h1>
-            <p class="home-subtitle">경기연구원의 반복 업무를 자동화하여 연구에 집중할 수 있도록 지원합니다</p>
+            <h1 class="home-title"><span class="home-title-accent">GRI</span> ?낅Т ?먮룞???뚮옯??/h1>
+            <p class="home-subtitle">寃쎄린?곌뎄?먯쓽 諛섎났 ?낅Т瑜??먮룞?뷀븯???곌뎄??吏묒쨷?????덈룄濡?吏?먰빀?덈떎</p>
           </div>
         </div>
         <div class="home-cards">
           <div class="home-card" onclick="Router.navigate('weekly-report')">
             <div class="home-card-icon home-card-icon--blue"><i data-lucide="file-text"></i></div>
-            <h3 class="home-card-title">주간보고 취합</h3>
-            <p class="home-card-desc">실별 주간보고 PDF, HWP, HWPX를 분석하여 최종 한글 리포트를 생성합니다</p>
-            <div class="home-card-action">시작하기 <i data-lucide="arrow-right" style="width:16px;height:16px"></i></div>
+            <h3 class="home-card-title">二쇨컙蹂닿퀬 痍⑦빀</h3>
+            <p class="home-card-desc">?ㅻ퀎 二쇨컙蹂닿퀬 PDF, HWP, HWPX瑜?遺꾩꽍?섏뿬 理쒖쥌 ?쒓? 由ы룷?몃? ?앹꽦?⑸땲??/p>
+            <div class="home-card-action">?쒖옉?섍린 <i data-lucide="arrow-right" style="width:16px;height:16px"></i></div>
           </div>
           <div class="home-card" onclick="Router.navigate('recruitment')">
             <div class="home-card-icon home-card-icon--green"><i data-lucide="user-check"></i></div>
-            <h3 class="home-card-title">채용검증</h3>
-            <p class="home-card-desc">채용 후보자의 이력 및 자격을 자동으로 검증합니다</p>
-            <div class="home-card-action">시작하기 <i data-lucide="arrow-right" style="width:16px;height:16px"></i></div>
+            <h3 class="home-card-title">梨꾩슜寃利?/h3>
+            <p class="home-card-desc">梨꾩슜 ?꾨낫?먯쓽 ?대젰 諛??먭꺽???먮룞?쇰줈 寃利앺빀?덈떎</p>
+            <div class="home-card-action">?쒖옉?섍린 <i data-lucide="arrow-right" style="width:16px;height:16px"></i></div>
           </div>
         </div>
       </div>
@@ -148,23 +147,22 @@
       <!-- ===== RECRUITMENT PAGE ===== -->
       <div id="page-recruitment" style="display:none;">
 
-        <!-- 헤더 -->
+        <!-- ?ㅻ뜑 -->
         <div class="page-header" style="margin-bottom:10px;">
           <div class="page-title-row">
             <h1 class="page-title">
-              <i data-lucide="user-check" style="width:20px;height:20px;color:#1B4F8F"></i>
-              채용 자격 검증
-            </h1>
+              <i data-lucide="user-check" style="width:20px;height:20px;color:#2563eb"></i>
+              梨꾩슜 ?먭꺽 寃利?            </h1>
           </div>
         </div>
 
-        <!-- 2분할 메인 레이아웃 -->
+        <!-- 2遺꾪븷 硫붿씤 ?덉씠?꾩썐 -->
         <div class="recruit-layout">
 
-          <!-- LEFT: 업로드 존 or 지원자 목록 -->
+          <!-- LEFT: ?낅줈??議?or 吏?먯옄 紐⑸줉 -->
           <div class="recruit-list-col">
 
-            <!-- 초기 업로드 상태 -->
+            <!-- 珥덇린 ?낅줈???곹깭 -->
             <div class="recruit-upload-zone" id="recruitUploadZone"
               ondragover="RecruitModule.onDragOver(event)"
               ondragleave="RecruitModule.onDragLeave(event)"
@@ -172,48 +170,48 @@
               <div class="recruit-upload-icon">
                 <i data-lucide="folder-up" style="width:32px;height:32px;color:var(--gri-primary);opacity:0.6"></i>
               </div>
-              <div class="recruit-upload-title">지원자 폴더를 드래그하세요</div>
-              <div class="recruit-upload-desc">PDF · HWP · HWPX · DOCX 파일 포함 폴더</div>
+              <div class="recruit-upload-title">吏?먯옄 ?대뜑瑜??쒕옒洹명븯?몄슂</div>
+              <div class="recruit-upload-desc">PDF 쨌 HWP 쨌 HWPX 쨌 DOCX ?뚯씪 ?ы븿 ?대뜑</div>
               <label class="btn btn--primary btn--sm" for="recruitFolderInput" style="cursor:pointer;margin-top:6px;">
-                <i data-lucide="folder-open" style="width:13px;height:13px"></i> 폴더 선택
+                <i data-lucide="folder-open" style="width:13px;height:13px"></i> ?대뜑 ?좏깮
               </label>
               <input type="file" id="recruitFolderInput" webkitdirectory multiple hidden
                 onchange="RecruitModule.handleUpload(this.files)">
             </div>
 
-            <!-- 업로드 후 목록 뷰 -->
+            <!-- ?낅줈????紐⑸줉 酉?-->
             <div id="recruitListView" style="display:none;flex-direction:column;flex:1;min-height:0;">
 
-              <!-- 상단 탭바 -->
+              <!-- ?곷떒 ??컮 -->
               <div class="rc-tabbar">
                 <div class="rc-tabs" id="recruitTabs">
                   <button class="rc-tab rc-tab--active" data-filter="all" onclick="RecruitModule.setFilter('all')">
-                    전체 <span class="rc-tab-cnt" id="rtcAll">0</span>
+                    ?꾩껜 <span class="rc-tab-cnt" id="rtcAll">0</span>
                   </button>
                   <button class="rc-tab" data-filter="pending" onclick="RecruitModule.setFilter('pending')">
-                    검토필요 <span class="rc-tab-cnt" id="rtcPending">0</span>
+                    寃?좏븘??<span class="rc-tab-cnt" id="rtcPending">0</span>
                   </button>
                   <button class="rc-tab" data-filter="done" onclick="RecruitModule.setFilter('done')">
-                    완료 <span class="rc-tab-cnt" id="rtcDone">0</span>
+                    ?꾨즺 <span class="rc-tab-cnt" id="rtcDone">0</span>
                   </button>
                 </div>
                 <div class="rc-tabbar-actions">
-                  <label class="btn btn--icon btn--ghost" for="recruitFolderInput2" style="cursor:pointer;" title="폴더 추가">
+                  <label class="btn btn--icon btn--ghost" for="recruitFolderInput2" style="cursor:pointer;" title="?대뜑 異붽?">
                     <i data-lucide="folder-plus" style="width:14px;height:14px"></i>
                   </label>
                   <input type="file" id="recruitFolderInput2" webkitdirectory multiple hidden
                     onchange="RecruitModule.handleUpload(this.files)">
-                  <button class="btn btn--icon btn--ghost" onclick="RecruitModule.downloadExcel()" title="Excel 내보내기">
+                  <button class="btn btn--icon btn--ghost" onclick="RecruitModule.downloadExcel()" title="Excel ?대낫?닿린">
                     <i data-lucide="file-spreadsheet" style="width:14px;height:14px"></i>
                   </button>
                 </div>
               </div>
 
-              <!-- 필터 칩 -->
+              <!-- ?꾪꽣 移?-->
               <div class="rc-filter-row" id="rcPositionFilters"></div>
               <div class="rc-filter-row" id="rcFieldFilters"></div>
 
-              <!-- 지원자 목록 -->
+              <!-- 吏?먯옄 紐⑸줉 -->
               <div class="rc-list-scroll">
                 <div id="recruitTableBody"></div>
               </div>
@@ -221,11 +219,11 @@
 
           </div><!-- /recruit-list-col -->
 
-          <!-- RIGHT: 상세 패널 -->
+          <!-- RIGHT: ?곸꽭 ?⑤꼸 -->
           <div class="recruit-detail-col" id="recruitDetailCol">
             <div class="recruit-detail-empty" id="recruitDetailEmpty">
               <i data-lucide="mouse-pointer-click" style="width:28px;height:28px;opacity:0.15"></i>
-              <span>지원자를 선택하면<br>상세 검증 결과가 표시됩니다</span>
+              <span>吏?먯옄瑜??좏깮?섎㈃<br>?곸꽭 寃利?寃곌낵媛 ?쒖떆?⑸땲??/span>
             </div>
             <div id="recruitDetailContent" style="display:none;height:100%;flex-direction:column;overflow:hidden;"></div>
           </div>
@@ -243,18 +241,16 @@
       <!-- Preview Header -->
       <div class="preview-modal-header">
         <div class="preview-title">
-          <i data-lucide="eye" style="width:18px;height:18px;color:#1B4F8F"></i>
-          <span>통합 문서 미리보기 및 서식 편집</span>
-          <span class="preview-badge">한글(HWP) 모드</span>
+          <i data-lucide="eye" style="width:18px;height:18px;color:#2563eb"></i>
+          <span>?듯빀 臾몄꽌 誘몃━蹂닿린 諛??쒖떇 ?몄쭛</span>
+          <span class="preview-badge">?쒓?(HWP) 紐⑤뱶</span>
         </div>
         <div class="preview-modal-actions">
           <button class="btn btn--secondary btn--sm" onclick="MergerModule.downloadPdf()">
-            <i data-lucide="download" style="width:14px;height:14px"></i> PDF 저장
-          </button>
+            <i data-lucide="download" style="width:14px;height:14px"></i> PDF ???          </button>
           <button class="btn btn--primary btn--sm" onclick="MergerModule.downloadHwpx()">
-            <i data-lucide="download" style="width:14px;height:14px"></i> HWPX 저장
-          </button>
-          <button class="btn btn--icon btn--ghost" onclick="PreviewModule.closePreview()" title="닫기">
+            <i data-lucide="download" style="width:14px;height:14px"></i> HWPX ???          </button>
+          <button class="btn btn--icon btn--ghost" onclick="PreviewModule.closePreview()" title="?リ린">
             <i data-lucide="x" style="width:18px;height:18px"></i>
           </button>
         </div>
@@ -263,78 +259,78 @@
       <!-- HWP Ribbon Editor -->
       <div class="hwp-ribbon-editor">
         <div class="hwp-tabs">
-          <div class="hwp-tab active">파일</div>
-          <div class="hwp-tab">편집</div>
-          <div class="hwp-tab">보기</div>
-          <div class="hwp-tab">입력</div>
-          <div class="hwp-tab">서식</div>
-          <div class="hwp-tab">쪽</div>
-          <div class="hwp-tab">표</div>
-          <div class="hwp-tab">도구</div>
+          <div class="hwp-tab active">?뚯씪</div>
+          <div class="hwp-tab">?몄쭛</div>
+          <div class="hwp-tab">蹂닿린</div>
+          <div class="hwp-tab">?낅젰</div>
+          <div class="hwp-tab">?쒖떇</div>
+          <div class="hwp-tab">履?/div>
+          <div class="hwp-tab">??/div>
+          <div class="hwp-tab">?꾧뎄</div>
         </div>
         <div class="hwp-ribbon-panel">
           <div class="hwp-ribbon-group">
-            <button class="hwp-tool-btn" onclick="EditorModule.toolAction('오려 두기')"><i data-lucide="scissors" style="width:20px;height:20px;"></i><span>오려 두기</span></button>
-            <button class="hwp-tool-btn" onclick="EditorModule.toolAction('복사 하기')"><i data-lucide="copy" style="width:20px;height:20px;"></i><span>복사 하기</span></button>
-            <button class="hwp-tool-btn" onclick="EditorModule.toolAction('붙이기')"><i data-lucide="clipboard" style="width:20px;height:20px;"></i><span>붙이기</span></button>
-            <button class="hwp-tool-btn" onclick="EditorModule.toolAction('모양 복사')"><i data-lucide="copy-check" style="width:20px;height:20px;"></i><span>모양 복사</span></button>
+            <button class="hwp-tool-btn" onclick="EditorModule.toolAction('?ㅻ젮 ?먭린')"><i data-lucide="scissors" style="width:20px;height:20px;"></i><span>?ㅻ젮 ?먭린</span></button>
+            <button class="hwp-tool-btn" onclick="EditorModule.toolAction('蹂듭궗 ?섍린')"><i data-lucide="copy" style="width:20px;height:20px;"></i><span>蹂듭궗 ?섍린</span></button>
+            <button class="hwp-tool-btn" onclick="EditorModule.toolAction('遺숈씠湲?)"><i data-lucide="clipboard" style="width:20px;height:20px;"></i><span>遺숈씠湲?/span></button>
+            <button class="hwp-tool-btn" onclick="EditorModule.toolAction('紐⑥뼇 蹂듭궗')"><i data-lucide="copy-check" style="width:20px;height:20px;"></i><span>紐⑥뼇 蹂듭궗</span></button>
           </div>
           <div class="hwp-ribbon-divider"></div>
           <div class="hwp-ribbon-group">
-            <button class="hwp-tool-btn" onclick="EditorModule.toolAction('조판 부호')"><span class="hwp-text-icon">¶</span><span>조판 부호</span></button>
-            <button class="hwp-tool-btn" onclick="EditorModule.toolAction('문단 부호')"><i data-lucide="pilcrow" style="width:20px;height:20px;"></i><span>문단 부호</span></button>
-            <button class="hwp-tool-btn" onclick="EditorModule.toolAction('격자 보기')"><i data-lucide="grid-3x3" style="width:20px;height:20px;"></i><span>격자 보기</span></button>
+            <button class="hwp-tool-btn" onclick="EditorModule.toolAction('議고뙋 遺??)"><span class="hwp-text-icon">쨋</span><span>議고뙋 遺??/span></button>
+            <button class="hwp-tool-btn" onclick="EditorModule.toolAction('臾몃떒 遺??)"><i data-lucide="pilcrow" style="width:20px;height:20px;"></i><span>臾몃떒 遺??/span></button>
+            <button class="hwp-tool-btn" onclick="EditorModule.toolAction('寃⑹옄 蹂닿린')"><i data-lucide="grid-3x3" style="width:20px;height:20px;"></i><span>寃⑹옄 蹂닿린</span></button>
           </div>
           <div class="hwp-ribbon-divider"></div>
           <div class="hwp-ribbon-group">
-            <button class="hwp-tool-btn" onclick="EditorModule.toolAction('글자 모양')"><span class="hwp-text-icon" style="font-weight:800;">가</span><span>글자 모양</span></button>
-            <button class="hwp-tool-btn" onclick="EditorModule.toolAction('문단 모양')"><i data-lucide="align-justify" style="width:20px;height:20px;"></i><span>문단 모양</span></button>
+            <button class="hwp-tool-btn" onclick="EditorModule.toolAction('湲??紐⑥뼇')"><span class="hwp-text-icon" style="font-weight:800;">媛</span><span>湲??紐⑥뼇</span></button>
+            <button class="hwp-tool-btn" onclick="EditorModule.toolAction('臾몃떒 紐⑥뼇')"><i data-lucide="align-justify" style="width:20px;height:20px;"></i><span>臾몃떒 紐⑥뼇</span></button>
           </div>
           <div class="hwp-ribbon-divider"></div>
           <div class="hwp-ribbon-group">
-            <button class="hwp-tool-btn" onclick="EditorModule.toolAction('문단 번호')"><i data-lucide="list-ordered" style="width:20px;height:20px;"></i><span>문단 번호</span></button>
-            <button class="hwp-tool-btn" onclick="EditorModule.toolAction('글머리 표')"><i data-lucide="list" style="width:20px;height:20px;"></i><span>글머리 표</span></button>
+            <button class="hwp-tool-btn" onclick="EditorModule.toolAction('臾몃떒 踰덊샇')"><i data-lucide="list-ordered" style="width:20px;height:20px;"></i><span>臾몃떒 踰덊샇</span></button>
+            <button class="hwp-tool-btn" onclick="EditorModule.toolAction('湲癒몃━ ??)"><i data-lucide="list" style="width:20px;height:20px;"></i><span>湲癒몃━ ??/span></button>
           </div>
           <div class="hwp-ribbon-divider"></div>
           <div class="hwp-ribbon-group">
-            <button class="hwp-tool-btn" onclick="EditorModule.toolAction('표')"><i data-lucide="table" style="width:20px;height:20px;color:#1B4F8F;"></i><span>표</span></button>
-            <button class="hwp-tool-btn" onclick="EditorModule.toolAction('도형')"><i data-lucide="shapes" style="width:20px;height:20px;color:#3A7BD5;"></i><span>도형</span></button>
-            <button class="hwp-tool-btn" onclick="EditorModule.toolAction('그림')"><i data-lucide="image" style="width:20px;height:20px;color:#10B981;"></i><span>그림</span></button>
-            <button class="hwp-tool-btn" onclick="EditorModule.toolAction('찾기')"><i data-lucide="search" style="width:20px;height:20px;"></i><span>찾기</span></button>
+            <button class="hwp-tool-btn" onclick="EditorModule.toolAction('??)"><i data-lucide="table" style="width:20px;height:20px;color:#2563eb;"></i><span>??/span></button>
+            <button class="hwp-tool-btn" onclick="EditorModule.toolAction('?꾪삎')"><i data-lucide="shapes" style="width:20px;height:20px;color:#3b82f6;"></i><span>?꾪삎</span></button>
+            <button class="hwp-tool-btn" onclick="EditorModule.toolAction('洹몃┝')"><i data-lucide="image" style="width:20px;height:20px;color:#10B981;"></i><span>洹몃┝</span></button>
+            <button class="hwp-tool-btn" onclick="EditorModule.toolAction('李얘린')"><i data-lucide="search" style="width:20px;height:20px;"></i><span>李얘린</span></button>
           </div>
           <div class="hwp-ribbon-divider"></div>
           <div class="hwp-ribbon-group">
-            <button class="hwp-tool-btn" onclick="EditorModule.toolAction('머리말')"><i data-lucide="arrow-up-to-line" style="width:20px;height:20px;"></i><span>머리말</span></button>
-            <button class="hwp-tool-btn" onclick="EditorModule.toolAction('꼬리말')"><i data-lucide="arrow-down-to-line" style="width:20px;height:20px;"></i><span>꼬리말</span></button>
+            <button class="hwp-tool-btn" onclick="EditorModule.toolAction('癒몃━留?)"><i data-lucide="arrow-up-to-line" style="width:20px;height:20px;"></i><span>癒몃━留?/span></button>
+            <button class="hwp-tool-btn" onclick="EditorModule.toolAction('瑗щ━留?)"><i data-lucide="arrow-down-to-line" style="width:20px;height:20px;"></i><span>瑗щ━留?/span></button>
           </div>
         </div>
         <div class="hwp-format-bar">
-          <select class="hwp-format-select" style="width:80px;" title="스타일">
-            <option selected>바탕글</option><option>본문 1</option><option>본문 2</option><option>제목 1</option>
+          <select class="hwp-format-select" style="width:80px;" title="?ㅽ???>
+            <option selected>諛뷀깢湲</option><option>蹂몃Ц 1</option><option>蹂몃Ц 2</option><option>?쒕ぉ 1</option>
           </select>
-          <select class="hwp-format-select" style="width:140px;font-family:'함초롬바탕',serif;" title="글꼴">
-            <option selected>함초롬바탕</option><option>함초롬돋움</option><option>맑은 고딕</option><option>바탕</option><option>Pretendard</option>
+          <select class="hwp-format-select" style="width:140px;font-family:'?⑥큹濡щ컮??,serif;" title="湲瑗?>
+            <option selected>?⑥큹濡щ컮??/option><option>?⑥큹濡щ룍?</option><option>留묒? 怨좊뵓</option><option>諛뷀깢</option><option>Pretendard</option>
           </select>
           <div class="hwp-number-spinner">
-            <input type="text" value="10.0 pt" style="width:60px;text-align:center;" title="글자 크기">
+            <input type="text" value="10.0 pt" style="width:60px;text-align:center;" title="湲???ш린">
           </div>
           <div class="hwp-format-divider"></div>
           <div class="hwp-format-group">
-            <button class="hwp-format-btn" onclick="EditorModule.toolAction('진하게')" title="진하게"><i data-lucide="bold" style="width:14px;height:14px;"></i></button>
-            <button class="hwp-format-btn" onclick="EditorModule.toolAction('기울임')" title="기울임"><i data-lucide="italic" style="width:14px;height:14px;"></i></button>
-            <button class="hwp-format-btn" onclick="EditorModule.toolAction('밑줄')" title="밑줄"><i data-lucide="underline" style="width:14px;height:14px;"></i></button>
+            <button class="hwp-format-btn" onclick="EditorModule.toolAction('吏꾪븯寃?)" title="吏꾪븯寃?><i data-lucide="bold" style="width:14px;height:14px;"></i></button>
+            <button class="hwp-format-btn" onclick="EditorModule.toolAction('湲곗슱??)" title="湲곗슱??><i data-lucide="italic" style="width:14px;height:14px;"></i></button>
+            <button class="hwp-format-btn" onclick="EditorModule.toolAction('諛묒쨪')" title="諛묒쨪"><i data-lucide="underline" style="width:14px;height:14px;"></i></button>
           </div>
           <div class="hwp-format-divider"></div>
           <div class="hwp-format-group">
-            <button class="hwp-format-btn" onclick="EditorModule.toolAction('왼쪽 정렬')" title="왼쪽"><i data-lucide="align-left" style="width:14px;height:14px;"></i></button>
-            <button class="hwp-format-btn" onclick="EditorModule.toolAction('가운데 정렬')" title="가운데"><i data-lucide="align-center" style="width:14px;height:14px;"></i></button>
-            <button class="hwp-format-btn" onclick="EditorModule.toolAction('오른쪽 정렬')" title="오른쪽"><i data-lucide="align-right" style="width:14px;height:14px;"></i></button>
+            <button class="hwp-format-btn" onclick="EditorModule.toolAction('?쇱そ ?뺣젹')" title="?쇱そ"><i data-lucide="align-left" style="width:14px;height:14px;"></i></button>
+            <button class="hwp-format-btn" onclick="EditorModule.toolAction('媛?대뜲 ?뺣젹')" title="媛?대뜲"><i data-lucide="align-center" style="width:14px;height:14px;"></i></button>
+            <button class="hwp-format-btn" onclick="EditorModule.toolAction('?ㅻⅨ履??뺣젹')" title="?ㅻⅨ履?><i data-lucide="align-right" style="width:14px;height:14px;"></i></button>
           </div>
           <div class="hwp-format-divider"></div>
-          <select class="hwp-format-select" style="width:70px;" title="줄간격">
+          <select class="hwp-format-select" style="width:70px;" title="以꾧컙寃?>
             <option selected>160%</option><option>180%</option><option>200%</option>
           </select>
-          <button class="btn btn--sm btn--primary" style="margin-left:auto;font-weight:700;height:28px;padding:0 12px;" onclick="EditorModule.saveAction()">임시 저장</button>
+          <button class="btn btn--sm btn--primary" style="margin-left:auto;font-weight:700;height:28px;padding:0 12px;" onclick="EditorModule.saveAction()">?꾩떆 ???/button>
         </div>
       </div>
 
@@ -349,15 +345,15 @@
           <i data-lucide="chevron-left" style="width:16px;height:16px"></i>
         </button>
         <span class="preview-page-info">
-          <span id="previewPageNum">1</span> / <span id="previewPageTotal">1</span> 페이지
+          <span id="previewPageNum">1</span> / <span id="previewPageTotal">1</span> ?섏씠吏
         </span>
         <button class="preview-page-btn" id="nextPageBtn" onclick="PreviewModule.nextPage()">
           <i data-lucide="chevron-right" style="width:16px;height:16px"></i>
         </button>
-        <button class="btn btn--ghost btn--sm" onclick="PreviewModule.zoomIn()" title="확대">
+        <button class="btn btn--ghost btn--sm" onclick="PreviewModule.zoomIn()" title="?뺣?">
           <i data-lucide="zoom-in" style="width:16px;height:16px"></i>
         </button>
-        <button class="btn btn--ghost btn--sm" onclick="PreviewModule.zoomOut()" title="축소">
+        <button class="btn btn--ghost btn--sm" onclick="PreviewModule.zoomOut()" title="異뺤냼">
           <i data-lucide="zoom-out" style="width:16px;height:16px"></i>
         </button>
       </div>
@@ -377,7 +373,7 @@
   <div class="global-loading" id="globalLoading" style="display:none;">
     <div class="global-loading-content">
       <div class="loading-spinner loading-spinner--lg"></div>
-      <div class="loading-text" id="globalLoadingText">처리 중입니다...</div>
+      <div class="loading-text" id="globalLoadingText">泥섎━ 以묒엯?덈떎...</div>
       <div class="progress-bar" id="globalProgressBar" style="display:none;">
         <div class="progress-bar__fill" id="globalProgressFill" style="width:0%"></div>
       </div>
@@ -390,8 +386,8 @@
       <!-- Header -->
       <div class="gm-header">
         <div class="gm-title">
-          <i data-lucide="layers" style="width:16px;height:16px;color:#1B4F8F"></i>
-          일반 파일 병합
+          <i data-lucide="layers" style="width:16px;height:16px;color:#2563eb"></i>
+          ?쇰컲 ?뚯씪 蹂묓빀
         </div>
         <button class="btn btn--icon btn--ghost" onclick="GeneralMerge.close()">
           <i data-lucide="x" style="width:18px;height:18px"></i>
@@ -402,8 +398,8 @@
       <div class="gm-dropzone" id="gmDropzone" onclick="document.getElementById('gmFileInput').click()">
         <input type="file" id="gmFileInput" multiple accept=".pdf,.hwp,.hwpx" hidden>
         <i data-lucide="file-plus" style="width:24px;height:24px;opacity:0.35"></i>
-        <span>클릭 또는 드래그하여 파일 추가</span>
-        <span class="gm-dropzone-sub">PDF · HWP · HWPX</span>
+        <span>?대┃ ?먮뒗 ?쒕옒洹명븯???뚯씪 異붽?</span>
+        <span class="gm-dropzone-sub">PDF 쨌 HWP 쨌 HWPX</span>
       </div>
 
       <!-- File list -->
@@ -411,17 +407,17 @@
 
       <!-- Footer -->
       <div class="gm-footer">
-        <span class="gm-file-count" id="gmFileCount">0개 파일</span>
+        <span class="gm-file-count" id="gmFileCount">0媛??뚯씪</span>
         <button class="btn btn--primary btn--sm" onclick="GeneralMerge.merge()">
-          <i data-lucide="layers" style="width:13px;height:13px"></i> 파일 병합
+          <i data-lucide="layers" style="width:13px;height:13px"></i> ?뚯씪 蹂묓빀
         </button>
       </div>
 
       <!-- Format selection sub-dialog -->
       <div class="gm-format-dialog" id="gmFormatDialog" style="display:none;">
         <div class="gm-format-panel">
-          <h4 class="gm-format-title">다운로드 형식 선택</h4>
-          <p class="gm-format-desc">원하는 형식을 선택 후 다운로드하세요.</p>
+          <h4 class="gm-format-title">?ㅼ슫濡쒕뱶 ?뺤떇 ?좏깮</h4>
+          <p class="gm-format-desc">?먰븯???뺤떇???좏깮 ???ㅼ슫濡쒕뱶?섏꽭??</p>
           <div class="gm-format-checks">
             <label class="gm-format-check">
               <input type="checkbox" id="gfPdf" checked> PDF
@@ -435,9 +431,9 @@
           </div>
           <div class="gm-format-actions">
             <button class="btn btn--primary btn--sm" style="flex:1;" onclick="GeneralMerge.downloadSelected()">
-              <i data-lucide="download" style="width:13px;height:13px"></i> 다운로드
+              <i data-lucide="download" style="width:13px;height:13px"></i> ?ㅼ슫濡쒕뱶
             </button>
-            <button class="btn btn--ghost btn--sm" style="flex:1;" onclick="GeneralMerge.closeFormatDialog()">취소</button>
+            <button class="btn btn--ghost btn--sm" style="flex:1;" onclick="GeneralMerge.closeFormatDialog()">痍⑥냼</button>
           </div>
         </div>
       </div>
@@ -447,3 +443,4 @@
   <script src="js/app.js"></script>
 </body>
 </html>
+

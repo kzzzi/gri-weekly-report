@@ -3544,7 +3544,7 @@ ul, ol {
 /* 2-패널 레이아웃 */
 .recruit-layout {
   display: grid;
-  grid-template-columns: 55fr 45fr;
+  grid-template-columns: 30fr 70fr;
   gap: 10px;
   flex: 1;
   min-height: 0;
@@ -3566,6 +3566,55 @@ ul, ol {
   border-bottom: 1px solid var(--gri-border);
   flex-shrink: 0;
   background: var(--gri-border-light);
+}
+
+/* 직책·분야 필터 칩 */
+.rc-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 8px;
+  border-bottom: 1px solid var(--gri-border-light);
+  flex-shrink: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.rc-filter-row::-webkit-scrollbar { display: none; }
+
+.rc-filter-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--gri-text-muted);
+  white-space: nowrap;
+  padding-right: 2px;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.rc-filter-chip {
+  padding: 2px 8px;
+  border-radius: 20px;
+  border: 1px solid var(--gri-border);
+  background: transparent;
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--gri-text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.12s;
+}
+
+.rc-filter-chip:hover {
+  border-color: var(--gri-primary);
+  color: var(--gri-primary);
+}
+
+.rc-filter-chip--active {
+  background: var(--gri-primary);
+  border-color: var(--gri-primary);
+  color: #fff;
+  font-weight: 700;
 }
 
 .recruit-filter-tabs {

@@ -190,6 +190,7 @@
 
             <!-- 업로드 후 목록 뷰 -->
             <div id="recruitListView" style="display:none;flex-direction:column;flex:1;min-height:0;">
+              <!-- 상태 탭 + 업로드/Excel -->
               <div class="recruit-list-toolbar">
                 <div class="recruit-filter-tabs" id="recruitTabs">
                   <button class="recruit-tab recruit-tab--active" data-filter="all"     onclick="RecruitModule.setFilter('all')">전체 <span class="rc-tab-cnt" id="rtcAll">0</span></button>
@@ -205,21 +206,18 @@
                   <i data-lucide="file-spreadsheet" style="width:13px;height:13px"></i> Excel
                 </button>
               </div>
+              <!-- 직책 필터 -->
+              <div class="rc-filter-row" id="rcPositionFilters"></div>
+              <!-- 분야 필터 -->
+              <div class="rc-filter-row" id="rcFieldFilters"></div>
+              <!-- 지원자 리스트 -->
               <div class="recruit-table-wrapper">
                 <table class="rc-table">
                   <thead>
                     <tr>
-                      <th style="width:30px;">#</th>
-                      <th>
-                        <span style="color:var(--gri-text-secondary);font-weight:600;">지원자</span>
-                        <button class="rc-sort-btn" id="sortBtnPosition" onclick="RecruitModule.sortBy('position')">직책</button>
-                        <button class="rc-sort-btn" id="sortBtnField"    onclick="RecruitModule.sortBy('field')">분야</button>
-                      </th>
-                      <th title="서류검증" style="width:38px;">서류</th>
-                      <th title="논문검증" style="width:38px;">논문</th>
-                      <th title="블라인드검토" style="width:44px;">블라인드</th>
-                      <th title="평가위원평균" style="width:46px;">평가위원</th>
-                      <th style="width:56px;">상태</th>
+                      <th style="width:26px;">#</th>
+                      <th>지원자</th>
+                      <th style="width:52px;">상태</th>
                     </tr>
                   </thead>
                   <tbody id="recruitTableBody"></tbody>

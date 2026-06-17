@@ -1246,11 +1246,15 @@ const RecruitModule = {
   _hasUploaded: false,
   _sortField: null,
   _sortDir: 'asc',
+  _filterPosition: null,
+  _filterField: null,
 
   init() {
     // 페이지 진입마다 상태 유지
     this._showView(this._hasUploaded);
     if (this._hasUploaded) {
+      this._renderPositionFilters();
+      this._renderFieldFilters();
       this._updateTabCounts();
       this.renderTable();
     }
@@ -1273,6 +1277,8 @@ const RecruitModule = {
 
   _filtered() {
     let list = AppState.candidates.filter(c => {
+      if (this._filterPosition && c.position !== this._filterPosition) return false;
+      if (this._filterField && c.field !== this._filterField) return false;
       if (this._filter === 'done') return c.reviewStatus === 'completed';
       if (this._filter === 'pending') return this._isAnomalous(c) && c.reviewStatus !== 'completed';
       return true;
@@ -1303,6 +1309,41 @@ const RecruitModule = {
       btn.dataset.dir = (this._sortField === f) ? this._sortDir : '';
     });
     this.renderTable();
+  },
+
+  setPositionFilter(pos) {
+    this._filterPosition = (pos === this._filterPosition) ? null : pos;
+    this._filterField = null;
+    this._renderPositionFilters();
+    this._renderFieldFilters();
+    this._updateTabCounts();
+    this.renderTable();
+  },
+
+  setFieldFilter(field) {
+    this._filterField = (field === this._filterField) ? null : field;
+    this._renderFieldFilters();
+    this._updateTabCounts();
+    this.renderTable();
+  },
+
+  _renderPositionFilters() {
+    const el = document.getElementById('rcPositionFilters');
+    if (!el) return;
+    const positions = [...new Set(AppState.candidates.map(c => c.position))].sort((a, b) => a.localeCompare(b, 'ko'));
+    el.innerHTML = `<span class="rc-filter-label">직책</span>
+      <button class="rc-filter-chip ${!this._filterPosition ? 'rc-filter-chip--active' : ''}" onclick="RecruitModule.setPositionFilter(null)">전체</button>
+      ${positions.map(p => `<button class="rc-filter-chip ${this._filterPosition === p ? 'rc-filter-chip--active' : ''}" onclick="RecruitModule.setPositionFilter('${p}')">${p}</button>`).join('')}`;
+  },
+
+  _renderFieldFilters() {
+    const el = document.getElementById('rcFieldFilters');
+    if (!el) return;
+    const base = this._filterPosition ? AppState.candidates.filter(c => c.position === this._filterPosition) : AppState.candidates;
+    const fields = [...new Set(base.map(c => c.field))].sort((a, b) => a.localeCompare(b, 'ko'));
+    el.innerHTML = `<span class="rc-filter-label">분야</span>
+      <button class="rc-filter-chip ${!this._filterField ? 'rc-filter-chip--active' : ''}" onclick="RecruitModule.setFieldFilter(null)">전체</button>
+      ${fields.map(f => `<button class="rc-filter-chip ${this._filterField === f ? 'rc-filter-chip--active' : ''}" onclick="RecruitModule.setFieldFilter('${f}')">${f}</button>`).join('')}`;
   },
 
   _evalAvg(c) {
@@ -1351,13 +1392,16 @@ const RecruitModule = {
   },
 
   _loadDummyData() {
-    // 더미 5명 데이터는 이미 AppState.candidates에 있음 — 그냥 뷰 전환
     this._hasUploaded = true;
     this._showView(true);
     this._filter = 'all';
+    this._filterPosition = null;
+    this._filterField = null;
     document.querySelectorAll('.recruit-tab').forEach(btn => {
       btn.classList.toggle('recruit-tab--active', btn.dataset.filter === 'all');
     });
+    this._renderPositionFilters();
+    this._renderFieldFilters();
     this._updateTabCounts();
     this.renderTable();
   },
@@ -1390,25 +1434,15 @@ const RecruitModule = {
     const list = this._filtered();
     tbody.innerHTML = '';
     if (list.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--gri-text-secondary);font-size:0.82rem;">해당하는 지원자가 없습니다</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:24px;color:var(--gri-text-secondary);font-size:0.82rem;">해당하는 지원자가 없습니다</td></tr>`;
       return;
     }
     list.forEach((c, idx) => {
       const anomaly = this._isAnomalous(c);
       const isSelected = this._selectedId === c.id;
-      const docS = c.verification.documents.status;
-      const paperS = c.verification.paper.applicable ? c.verification.paper.status : 'na';
-      const blindS = (c.verification.blind.issues && c.verification.blind.issues.length > 0) ? 'warning'
-        : (c.verification.blind.status === 'pending' ? 'pending' : 'ok');
-      const evalAvg = this._evalAvg(c);
-      const hasConflict = c.verification.evaluator.recommended && c.verification.evaluator.recommended.some(e => e.conflict);
-      const evalCell = evalAvg != null
-        ? `<span class="rc-eval-avg${hasConflict ? ' rc-eval-avg--conflict' : ''}">${evalAvg.toFixed(1)}</span>`
-        : `<span class="rc-badge rc-badge--pending">—</span>`;
-
-      const reviewBadge = c.reviewStatus === 'completed'
-        ? '<span class="rc-status rc-status--done">검토완료</span>'
-        : (anomaly ? '<span class="rc-status rc-status--anomaly">이상탐지</span>' : '<span class="rc-status rc-status--pending">대기</span>');
+      const statusBadge = c.reviewStatus === 'completed'
+        ? '<span class="rc-status rc-status--done">완료</span>'
+        : (anomaly ? '<span class="rc-status rc-status--anomaly">이상</span>' : '<span class="rc-status rc-status--pending">대기</span>');
 
       const tr = document.createElement('tr');
       tr.className = `rc-row${isSelected ? ' rc-row--selected' : ''}`;
@@ -1417,13 +1451,10 @@ const RecruitModule = {
         <td class="rc-td rc-td--num">${idx + 1}</td>
         <td class="rc-td rc-td--main">
           <div class="rc-cand-name">${c.name}</div>
-          <div class="rc-cand-meta">${c.position} · ${c.field}</div>
+          <div class="rc-cand-meta">${c.position}</div>
+          <div class="rc-cand-meta">${c.field}</div>
         </td>
-        <td class="rc-td rc-td--badge">${this._statusBadge(docS)}</td>
-        <td class="rc-td rc-td--badge">${this._statusBadge(paperS)}</td>
-        <td class="rc-td rc-td--badge">${this._statusBadge(blindS)}</td>
-        <td class="rc-td rc-td--badge">${evalCell}</td>
-        <td class="rc-td rc-td--status">${reviewBadge}</td>
+        <td class="rc-td rc-td--status">${statusBadge}</td>
       `;
       tbody.appendChild(tr);
     });

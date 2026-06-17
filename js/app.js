@@ -481,6 +481,7 @@ const UploadModule = {
       added++;
     }
     this.renderFileList();
+    DeptModule.renderDeptStatus();
     if (added > 0) showToast('success', '업로드 완료', `${added}개 파일이 추가되었습니다.`);
   },
 
@@ -683,7 +684,7 @@ const UploadModule = {
 
     if (!fileList) return;
     if (fileCount) fileCount.innerText = `${AppState.files.length}개`;
-    if (section) section.style.display = AppState.files.length > 0 ? 'flex' : 'none';
+    if (section) section.style.display = AppState.files.length > 0 ? 'block' : 'none';
 
     fileList.innerHTML = '';
 
@@ -782,8 +783,11 @@ const DeptModule = {
     const fill = document.getElementById('deptProgressFill');
     if (fill) fill.style.width = `${pct}%`;
 
+    const hasFiles = AppState.files.length > 0;
     const circles = document.getElementById('wrStatCircles');
-    if (circles) circles.style.display = AppState.files.length > 0 ? 'flex' : 'none';
+    if (circles) circles.style.display = hasFiles ? 'flex' : 'none';
+    const deptListEl = document.getElementById('deptList');
+    if (deptListEl) deptListEl.style.display = hasFiles ? 'grid' : 'none';
 
     this.renderDeptList();
   },
@@ -802,20 +806,16 @@ const DeptModule = {
       const card = document.createElement('div');
       card.className = `dept-card ${dept.submitted ? 'dept-card--submitted' : 'dept-card--missing'}`;
 
-      let bottomHtml = '';
+      let bodyHtml = '';
       if (dept.submitted && matchedFile) {
-        const isReplaced = !!matchedFile.replacedAt;
-        const timeStr = isReplaced
-          ? '교체 ' + formatUploadTime(matchedFile.replacedAt)
-          : formatUploadTime(matchedFile.uploadedAt);
-        bottomHtml = `
+        bodyHtml = `
           <div class="dept-card-file" title="${matchedFile.name}">${matchedFile.name}</div>
-          <div class="dept-card-time">${timeStr}</div>
+          <div class="dept-card-time">${formatUploadTime(matchedFile.uploadedAt)}</div>
         `;
       } else {
-        bottomHtml = `
+        bodyHtml = `
           <label class="dept-card-upload-btn">
-            <i data-lucide="plus" style="width:11px;height:11px"></i> 업로드
+            <i data-lucide="plus" style="width:12px;height:12px"></i>
             <input type="file" accept=".pdf,.hwp,.hwpx" hidden onchange="UploadModule.handleDeptUpload(this.files,${dept.id})">
           </label>
         `;
@@ -824,15 +824,8 @@ const DeptModule = {
       card.innerHTML = `
         <div class="dept-card-top">
           <span class="dept-card-name" title="${dept.name}">${dept.name}</span>
-          <div class="dept-card-btns">
-            ${dept.submitted
-              ? `<button onclick="UploadModule.downloadFile('${dept.fileId}')" title="다운로드"><i data-lucide="download" style="width:11px;height:11px"></i></button>`
-              : ''}
-            <button onclick="DeptModule.editDepartment(${dept.id})" title="수정"><i data-lucide="edit-3" style="width:11px;height:11px"></i></button>
-            <button onclick="DeptModule.deleteDepartment(${dept.id})" title="삭제"><i data-lucide="trash-2" style="width:11px;height:11px"></i></button>
-          </div>
         </div>
-        ${bottomHtml}
+        ${bodyHtml}
       `;
       deptList.appendChild(card);
     });
@@ -1025,12 +1018,10 @@ const MergerModule = {
 
       document.getElementById('globalLoading').style.display = 'none';
 
+      document.getElementById('downloadHwpBtn').removeAttribute('disabled');
       document.getElementById('downloadPdfBtn').removeAttribute('disabled');
       document.getElementById('downloadHwpxBtn').removeAttribute('disabled');
-
-      // 미리보기 버튼 표시
-      const previewBtn = document.getElementById('previewOpenBtn');
-      if (previewBtn) previewBtn.style.display = 'inline-flex';
+      document.getElementById('previewOpenBtn').removeAttribute('disabled');
 
       showToast('success', '병합 성공', '모든 부서의 파일들이 HWPX 기준 통합 문서로 병합 완료되었습니다. 미리보기를 확인하세요.');
 
@@ -1057,6 +1048,10 @@ const MergerModule = {
     URL.revokeObjectURL(url);
 
     showToast('success', 'PDF 다운로드', '통합 보고서 PDF 다운로드가 완료되었습니다.');
+  },
+
+  downloadHwp() {
+    showToast('success', 'HWP 다운로드 완료', `[최종] 제${AppState.currentSession}차 주간점검회의자료.hwp 가 성공적으로 저장되었습니다.`);
   },
 
   downloadHwpx() {

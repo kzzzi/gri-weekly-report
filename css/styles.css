@@ -2490,36 +2490,30 @@ ul, ol {
 /* 부서 카드 그리드 */
 .dept-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 10px;
-  padding: 16px;
+  flex-shrink: 0;
 }
 
 .dept-card {
-  border: 1px solid var(--gri-border);
-  border-top: 3px solid var(--gri-border);
+  border: 2px solid var(--gri-success);
   border-radius: var(--gri-radius-md);
   padding: 11px 12px 10px;
   background-color: var(--gri-surface);
   transition: var(--gri-transition-fast);
   position: relative;
+  min-height: 80px;
 }
 
 .dept-card:hover {
   box-shadow: var(--gri-shadow-sm);
 }
 
-.dept-card:hover .dept-card-actions {
-  opacity: 1;
-}
-
 .dept-card--submitted {
-  border-top-color: var(--gri-success);
-  background-color: rgba(var(--gri-success-rgb), 0.015);
+  background-color: rgba(var(--gri-success-rgb), 0.04);
 }
 
 .dept-card--missing {
-  border-top-color: #E5E7EB;
   background-color: var(--gri-surface);
 }
 
@@ -2760,8 +2754,6 @@ ul, ol {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  height: calc(100vh - 140px);
-  overflow: hidden;
 }
 
 #page-weekly-report > .page-header {
@@ -3283,9 +3275,10 @@ ul, ol {
 
 .wr-top-row {
   display: flex;
-  gap: 12px;
+  gap: 16px;
   align-items: stretch;
   flex-shrink: 0;
+  min-height: 140px;
 }
 
 .wr-upload-area {
@@ -3298,15 +3291,17 @@ ul, ol {
 
 .wr-stat-circles {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: center;
-  gap: 10px;
+  align-items: center;
+  gap: 20px;
   flex-shrink: 0;
+  padding: 12px 20px;
 }
 
 .wr-stat-circle {
-  width: 100px;
-  height: 100px;
+  width: 110px;
+  height: 110px;
   border-radius: 50%;
   border: 2.5px solid;
   display: flex;
@@ -3343,25 +3338,27 @@ ul, ol {
 
 .wr-action-row {
   display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 10px 16px;
+  align-items: stretch;
+  padding: 0;
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 .wr-action-merge {
   display: flex;
   align-items: center;
   gap: 10px;
+  padding: 12px 18px;
+  flex: 0 0 36%;
+  border-right: 1px solid var(--gri-border);
 }
 
 .wr-action-downloads {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-left: auto;
-  padding-left: 16px;
-  border-left: 1px solid var(--gri-border);
+  gap: 8px;
+  padding: 12px 18px;
+  flex: 1;
 }
 
 .wr-action-label {

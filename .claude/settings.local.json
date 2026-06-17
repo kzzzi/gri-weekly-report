@@ -7,7 +7,8 @@
       "PowerShell(git *)",
       "PowerShell(git push *)",
       "WebFetch(domain:laivdata.github.io)",
-      "PowerShell(git add *)"
+      "PowerShell(git add *)",
+      "PowerShell(git commit *)"
     ]
   }
 }

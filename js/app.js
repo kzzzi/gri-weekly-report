@@ -1362,7 +1362,6 @@ const RecruitModule = {
     if (!el) return;
     const positions = [...new Set(AppState.candidates.map(c => c.position))].sort((a, b) => a.localeCompare(b, 'ko'));
     el.innerHTML = `<span class="rc-filter-label">직책</span>
-      <button class="rc-filter-chip ${!this._filterPosition ? 'rc-filter-chip--active' : ''}" onclick="RecruitModule.setPositionFilter(null)">전체</button>
       ${positions.map(p => `<button class="rc-filter-chip ${this._filterPosition === p ? 'rc-filter-chip--active' : ''}" onclick="RecruitModule.setPositionFilter('${p}')">${p}</button>`).join('')}`;
   },
 
@@ -1372,7 +1371,6 @@ const RecruitModule = {
     const base = this._filterPosition ? AppState.candidates.filter(c => c.position === this._filterPosition) : AppState.candidates;
     const fields = [...new Set(base.map(c => c.field))].sort((a, b) => a.localeCompare(b, 'ko'));
     el.innerHTML = `<span class="rc-filter-label">분야</span>
-      <button class="rc-filter-chip ${!this._filterField ? 'rc-filter-chip--active' : ''}" onclick="RecruitModule.setFieldFilter(null)">전체</button>
       ${fields.map(f => `<button class="rc-filter-chip ${this._filterField === f ? 'rc-filter-chip--active' : ''}" onclick="RecruitModule.setFieldFilter('${f}')">${f}</button>`).join('')}`;
   },
 

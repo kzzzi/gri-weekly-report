@@ -3553,7 +3553,7 @@ ul, ol {
 /* ── 채용검증 2-패널 레이아웃 ── */
 .recruit-layout {
   display: grid;
-  grid-template-columns: 380px 1fr;
+  grid-template-columns: 460px minmax(0, 500px);
   grid-template-rows: 1fr;
   gap: 12px;
   flex: 1;
@@ -3689,7 +3689,7 @@ ul, ol {
 
 .rc-row:hover { background: rgba(var(--gri-primary-rgb), 0.03); }
 .rc-row--selected { background: rgba(var(--gri-primary-rgb), 0.07) !important; }
-.rc-row--anomaly { border-left: 3px solid var(--gri-warning); padding-left: 11px; }
+.rc-row--anomaly { }
 
 .rc-row-num {
   width: 20px;
@@ -3791,6 +3791,7 @@ ul, ol {
 
 /* inline style has height:100% which breaks flex scroll — override with !important */
 #recruitDetailContent {
+  display: flex !important;
   flex: 1 !important;
   height: auto !important;
   min-height: 0 !important;

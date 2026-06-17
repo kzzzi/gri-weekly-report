@@ -82,103 +82,93 @@
           <span id="statTotalFiles">0</span>
           <span id="statTotalDepts">13</span>
           <span id="statPendingDepts">13</span>
+          <span id="deptTotalCount">13</span>
         </div>
 
-        <!-- ===== 2-COLUMN WORK AREA ===== -->
-        <div class="work-columns">
-
-          <!-- LEFT: 파일 첨부 + 목록 -->
-          <section class="col-card card">
-
-            <!-- 상단: 파일 첨부 구역 -->
-            <div class="col-section upload-section-inner">
-              <div class="col-section-header">
-                <span class="col-step">1</span>
-                <span class="col-card-title">
-                  <i data-lucide="upload-cloud" style="width:14px;height:14px;color:#1B4F8F"></i>
-                  파일 첨부
-                </span>
-              </div>
-              <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
-                <input type="file" id="fileInput" multiple accept=".pdf,.hwp,.hwpx" hidden>
-                <div class="upload-zone-content">
-                  <div class="upload-icon-wrapper">
-                    <i data-lucide="cloud-upload" class="upload-icon"></i>
-                  </div>
-                  <div class="upload-text">클릭 또는 드래그</div>
+        <!-- Row 1: 파일 업로드 + 현황 서클 -->
+        <div class="wr-top-row">
+          <section class="wr-upload-area card">
+            <div class="col-section-header">
+              <span class="col-step">1</span>
+              <span class="col-card-title">
+                <i data-lucide="upload-cloud" style="width:14px;height:14px;color:#1B4F8F"></i>
+                파일 업로드
+              </span>
+              <span class="file-count" id="fileCount" style="margin-left:auto;">0개</span>
+              <button class="btn btn--ghost btn--sm" style="color:var(--gri-error);padding:3px 6px;" title="전체 삭제" onclick="UploadModule.clearAllFiles()">
+                <i data-lucide="trash-2" style="width:13px;height:13px"></i>
+              </button>
+            </div>
+            <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+              <input type="file" id="fileInput" multiple accept=".pdf,.hwp,.hwpx" hidden>
+              <div class="upload-zone-content">
+                <div class="upload-icon-wrapper">
+                  <i data-lucide="cloud-upload" class="upload-icon"></i>
                 </div>
+                <div class="upload-text">클릭 또는 드래그</div>
               </div>
             </div>
-
-            <!-- 하단: 파일 목록 구역 -->
-            <div class="col-section file-section">
-              <div class="col-section-header">
-                <span class="col-step">2</span>
-                <span class="col-card-title">
-                  <i data-lucide="files" style="width:14px;height:14px;color:#1B4F8F"></i>
-                  파일 목록
-                </span>
-                <span class="file-count" id="fileCount" style="margin-left:auto;">0개</span>
-                <button class="btn btn--ghost btn--sm" style="color:var(--gri-error);padding:3px 6px;" title="전체 삭제" onclick="UploadModule.clearAllFiles()">
-                  <i data-lucide="trash-2" style="width:13px;height:13px"></i>
-                </button>
-              </div>
-              <div class="file-list-wrapper" id="fileListWrapper">
-                <div class="file-list" id="fileList"></div>
-              </div>
-              <div class="file-empty-state" id="fileEmptyState">
-                <i data-lucide="inbox" style="width:22px;height:22px;opacity:0.25"></i>
-                <span>첨부된 파일 없음</span>
-              </div>
+            <div class="file-list-wrapper" id="fileListWrapper">
+              <div class="file-list" id="fileList"></div>
             </div>
-
-            <!-- 액션 -->
-            <div class="col-card-footer">
-              <button class="btn btn--primary btn--block" id="mergeBtn" onclick="MergerModule.merge()">
-                <i data-lucide="merge" style="width:15px;height:15px"></i>
-                취합 및 병합
-              </button>
-              <div class="action-bar-row">
-                <button class="btn btn--secondary btn--sm" id="downloadPdfBtn" onclick="MergerModule.downloadPdf()" disabled>
-                  <i data-lucide="download" style="width:13px;height:13px"></i> PDF
-                </button>
-                <button class="btn btn--secondary btn--sm" id="downloadHwpxBtn" onclick="MergerModule.downloadHwpx()" disabled>
-                  <i data-lucide="download" style="width:13px;height:13px"></i> HWPX
-                </button>
-                <button class="btn btn--ghost btn--sm preview-open-btn" id="previewOpenBtn" style="display:none;" onclick="PreviewModule.openPreviewModal()">
-                  <i data-lucide="eye" style="width:13px;height:13px"></i> 미리보기
-                </button>
-              </div>
-            </div>
-
-          </section>
-
-          <!-- RIGHT: 부서 제출현황 -->
-          <section class="col-card card dept-main">
-            <div class="col-card-header dept-main-header">
-              <span class="col-step">3</span>
-              <span class="col-card-title dept-main-title">부서 제출현황</span>
-              <div class="dept-panel-counts" style="margin-left:auto;">
-                <span class="dept-count-submitted" id="deptSubmittedCount">0</span>
-                <span class="dept-count-sep"> / </span>
-                <span class="dept-count-total" id="deptTotalCount">13</span>
-              </div>
-            </div>
-            <div class="dept-progress-row-inline">
-              <div class="dept-progress-bar">
-                <div class="dept-progress-fill" id="deptProgressFill" style="width:0%"></div>
-              </div>
-              <span class="dept-progress-label"><span id="deptMissingCount">13</span>개 미제출</span>
-            </div>
-            <div class="dept-grid" id="deptList"></div>
-            <div class="dept-main-footer">
-              <button class="dept-add-btn" id="addDeptBtn" onclick="DeptModule.addDepartment()">
-                <i data-lucide="plus" style="width:12px;height:12px"></i> 부서 추가
-              </button>
+            <div class="file-empty-state" id="fileEmptyState">
+              <i data-lucide="inbox" style="width:22px;height:22px;opacity:0.25"></i>
+              <span>첨부된 파일 없음</span>
             </div>
           </section>
 
-        </div><!-- /work-columns -->
+          <div class="wr-stat-circles">
+            <div class="wr-stat-circle wr-stat-circle--submitted">
+              <span class="wr-stat-num" id="deptSubmittedCount">0</span>
+              <span class="wr-stat-label">제출</span>
+            </div>
+            <div class="wr-stat-circle wr-stat-circle--missing">
+              <span class="wr-stat-num" id="deptMissingCount">13</span>
+              <span class="wr-stat-label">미 제출</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 2: 파일 합치기 + 다운로드/미리보기 -->
+        <section class="wr-action-row card">
+          <div class="wr-action-merge">
+            <span class="col-step">2</span>
+            <button class="btn btn--primary" id="mergeBtn" onclick="MergerModule.merge()">
+              <i data-lucide="merge" style="width:15px;height:15px"></i>
+              파일 합치기
+            </button>
+          </div>
+          <div class="wr-action-downloads">
+            <span class="wr-action-label">다운로드 / 미리보기</span>
+            <button class="btn btn--secondary btn--sm" id="downloadPdfBtn" onclick="MergerModule.downloadPdf()" disabled>
+              <i data-lucide="download" style="width:13px;height:13px"></i> PDF
+            </button>
+            <button class="btn btn--secondary btn--sm" id="downloadHwpxBtn" onclick="MergerModule.downloadHwpx()" disabled>
+              <i data-lucide="download" style="width:13px;height:13px"></i> HWPX
+            </button>
+            <button class="btn btn--ghost btn--sm preview-open-btn" id="previewOpenBtn" style="display:none;" onclick="PreviewModule.openPreviewModal()">
+              <i data-lucide="eye" style="width:13px;height:13px"></i> 미리보기
+            </button>
+          </div>
+        </section>
+
+        <!-- Row 3: 부서 카드 그리드 -->
+        <section class="wr-dept-section card">
+          <div class="col-section-header">
+            <span class="col-step">3</span>
+            <span class="col-card-title">
+              <i data-lucide="building-2" style="width:14px;height:14px;color:#1B4F8F"></i>
+              부서 제출현황
+            </span>
+            <div class="dept-progress-bar" style="flex:1;margin:0 12px;">
+              <div class="dept-progress-fill" id="deptProgressFill" style="width:0%"></div>
+            </div>
+            <button class="dept-add-btn" id="addDeptBtn" onclick="DeptModule.addDepartment()">
+              <i data-lucide="plus" style="width:12px;height:12px"></i> 부서 추가
+            </button>
+          </div>
+          <div class="dept-card-grid" id="deptList"></div>
+        </section>
 
       </div><!-- /page-weekly-report -->
 

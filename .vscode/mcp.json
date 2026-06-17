@@ -1,0 +1,14 @@
+{
+  "servers": {
+    "kordoc": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "kordoc",
+        "mcp"
+      ]
+    }
+  }
+}

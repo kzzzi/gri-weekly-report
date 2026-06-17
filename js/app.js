@@ -624,6 +624,27 @@ const UploadModule = {
     }
   },
 
+  handleDeptUpload(files, deptId) {
+    if (!files || files.length === 0) return;
+    const file = files[0];
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (!['pdf', 'hwp', 'hwpx'].includes(ext)) {
+      ModalModule.showModal('format_error', { fileName: file.name });
+      return;
+    }
+    const dept = AppState.departments.find(d => d.id === deptId);
+    if (!dept) return;
+    if (dept.submitted && dept.fileId) {
+      const oldFile = AppState.files.find(f => f.id === dept.fileId);
+      if (oldFile) {
+        AppState.files = AppState.files.filter(f => f.id !== dept.fileId);
+        dept.submitted = false;
+        dept.fileId = null;
+      }
+    }
+    this.addFileToState(file, dept.name, ext);
+  },
+
   clearAllFiles() {
     if (AppState.files.length === 0) return;
 
@@ -797,45 +818,44 @@ const DeptModule = {
 
     const sorted = [...AppState.departments].sort((a, b) => (a.submitted ? 1 : 0) - (b.submitted ? 1 : 0));
 
-    sorted.forEach((dept, index) => {
+    sorted.forEach(dept => {
       const matchedFile = AppState.files.find(f => f.id === dept.fileId);
-      const row = document.createElement('div');
-      row.className = `dept-row ${dept.submitted ? 'dept-row--submitted' : 'dept-row--missing'}`;
+      const card = document.createElement('div');
+      card.className = `dept-card ${dept.submitted ? 'dept-card--submitted' : 'dept-card--missing'}`;
 
-      let subHtml = '';
+      let bottomHtml = '';
       if (dept.submitted && matchedFile) {
         const isReplaced = !!matchedFile.replacedAt;
         const timeStr = isReplaced
           ? '교체 ' + formatUploadTime(matchedFile.replacedAt)
           : formatUploadTime(matchedFile.uploadedAt);
-        subHtml = `
-          <div class="dept-row-file" title="${matchedFile.name}">${matchedFile.name}</div>
-          <div class="dept-row-time">${timeStr}</div>
+        bottomHtml = `
+          <div class="dept-card-file" title="${matchedFile.name}">${matchedFile.name}</div>
+          <div class="dept-card-time">${timeStr}</div>
         `;
       } else {
-        subHtml = `<div class="dept-row-placeholder"></div>`;
+        bottomHtml = `
+          <label class="dept-card-upload-btn">
+            <i data-lucide="plus" style="width:11px;height:11px"></i> 업로드
+            <input type="file" accept=".pdf,.hwp,.hwpx" hidden onchange="UploadModule.handleDeptUpload(this.files,${dept.id})">
+          </label>
+        `;
       }
 
-      row.innerHTML = `
-        <div class="dept-row-left">
-          <span class="dept-row-dot"></span>
-          <div class="dept-row-info">
-            <span class="dept-row-name">${dept.name}</span>
-            ${subHtml}
-          </div>
-        </div>
-        <div class="dept-row-right">
-          <span class="dept-row-badge ${dept.submitted ? 'dept-row-badge--ok' : 'dept-row-badge--missing'}">
-            ${dept.submitted ? '제출완료' : '미제출'}
-          </span>
-          <div class="dept-row-actions">
-            <button onclick="${dept.submitted ? `UploadModule.downloadFile('${dept.fileId}')` : ''}" title="다운로드" style="${dept.submitted ? '' : 'visibility:hidden;pointer-events:none;'}"><i data-lucide="download" style="width:11px;height:11px"></i></button>
+      card.innerHTML = `
+        <div class="dept-card-top">
+          <span class="dept-card-name" title="${dept.name}">${dept.name}</span>
+          <div class="dept-card-btns">
+            ${dept.submitted
+              ? `<button onclick="UploadModule.downloadFile('${dept.fileId}')" title="다운로드"><i data-lucide="download" style="width:11px;height:11px"></i></button>`
+              : ''}
             <button onclick="DeptModule.editDepartment(${dept.id})" title="수정"><i data-lucide="edit-3" style="width:11px;height:11px"></i></button>
             <button onclick="DeptModule.deleteDepartment(${dept.id})" title="삭제"><i data-lucide="trash-2" style="width:11px;height:11px"></i></button>
           </div>
         </div>
+        ${bottomHtml}
       `;
-      deptList.appendChild(row);
+      deptList.appendChild(card);
     });
 
     if (existingForm) deptList.appendChild(existingForm);

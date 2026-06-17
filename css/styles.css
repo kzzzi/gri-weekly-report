@@ -2739,12 +2739,14 @@ ul, ol {
 }
 
 /* ══════════════════════════════════════════
-   주간보고 2-컬럼 레이아웃
+   주간보고 취합 레이아웃
 ═══════════════════════════════════════════ */
 #page-weekly-report {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  height: calc(100vh - 140px);
+  overflow: hidden;
 }
 
 #page-weekly-report > .page-header {
@@ -3137,6 +3139,228 @@ ul, ol {
   background: var(--gri-border);
   color: var(--gri-text-primary);
 }
+
+/* ══════════════════════════════════════════
+   주간보고 취합 — 새 레이아웃
+═══════════════════════════════════════════ */
+
+.wr-top-row {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+  flex-shrink: 0;
+}
+
+.wr-upload-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.wr-stat-circles {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.wr-stat-circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 2.5px solid;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.wr-stat-circle--submitted {
+  border-color: var(--gri-success);
+  background: rgba(var(--gri-success-rgb), 0.04);
+}
+
+.wr-stat-circle--missing {
+  border-color: var(--gri-border);
+  background: var(--gri-surface);
+}
+
+.wr-stat-num {
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.wr-stat-circle--submitted .wr-stat-num { color: var(--gri-success); }
+.wr-stat-circle--missing  .wr-stat-num { color: var(--gri-text-secondary); }
+
+.wr-stat-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--gri-text-secondary);
+}
+
+.wr-action-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 16px;
+  flex-shrink: 0;
+}
+
+.wr-action-merge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.wr-action-downloads {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  padding-left: 16px;
+  border-left: 1px solid var(--gri-border);
+}
+
+.wr-action-label {
+  font-size: 0.78rem;
+  color: var(--gri-text-muted);
+  white-space: nowrap;
+  margin-right: 4px;
+}
+
+.wr-dept-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.dept-card-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  padding: 2px 2px 4px;
+  margin-top: 8px;
+}
+
+.dept-card {
+  border: 1.5px solid var(--gri-border);
+  border-radius: var(--gri-radius-md);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 80px;
+  transition: box-shadow 0.15s;
+}
+
+.dept-card--submitted {
+  border-color: var(--gri-success);
+  border-style: solid;
+  background: rgba(var(--gri-success-rgb), 0.04);
+}
+
+.dept-card--missing {
+  border-style: dashed;
+}
+
+.dept-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.dept-card-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--gri-text-primary);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dept-card-btns {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.dept-card:hover .dept-card-btns { opacity: 1; }
+
+.dept-card-btns button,
+.dept-card-btns label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  color: var(--gri-text-muted);
+  cursor: pointer;
+  padding: 0;
+}
+
+.dept-card-btns button:hover,
+.dept-card-btns label:hover {
+  background: var(--gri-border-light);
+  color: var(--gri-text-primary);
+}
+
+.dept-card-file {
+  font-size: 0.72rem;
+  color: var(--gri-success);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: auto;
+}
+
+.dept-card-time {
+  font-size: 0.68rem;
+  color: var(--gri-text-muted);
+}
+
+.dept-card-missing-label {
+  font-size: 0.72rem;
+  color: var(--gri-text-muted);
+  margin-top: auto;
+}
+
+.dept-card-upload-btn {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.72rem;
+  color: var(--gri-primary);
+  cursor: pointer;
+  margin-top: auto;
+  width: fit-content;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px dashed var(--gri-primary);
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+
+.dept-card-upload-btn:hover { opacity: 1; }
 
 /* ══════════════════════════════════════════
    채용검증 페이지

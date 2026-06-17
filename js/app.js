@@ -1383,22 +1383,58 @@ const RecruitModule = {
     this.renderTable();
   },
 
-  _renderPositionFilters() {
-    const el = document.getElementById('rcPositionFilters');
-    if (!el) return;
-    const positions = [...new Set(AppState.candidates.map(c => c.position))].sort((a, b) => a.localeCompare(b, 'ko'));
-    el.innerHTML = `<span class="rc-filter-label">직책</span>
-      ${positions.map(p => `<button class="rc-filter-chip ${this._filterPosition === p ? 'rc-filter-chip--active' : ''}" onclick="RecruitModule.setPositionFilter('${p}')">${p}</button>`).join('')}`;
+  _renderDropdownBtns() {
+    const posBtn = document.getElementById('rcPosBtn');
+    const fieldBtn = document.getElementById('rcFieldBtn');
+    if (posBtn) {
+      posBtn.classList.toggle('rc-dd-btn--active', !!this._filterPosition);
+      posBtn.innerHTML = (this._filterPosition || '직책') + ' <i data-lucide="chevron-down" style="width:11px;height:11px;"></i>';
+    }
+    if (fieldBtn) {
+      fieldBtn.classList.toggle('rc-dd-btn--active', !!this._filterField);
+      fieldBtn.innerHTML = (this._filterField || '분야') + ' <i data-lucide="chevron-down" style="width:11px;height:11px;"></i>';
+    }
+    lucide.createIcons();
   },
 
-  _renderFieldFilters() {
-    const el = document.getElementById('rcFieldFilters');
-    if (!el) return;
-    const base = this._filterPosition ? AppState.candidates.filter(c => c.position === this._filterPosition) : AppState.candidates;
-    const fields = [...new Set(base.map(c => c.field))].sort((a, b) => a.localeCompare(b, 'ko'));
-    el.innerHTML = `<span class="rc-filter-label">분야</span>
-      ${fields.map(f => `<button class="rc-filter-chip ${this._filterField === f ? 'rc-filter-chip--active' : ''}" onclick="RecruitModule.setFieldFilter('${f}')">${f}</button>`).join('')}`;
+  toggleDropdown(type) {
+    const menuId = type === 'position' ? 'rcPosMenu' : 'rcFieldMenu';
+    const otherId = type === 'position' ? 'rcFieldMenu' : 'rcPosMenu';
+    const menu = document.getElementById(menuId);
+    const other = document.getElementById(otherId);
+    if (!menu) return;
+    const isOpen = menu.classList.contains('rc-dd-menu--open');
+    if (other) other.classList.remove('rc-dd-menu--open');
+    if (isOpen) { menu.classList.remove('rc-dd-menu--open'); return; }
+    // 내용 렌더
+    const items = type === 'position'
+      ? [...new Set(AppState.candidates.map(c => c.position))].sort((a, b) => a.localeCompare(b, 'ko'))
+      : [...new Set(AppState.candidates.map(c => c.field))].sort((a, b) => a.localeCompare(b, 'ko'));
+    const cur = type === 'position' ? this._filterPosition : this._filterField;
+    const fn = type === 'position' ? 'setPositionFilter' : 'setFieldFilter';
+    menu.innerHTML = `
+      <div class="rc-dd-item${!cur ? ' rc-dd-item--checked' : ''}" onclick="RecruitModule.${fn}(null)">
+        <span class="rc-dd-check">${!cur ? '✓' : ''}</span> 전체
+      </div>
+      ${items.map(v => `
+        <div class="rc-dd-item${cur === v ? ' rc-dd-item--checked' : ''}" onclick="RecruitModule.${fn}('${v}')">
+          <span class="rc-dd-check">${cur === v ? '✓' : ''}</span> ${v}
+        </div>`).join('')}`;
+    menu.classList.add('rc-dd-menu--open');
+    // 외부 클릭 닫기
+    setTimeout(() => {
+      const close = (e) => {
+        if (!menu.contains(e.target) && e.target.id !== (type === 'position' ? 'rcPosBtn' : 'rcFieldBtn')) {
+          menu.classList.remove('rc-dd-menu--open');
+          document.removeEventListener('click', close);
+        }
+      };
+      document.addEventListener('click', close);
+    }, 10);
   },
+
+  _renderPositionFilters() { this._renderDropdownBtns(); },
+  _renderFieldFilters() { this._renderDropdownBtns(); },
 
   _evalAvg(c) {
     const scores = (c.verification.evaluator.recommended || [])
@@ -1486,6 +1522,13 @@ const RecruitModule = {
     const container = document.getElementById('recruitTableBody');
     if (!container) return;
     const list = this._filtered();
+    // 검토필요 먼저, 그다음 이름 가나다순
+    list.sort((a, b) => {
+      const aFlag = this._isAnomalous(a) && a.reviewStatus !== 'completed';
+      const bFlag = this._isAnomalous(b) && b.reviewStatus !== 'completed';
+      if (aFlag !== bFlag) return aFlag ? -1 : 1;
+      return a.name.localeCompare(b.name, 'ko');
+    });
     container.innerHTML = '';
     if (list.length === 0) {
       container.innerHTML = `<div class="rc-empty">해당하는 지원자가 없습니다</div>`;
@@ -1504,16 +1547,12 @@ const RecruitModule = {
       }
 
       const row = document.createElement('div');
-      row.className = `rc-row${isSelected ? ' rc-row--selected' : ''}${anomaly && c.reviewStatus !== 'completed' ? ' rc-row--anomaly' : ''}`;
+      row.className = `rc-row${isSelected ? ' rc-row--selected' : ''}`;
       row.onclick = () => this.selectCandidate(c.id);
       row.innerHTML = `
         <span class="rc-row-num">${idx + 1}</span>
         <div class="rc-row-body">
           <div class="rc-cand-name">${c.name}</div>
-          <div class="rc-cand-tags">
-            <span class="rc-tag">${c.position}</span>
-            <span class="rc-tag">${c.field}</span>
-          </div>
         </div>
         ${statusHtml}
       `;
@@ -1542,7 +1581,7 @@ const RecruitModule = {
     empty.style.display = 'none';
     content.style.display = 'flex';
 
-    // ── 서류 검증: 문제있는 항목만 ! 배지 + 툴팁 ──
+    // ── 서류 검증: 대분류에만 ! 표시, 하위는 사유 텍스트 ──
     const missingDocs = c.verification.documents.categories
       .filter(cat => cat.status !== 'ok' && cat.status !== 'na')
       .map(cat => {
@@ -1559,15 +1598,17 @@ const RecruitModule = {
       const tooltip = missingSubs.length > 0
         ? missingSubs.map(s => s.name + (s.note ? ': ' + s.note : '')).join(', ')
         : (cat.note || '');
+      // 대분류에만 ! (하위에는 사유 텍스트)
       const badge = hasIssue
         ? `<span class="rc-badge rc-badge--miss rd-doc-badge" title="${tooltip}">!</span>`
         : '';
       const subHtml = hasSub ? cat.subItems.map(s => {
         const subIssue = s.status !== 'ok' && s.status !== 'na';
-        const subBadge = subIssue
-          ? `<span class="rc-badge rc-badge--miss" style="font-size:0.6rem;width:16px;height:14px;" title="${s.note || '미제출'}">!</span>`
-          : '';
-        return `<div class="rd-sub-row"><span class="rd-sub-name">${s.name}</span>${subBadge}</div>`;
+        const reason = s.note || (s.status === 'missing' ? '미첨부' : s.status === 'mismatch' ? '내용불일치' : '');
+        return `<div class="rd-sub-row">
+          <span class="rd-sub-name">${s.name}</span>
+          ${subIssue && reason ? `<span class="rd-sub-reason">${reason}</span>` : ''}
+        </div>`;
       }).join('') : '';
       return `
         <div class="rd-doc-accordion${hasIssue ? ' rd-doc-accordion--issue' : ''}">
@@ -1626,7 +1667,7 @@ const RecruitModule = {
       evalHtml = `<p class="rd-na">적합한 심사위원이 없습니다</p>`;
     } else {
       evalHtml = validEvals.map((ev, i) => `
-        <div class="rd-eval-row" onclick="RecruitModule.openEvalProfile('${ev.name}', ${ev.score})">
+        <div class="rd-eval-row" onclick="RecruitModule.openEvalProfile('${ev.name}', ${ev.score}, '${c.field}')">
           <span class="rd-eval-rank">${i + 1}</span>
           <div class="rd-eval-info">
             <span class="rd-eval-name">${ev.name}</span>
@@ -1693,36 +1734,45 @@ const RecruitModule = {
     lucide.createIcons();
   },
 
-  openEvalProfile(name, score) {
+  openEvalProfile(name, score, candidateField) {
     const p = EVAL_PROFILES[name] || {};
     const body = document.getElementById('evalPanelBody');
-    const tags = (p.specialty || []).map(t => `<span class="eval-profile-tag">${t}</span>`).join('');
+    const initials = name.length >= 2 ? name.slice(0, 2) : name;
+    // 매핑: 심사위원 전문분야 중 후보자 분야와 관련된 것 표시
+    const matched = (p.specialty || []).filter(s =>
+      candidateField && (s.includes(candidateField.replace('및', '').slice(0, 4)) ||
+      candidateField.includes(s.slice(0, 4)))
+    );
+    const tags = (p.specialty || []).map(t => {
+      const isMatch = matched.includes(t);
+      return `<span class="eval-profile-tag${isMatch ? ' eval-profile-tag--match' : ''}">${t}</span>`;
+    }).join('');
+    const rows = [
+      ['출신교', p.school], ['학과', p.dept], ['학위', p.degree], ['지도교수', p.advisor],
+      ['소속', p.company], ['직위', p.role], ['재직기간', p.period],
+      ['지역', p.region], ['가족관계', p.family || '해당 없음']
+    ];
     body.innerHTML = `
-      <div class="eval-profile-name">${name}</div>
-      <div class="eval-profile-role">${p.role || ''} · ${p.company || ''}</div>
-      ${score != null ? `<div class="eval-profile-score-badge"><strong>${score.toFixed(1)}</strong><small> / 10점</small></div>` : ''}
-      <div class="eval-profile-section">
-        <div class="eval-profile-section-title">학력</div>
-        <div class="eval-profile-row"><span class="eval-profile-label">출신교</span><span class="eval-profile-value">${p.school || '—'}</span></div>
-        <div class="eval-profile-row"><span class="eval-profile-label">학과</span><span class="eval-profile-value">${p.dept || '—'}</span></div>
-        <div class="eval-profile-row"><span class="eval-profile-label">학위</span><span class="eval-profile-value">${p.degree || '—'}</span></div>
-        <div class="eval-profile-row"><span class="eval-profile-label">지도교수</span><span class="eval-profile-value">${p.advisor || '—'}</span></div>
+      <div class="ep-top">
+        <div class="ep-avatar">${initials}</div>
+        <div class="ep-top-info">
+          <div class="ep-name">${name}</div>
+          <div class="ep-role">${p.role || ''}</div>
+          <div class="ep-org">${p.company || ''}</div>
+        </div>
+        ${score != null ? `<div class="ep-score"><span class="ep-score-num">${score.toFixed(1)}</span><span class="ep-score-unit">/10</span></div>` : ''}
       </div>
-      <div class="eval-profile-section">
-        <div class="eval-profile-section-title">소속 및 경력</div>
-        <div class="eval-profile-row"><span class="eval-profile-label">소속</span><span class="eval-profile-value">${p.company || '—'}</span></div>
-        <div class="eval-profile-row"><span class="eval-profile-label">직위</span><span class="eval-profile-value">${p.role || '—'}</span></div>
-        <div class="eval-profile-row"><span class="eval-profile-label">재직기간</span><span class="eval-profile-value">${p.period || '—'}</span></div>
+      <div class="ep-divider"></div>
+      <div class="ep-rows">
+        ${rows.map(([label, val]) => val ? `
+          <div class="ep-row">
+            <span class="ep-label">${label}</span>
+            <span class="ep-value">${val}</span>
+          </div>` : '').join('')}
       </div>
-      <div class="eval-profile-section">
-        <div class="eval-profile-section-title">기타</div>
-        <div class="eval-profile-row"><span class="eval-profile-label">지역</span><span class="eval-profile-value">${p.region || '—'}</span></div>
-        <div class="eval-profile-row"><span class="eval-profile-label">가족관계</span><span class="eval-profile-value">${p.family || '해당 없음'}</span></div>
-      </div>
-      ${tags ? `<div class="eval-profile-section">
-        <div class="eval-profile-section-title">전문 분야</div>
-        <div class="eval-profile-tags">${tags}</div>
-      </div>` : ''}
+      ${tags ? `<div class="ep-divider"></div>
+        <div class="ep-spec-title">전문 분야${matched.length > 0 ? ' <span class="ep-match-badge">매핑 ' + matched.length + '개</span>' : ''}</div>
+        <div class="eval-profile-tags">${tags}</div>` : ''}
     `;
     document.getElementById('evalOverlay').classList.add('eval-overlay--active');
     lucide.createIcons();

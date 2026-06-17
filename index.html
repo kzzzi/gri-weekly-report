@@ -194,9 +194,21 @@
                 </div>
               </div>
 
-              <!-- 필터 칩 -->
-              <div class="rc-filter-row" id="rcPositionFilters"></div>
-              <div class="rc-filter-row" id="rcFieldFilters"></div>
+              <!-- 드롭다운 필터 -->
+              <div class="rc-filter-bar" id="rcFilterBar">
+                <div class="rc-dd-wrap" id="rcPosDrop">
+                  <button class="rc-dd-btn" id="rcPosBtn" onclick="RecruitModule.toggleDropdown('position')">
+                    직책 <i data-lucide="chevron-down" style="width:11px;height:11px;"></i>
+                  </button>
+                  <div class="rc-dd-menu" id="rcPosMenu"></div>
+                </div>
+                <div class="rc-dd-wrap" id="rcFieldDrop">
+                  <button class="rc-dd-btn" id="rcFieldBtn" onclick="RecruitModule.toggleDropdown('field')">
+                    분야 <i data-lucide="chevron-down" style="width:11px;height:11px;"></i>
+                  </button>
+                  <div class="rc-dd-menu" id="rcFieldMenu"></div>
+                </div>
+              </div>
 
               <!-- 지원자 목록 -->
               <div class="rc-list-scroll">

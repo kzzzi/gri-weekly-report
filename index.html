@@ -67,62 +67,47 @@
           </div>
         </div>
 
-        <!-- Hidden stat elements (JS compatibility) -->
-        <div style="display:none;">
-          <span id="statTotalFiles">0</span>
-          <span id="statTotalDepts">13</span>
-          <span id="statPendingDepts">13</span>
-          <span id="deptTotalCount">13</span>
-        </div>
-
-        <!-- Row 1: 파일 업로드 + 현황 서클 -->
-        <div class="wr-top-row">
-          <section class="wr-upload-area card">
-            <div class="col-section-header">
-              <span class="col-step">1</span>
-              <span class="col-card-title">
-                <i data-lucide="upload-cloud" style="width:14px;height:14px;color:#1B4F8F"></i>
-                파일 업로드
-              </span>
-              <span class="file-count" id="fileCount" style="margin-left:auto;">0개</span>
-              <button class="btn btn--ghost btn--sm" style="color:var(--gri-error);padding:3px 6px;" title="전체 삭제" onclick="UploadModule.clearAllFiles()">
-                <i data-lucide="trash-2" style="width:13px;height:13px"></i>
-              </button>
-            </div>
-            <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
-              <input type="file" id="fileInput" multiple accept=".pdf,.hwp,.hwpx" hidden>
-              <div class="upload-zone-content">
-                <div class="upload-icon-wrapper">
-                  <i data-lucide="cloud-upload" class="upload-icon"></i>
-                </div>
-                <div class="upload-text">클릭 또는 드래그</div>
+        <!-- 1. 파일 업로드 -->
+        <section class="wr-section card" id="wrUploadSection">
+          <div class="col-section-header">
+            <span class="col-step">1</span>
+            <span class="col-card-title">
+              <i data-lucide="upload-cloud" style="width:14px;height:14px;color:#1B4F8F"></i>
+              파일 업로드
+            </span>
+          </div>
+          <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+            <input type="file" id="fileInput" multiple accept=".pdf,.hwp,.hwpx" hidden>
+            <div class="upload-zone-content">
+              <div class="upload-icon-wrapper">
+                <i data-lucide="cloud-upload" class="upload-icon"></i>
               </div>
-            </div>
-            <div class="file-list-wrapper" id="fileListWrapper">
-              <div class="file-list" id="fileList"></div>
-            </div>
-            <div class="file-empty-state" id="fileEmptyState">
-              <i data-lucide="inbox" style="width:22px;height:22px;opacity:0.25"></i>
-              <span>첨부된 파일 없음</span>
-            </div>
-          </section>
-
-          <div class="wr-stat-circles" id="wrStatCircles" style="display:none;">
-            <div class="wr-stat-circle wr-stat-circle--submitted">
-              <span class="wr-stat-num" id="deptSubmittedCount">0</span>
-              <span class="wr-stat-label">제출</span>
-            </div>
-            <div class="wr-stat-circle wr-stat-circle--missing">
-              <span class="wr-stat-num" id="deptMissingCount">13</span>
-              <span class="wr-stat-label">미 제출</span>
+              <div class="upload-text">클릭 또는 드래그</div>
+              <div class="upload-subtext">PDF · HWP · HWPX</div>
             </div>
           </div>
-        </div>
+        </section>
 
-        <!-- Row 2: 파일 합치기 + 다운로드/미리보기 -->
+        <!-- 2. 파일 목록 + 순서 정리 -->
+        <section class="wr-section card" id="wrFileListSection" style="display:none;flex-direction:column;">
+          <div class="col-section-header">
+            <span class="col-step">2</span>
+            <span class="col-card-title">
+              <i data-lucide="list-ordered" style="width:14px;height:14px;color:#1B4F8F"></i>
+              파일 목록 · 순서 정리
+            </span>
+            <span class="file-count" id="fileCount" style="margin-left:auto;">0개</span>
+            <button class="btn btn--ghost btn--sm" style="color:var(--gri-error);padding:3px 6px;" title="전체 삭제" onclick="UploadModule.clearAllFiles()">
+              <i data-lucide="trash-2" style="width:13px;height:13px"></i>
+            </button>
+          </div>
+          <div class="wr-file-list" id="fileList"></div>
+        </section>
+
+        <!-- 3. 병합과 다운로드 -->
         <section class="wr-action-row card">
           <div class="wr-action-merge">
-            <span class="col-step">2</span>
+            <span class="col-step">3</span>
             <button class="btn btn--primary btn--sm" id="mergeBtn" onclick="MergerModule.merge()">
               <i data-lucide="merge" style="width:13px;height:13px"></i>
               파일 합치기
@@ -140,24 +125,6 @@
               <i data-lucide="eye" style="width:13px;height:13px"></i> 미리보기
             </button>
           </div>
-        </section>
-
-        <!-- Row 3: 부서 카드 그리드 -->
-        <section class="wr-dept-section card">
-          <div class="col-section-header">
-            <span class="col-step">3</span>
-            <span class="col-card-title">
-              <i data-lucide="building-2" style="width:14px;height:14px;color:#1B4F8F"></i>
-              부서 제출현황
-            </span>
-            <div class="dept-progress-bar" style="flex:1;margin:0 12px;">
-              <div class="dept-progress-fill" id="deptProgressFill" style="width:0%"></div>
-            </div>
-            <button class="dept-add-btn" id="addDeptBtn" onclick="DeptModule.addDepartment()">
-              <i data-lucide="plus" style="width:12px;height:12px"></i> 부서 추가
-            </button>
-          </div>
-          <div class="dept-card-grid" id="deptList"></div>
         </section>
 
       </div><!-- /page-weekly-report -->

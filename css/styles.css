@@ -3159,6 +3159,128 @@ ul, ol {
    주간보고 취합 — 새 레이아웃
 ═══════════════════════════════════════════ */
 
+/* 공통 섹션 카드 */
+.wr-section {
+  flex-shrink: 0;
+}
+
+/* 파일 목록 (드래그 재정렬) */
+.wr-file-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+  max-height: 260px;
+  margin-top: 4px;
+}
+
+.wr-file-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--gri-radius-sm);
+  border: 1px solid transparent;
+  background: var(--gri-bg);
+  cursor: default;
+  transition: background 0.12s, border-color 0.12s;
+  user-select: none;
+}
+
+.wr-file-row:hover {
+  background: var(--gri-border-light);
+}
+
+.wr-file-row--dragging {
+  opacity: 0.4;
+}
+
+.wr-file-row--over {
+  border-color: var(--gri-primary);
+  background: rgba(var(--gri-primary-rgb), 0.05);
+}
+
+.wr-file-handle {
+  color: var(--gri-text-muted);
+  cursor: grab;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.wr-file-handle:active { cursor: grabbing; }
+
+.wr-file-order {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--gri-text-muted);
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.wr-file-type-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 2px 5px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  letter-spacing: 0.03em;
+}
+
+.wr-file-type--pdf  { background: rgba(239,68,68,0.1);  color: #dc2626; }
+.wr-file-type--hwp  { background: rgba(59,130,246,0.1); color: #2563eb; }
+.wr-file-type--hwpx { background: rgba(59,130,246,0.1); color: #2563eb; }
+
+.wr-file-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.wr-file-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--gri-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wr-file-size {
+  font-size: 0.7rem;
+  color: var(--gri-text-muted);
+}
+
+.wr-file-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--gri-text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.12s, color 0.12s;
+}
+
+.wr-file-btn:hover {
+  background: rgba(239,68,68,0.1);
+  color: var(--gri-error);
+}
+
+/* 업로드 서브텍스트 */
+.upload-subtext {
+  font-size: 0.72rem;
+  color: var(--gri-text-muted);
+  margin-top: 2px;
+}
+
 .wr-top-row {
   display: flex;
   gap: 12px;

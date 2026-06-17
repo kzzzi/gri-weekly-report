@@ -463,63 +463,25 @@ const UploadModule = {
     });
   },
 
-  async handleFiles(fileList) {
+  handleFiles(fileList) {
     const newFiles = Array.from(fileList);
-    
-    document.getElementById('globalLoading').style.display = 'flex';
-    document.getElementById('globalLoadingText').innerText = '업로드된 파일명 및 본문 전체 텍스트 추출 분석 중...';
-    document.getElementById('globalProgressBar').style.display = 'block';
-    
-    const progressFill = document.getElementById('globalProgressFill');
-    progressFill.style.width = '0%';
-
-    for (let i = 0; i < newFiles.length; i++) {
-      const file = newFiles[i];
-      const percent = Math.round(((i + 1) / newFiles.length) * 100);
-      progressFill.style.width = `${percent}%`;
-
+    let added = 0;
+    for (const file of newFiles) {
       const ext = file.name.split('.').pop().toLowerCase();
       if (!['pdf', 'hwp', 'hwpx'].includes(ext)) {
-        document.getElementById('globalLoading').style.display = 'none';
         ModalModule.showModal('format_error', { fileName: file.name });
         return;
       }
-
       const maxSizeBytes = 50 * 1024 * 1024;
       if (file.size > maxSizeBytes) {
-        document.getElementById('globalLoading').style.display = 'none';
         ModalModule.showModal('size_error', { fileName: file.name });
         return;
       }
-
-      const parsedDeptName = await this.analyzeFileContentAndName(file);
-      let matchedDept = AppState.departments.find(d => d.name === parsedDeptName);
-
-      const existingFile = matchedDept && AppState.files.find(f => f.departmentName === matchedDept.name);
-      if (existingFile) {
-        document.getElementById('globalLoading').style.display = 'none';
-        ModalModule.showModal('replace_confirm', {
-          oldFileName: existingFile.name,
-          newFileName: file.name,
-          file: file,
-          deptName: matchedDept.name
-        });
-        return;
-      }
-
-      this.addFileToState(file, matchedDept ? matchedDept.name : null, ext);
+      this.addFileToState(file, null, ext);
+      added++;
     }
-
-    document.getElementById('globalLoading').style.display = 'none';
     this.renderFileList();
-    DeptModule.renderDeptStatus();
-
-    const listWrapper = document.getElementById('fileListWrapper');
-    if (listWrapper) {
-      listWrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
-
-    showToast('success', '업로드 및 매칭 완료', `${newFiles.length}개의 파일 본문 분석이 완료되어 부서별로 자동 매칭되었습니다.`);
+    if (added > 0) showToast('success', '업로드 완료', `${added}개 파일이 추가되었습니다.`);
   },
 
   async analyzeFileContentAndName(file) {
@@ -712,51 +674,65 @@ const UploadModule = {
     showToast('success', '다운로드 완료', `부서 파일 [${fileData.name}] 다운로드가 시작되었습니다.`);
   },
 
+  _dragSrcIdx: null,
+
   renderFileList() {
-    const fileListWrapper = document.getElementById('fileListWrapper');
     const fileList = document.getElementById('fileList');
     const fileCount = document.getElementById('fileCount');
-    const statTotalFiles = document.getElementById('statTotalFiles');
+    const section = document.getElementById('wrFileListSection');
 
-    if (!fileListWrapper || !fileList) return;
+    if (!fileList) return;
+    if (fileCount) fileCount.innerText = `${AppState.files.length}개`;
+    if (section) section.style.display = AppState.files.length > 0 ? 'flex' : 'none';
 
-    const emptyState = document.getElementById('fileEmptyState');
-    if (fileCount) fileCount.innerText = AppState.files.length > 0 ? `${AppState.files.length}개` : '0개';
-    if (statTotalFiles) statTotalFiles.innerText = AppState.files.length;
     fileList.innerHTML = '';
-    if (AppState.files.length === 0) {
-      fileListWrapper.style.display = 'none';
-      if (emptyState) emptyState.style.display = 'flex';
-      return;
-    }
-    fileListWrapper.style.display = 'block';
-    if (emptyState) emptyState.style.display = 'none';
 
-    AppState.files.forEach(fileData => {
+    AppState.files.forEach((fileData, idx) => {
       const sizeStr = formatFileSize(fileData.size);
-      const fileTypeClass = `file-chip--${fileData.type}`;
-
-      const fileChip = document.createElement('div');
-      fileChip.className = `file-chip ${fileTypeClass} ${fileData.status === 'error' ? 'file-chip--error' : ''}`;
-      fileChip.innerHTML = `
-        <div class="file-chip__icon">${fileData.type.toUpperCase()}</div>
-        <div class="file-chip__info">
-          <span class="file-chip__name" title="${fileData.name}">${fileData.name}</span>
-          <span class="file-chip__meta">
-            <span class="file-chip__dept-badge">${fileData.departmentName}</span>
-            <span>${sizeStr}</span>
-          </span>
+      const row = document.createElement('div');
+      row.className = 'wr-file-row';
+      row.draggable = true;
+      row.dataset.idx = idx;
+      row.innerHTML = `
+        <div class="wr-file-handle" title="드래그하여 순서 변경">
+          <i data-lucide="grip-vertical" style="width:14px;height:14px"></i>
         </div>
-        <div class="file-chip__actions">
-          <button class="file-chip__btn file-chip__btn--download" onclick="UploadModule.downloadFile('${fileData.id}')" title="다운로드">
-            <i data-lucide="download" style="width:14px;height:14px"></i>
-          </button>
-          <button class="file-chip__btn file-chip__btn--remove" onclick="UploadModule.removeFile('${fileData.id}')" title="삭제">
-            <i data-lucide="trash-2" style="width:14px;height:14px"></i>
-          </button>
+        <div class="wr-file-order">${idx + 1}</div>
+        <div class="wr-file-type-badge wr-file-type--${fileData.type}">${fileData.type.toUpperCase()}</div>
+        <div class="wr-file-info">
+          <span class="wr-file-name" title="${fileData.name}">${fileData.name}</span>
+          <span class="wr-file-size">${sizeStr}</span>
         </div>
+        <button class="wr-file-btn" onclick="UploadModule.removeFile('${fileData.id}')" title="삭제">
+          <i data-lucide="x" style="width:13px;height:13px"></i>
+        </button>
       `;
-      fileList.appendChild(fileChip);
+
+      row.addEventListener('dragstart', e => {
+        this._dragSrcIdx = idx;
+        e.dataTransfer.effectAllowed = 'move';
+        setTimeout(() => row.classList.add('wr-file-row--dragging'), 0);
+      });
+      row.addEventListener('dragend', () => {
+        row.classList.remove('wr-file-row--dragging');
+        fileList.querySelectorAll('.wr-file-row--over').forEach(r => r.classList.remove('wr-file-row--over'));
+      });
+      row.addEventListener('dragover', e => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        fileList.querySelectorAll('.wr-file-row--over').forEach(r => r.classList.remove('wr-file-row--over'));
+        if (this._dragSrcIdx !== idx) row.classList.add('wr-file-row--over');
+      });
+      row.addEventListener('drop', e => {
+        e.preventDefault();
+        if (this._dragSrcIdx === null || this._dragSrcIdx === idx) return;
+        const moved = AppState.files.splice(this._dragSrcIdx, 1)[0];
+        AppState.files.splice(idx, 0, moved);
+        this.saveFilesToLocalStorage();
+        this.renderFileList();
+      });
+
+      fileList.appendChild(row);
     });
 
     lucide.createIcons();

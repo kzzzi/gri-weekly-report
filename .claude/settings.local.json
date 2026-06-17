@@ -15,7 +15,11 @@
       "PowerShell(gh api *)",
       "PowerShell($response = Invoke-WebRequest -Uri \"https://laivdata.github.io/gri_design/weekly-reports/\" -UseBasicParsing; $response.Content)",
       "PowerShell($css1 = Invoke-WebRequest -Uri \"https://laivdata.github.io/gri_design/_next/static/css/6c889b6b1a88f5fe.css\" -UseBasicParsing; $css1.Content)",
-      "PowerShell($css2 = Invoke-WebRequest -Uri \"https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css\" -UseBasicParsing; $css2.Content)"
+      "PowerShell($css2 = Invoke-WebRequest -Uri \"https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css\" -UseBasicParsing; $css2.Content)",
+      "PowerShell(cd C:\\\\Users\\\\1umbr\\\\ppt\\\\gri-weekly-report; $content = Get-Content \"index.html\" -Raw; Write-Host \"File size: $\\($content.Length\\) chars\"; $content.Substring\\(0, 500\\))",
+      "PowerShell($env:PATH += \";C:\\\\Program Files\\\\Git\\\\bin;C:\\\\Program Files\\\\Git\\\\cmd\"; cd C:\\\\Users\\\\1umbr\\\\ppt\\\\gri-weekly-report; git log --oneline -5)",
+      "PowerShell(Out-File *)",
+      "PowerShell(git checkout *)"
     ]
   }
 }

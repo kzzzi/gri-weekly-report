@@ -26,7 +26,11 @@
         <button class="nav-item nav-item--active" data-page="weekly-report" onclick="Router.navigate('weekly-report')">주간보고 취합</button>
         <button class="nav-item" data-page="recruitment" onclick="Router.navigate('recruitment')">채용검증</button>
       </div>
-      <div class="nav-actions"></div>
+      <div class="nav-actions">
+        <button class="btn btn--ghost btn--sm" style="gap:5px;" onclick="GeneralMerge.open()">
+          <i data-lucide="layers" style="width:13px;height:13px"></i> 일반 파일병합
+        </button>
+      </div>
     </div>
   </nav>
 
@@ -55,9 +59,6 @@
               <i data-lucide="clipboard-list" style="width:20px;height:20px;color:#1B4F8F"></i>
               주간점검회의 6월2주차
             </h1>
-            <button class="btn btn--ghost btn--sm" style="margin-left:auto;gap:5px;" onclick="GeneralMerge.open()">
-              <i data-lucide="layers" style="width:13px;height:13px"></i> 일반 파일병합
-            </button>
           </div>
         </div>
 
@@ -376,6 +377,66 @@
       <div class="loading-text" id="globalLoadingText">처리 중입니다...</div>
       <div class="progress-bar" id="globalProgressBar" style="display:none;">
         <div class="progress-bar__fill" id="globalProgressFill" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ GENERAL MERGE OVERLAY ============ -->
+  <div class="gm-overlay" id="gmOverlay" onclick="GeneralMerge._handleOverlayClick(event)">
+    <div class="gm-panel" id="gmPanel">
+      <!-- Header -->
+      <div class="gm-header">
+        <div class="gm-title">
+          <i data-lucide="layers" style="width:16px;height:16px;color:#1B4F8F"></i>
+          일반 파일 병합
+        </div>
+        <button class="btn btn--icon btn--ghost" onclick="GeneralMerge.close()">
+          <i data-lucide="x" style="width:18px;height:18px"></i>
+        </button>
+      </div>
+
+      <!-- Drop zone -->
+      <div class="gm-dropzone" id="gmDropzone" onclick="document.getElementById('gmFileInput').click()">
+        <input type="file" id="gmFileInput" multiple accept=".pdf,.hwp,.hwpx" hidden>
+        <i data-lucide="file-plus" style="width:24px;height:24px;opacity:0.35"></i>
+        <span>클릭 또는 드래그하여 파일 추가</span>
+        <span class="gm-dropzone-sub">PDF · HWP · HWPX</span>
+      </div>
+
+      <!-- File list -->
+      <div class="gm-file-list" id="gmFileList"></div>
+
+      <!-- Footer -->
+      <div class="gm-footer">
+        <span class="gm-file-count" id="gmFileCount">0개 파일</span>
+        <button class="btn btn--primary btn--sm" onclick="GeneralMerge.merge()">
+          <i data-lucide="layers" style="width:13px;height:13px"></i> 파일 병합
+        </button>
+      </div>
+
+      <!-- Format selection sub-dialog -->
+      <div class="gm-format-dialog" id="gmFormatDialog" style="display:none;">
+        <div class="gm-format-panel">
+          <h4 class="gm-format-title">다운로드 형식 선택</h4>
+          <p class="gm-format-desc">원하는 형식을 선택 후 다운로드하세요.</p>
+          <div class="gm-format-checks">
+            <label class="gm-format-check">
+              <input type="checkbox" id="gfPdf" checked> PDF
+            </label>
+            <label class="gm-format-check">
+              <input type="checkbox" id="gfHwp"> HWP
+            </label>
+            <label class="gm-format-check">
+              <input type="checkbox" id="gfHwpx"> HWPX
+            </label>
+          </div>
+          <div class="gm-format-actions">
+            <button class="btn btn--primary btn--sm" style="flex:1;" onclick="GeneralMerge.downloadSelected()">
+              <i data-lucide="download" style="width:13px;height:13px"></i> 다운로드
+            </button>
+            <button class="btn btn--ghost btn--sm" style="flex:1;" onclick="GeneralMerge.closeFormatDialog()">취소</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>

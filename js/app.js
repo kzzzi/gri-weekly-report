@@ -998,6 +998,9 @@ const MergerModule = {
       return;
     }
     await this.executeMerge();
+    if (AppState.mergedPdfBytes) {
+      ModalModule.showModal('merge_complete');
+    }
   },
 
   async executeMerge() {
@@ -1057,8 +1060,6 @@ const MergerModule = {
       document.getElementById('downloadPdfBtn').removeAttribute('disabled');
       document.getElementById('downloadHwpxBtn').removeAttribute('disabled');
       document.getElementById('previewOpenBtn').removeAttribute('disabled');
-
-      ModalModule.showModal('merge_complete');
 
     } catch (error) {
       console.error(error);
@@ -1669,48 +1670,128 @@ const RecruitModule = {
 const GeneralMerge = {
   _files: [],
   _mergedBytes: null,
+  _dragSrcIdx: null,
 
   open() {
     this._files = [];
     this._mergedBytes = null;
-    ModalModule.showModal('general_merge');
+    const overlay = document.getElementById('gmOverlay');
+    if (overlay) overlay.classList.add('gm-overlay--active');
+    const fd = document.getElementById('gmFormatDialog');
+    if (fd) fd.style.display = 'none';
+    // wire up file input
+    const inp = document.getElementById('gmFileInput');
+    if (inp) { inp.value = ''; inp.onchange = (e) => { GeneralMerge.addFiles(e.target.files); inp.value = ''; }; }
+    // wire up dropzone DnD
+    const dz = document.getElementById('gmDropzone');
+    if (dz) {
+      dz.ondragover = (e) => { e.preventDefault(); e.stopPropagation(); dz.classList.add('gm-dropzone--over'); };
+      dz.ondragleave = (e) => { e.stopPropagation(); dz.classList.remove('gm-dropzone--over'); };
+      dz.ondrop = (e) => {
+        e.preventDefault(); e.stopPropagation();
+        dz.classList.remove('gm-dropzone--over');
+        GeneralMerge.addFiles(e.dataTransfer.files);
+      };
+    }
+    this._renderList();
+    this._updateCount();
+    lucide.createIcons();
+  },
+
+  close() {
+    const overlay = document.getElementById('gmOverlay');
+    if (overlay) overlay.classList.remove('gm-overlay--active');
+    this._files = [];
+    this._mergedBytes = null;
+  },
+
+  _handleOverlayClick(e) {
+    if (e.target === document.getElementById('gmOverlay')) this.close();
   },
 
   addFiles(fileList) {
+    let added = 0;
     Array.from(fileList).forEach(file => {
       const ext = file.name.split('.').pop().toLowerCase();
       if (!['pdf', 'hwp', 'hwpx'].includes(ext)) {
         showToast('error', '형식 오류', `${file.name}: PDF/HWP/HWPX만 가능합니다.`);
         return;
       }
-      this._files.push({ id: 'gm_' + Date.now() + '_' + Math.random().toString(36).substr(2,4), file, name: file.name, ext });
+      const uid = 'gm_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+      this._files.push({ id: uid, file, name: file.name, ext });
+      added++;
     });
+    if (added > 0) this._mergedBytes = null;
     this._renderList();
+    this._updateCount();
+  },
+
+  _updateCount() {
+    const el = document.getElementById('gmFileCount');
+    if (el) el.textContent = `${this._files.length}개 파일`;
   },
 
   _renderList() {
-    const el = document.getElementById('gmFileList');
-    if (!el) return;
-    el.innerHTML = '';
+    const container = document.getElementById('gmFileList');
+    if (!container) return;
+    container.innerHTML = '';
+    if (this._files.length === 0) {
+      container.innerHTML = '<div style="color:var(--gri-text-muted);font-size:0.8rem;text-align:center;padding:12px 0;">파일을 위 영역에 드래그하거나 클릭하여 추가하세요.</div>';
+      return;
+    }
     this._files.forEach((f, idx) => {
       const row = document.createElement('div');
-      row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:6px;background:var(--gri-bg);font-size:0.8rem;';
+      row.className = 'gm-file-row';
+      row.draggable = true;
+      row.dataset.idx = idx;
       row.innerHTML = `
-        <span style="width:18px;height:18px;border-radius:50%;background:var(--gri-primary);color:#fff;font-size:0.6rem;font-weight:800;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">${idx+1}</span>
-        <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${f.name}">${f.name}</span>
-        <button style="border:none;background:none;cursor:pointer;color:var(--gri-text-muted);padding:2px;" onclick="GeneralMerge.removeFile('${f.id}')">✕</button>
+        <i data-lucide="grip-vertical" style="width:14px;height:14px;color:var(--gri-text-muted);flex-shrink:0;"></i>
+        <span class="gm-file-num">${idx + 1}</span>
+        <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--gri-text-primary);" title="${f.name}">${f.name}</span>
+        <button class="btn btn--icon btn--ghost" style="padding:2px 4px;flex-shrink:0;" data-gm-del="${f.id}">
+          <i data-lucide="x" style="width:13px;height:13px;"></i>
+        </button>
       `;
-      el.appendChild(row);
+      row.querySelector('[data-gm-del]').onclick = (e) => {
+        e.stopPropagation();
+        GeneralMerge.removeFile(f.id);
+      };
+      row.addEventListener('dragstart', (e) => {
+        GeneralMerge._dragSrcIdx = idx;
+        setTimeout(() => row.classList.add('gm-file-row--dragging'), 0);
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      row.addEventListener('dragend', () => row.classList.remove('gm-file-row--dragging'));
+      row.addEventListener('dragover', (e) => { e.preventDefault(); e.stopPropagation(); row.classList.add('gm-file-row--over'); });
+      row.addEventListener('dragleave', (e) => { e.stopPropagation(); row.classList.remove('gm-file-row--over'); });
+      row.addEventListener('drop', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        row.classList.remove('gm-file-row--over');
+        const src = GeneralMerge._dragSrcIdx;
+        if (src === null || src === idx) return;
+        const moved = GeneralMerge._files.splice(src, 1)[0];
+        GeneralMerge._files.splice(idx, 0, moved);
+        GeneralMerge._mergedBytes = null;
+        GeneralMerge._renderList();
+        GeneralMerge._updateCount();
+      });
+      container.appendChild(row);
     });
+    lucide.createIcons();
   },
 
   removeFile(id) {
     this._files = this._files.filter(f => f.id !== id);
+    this._mergedBytes = null;
     this._renderList();
+    this._updateCount();
   },
 
   async merge() {
-    if (this._files.length === 0) { showToast('warning', '파일 없음', '파일을 먼저 추가하세요.'); return; }
+    if (this._files.length === 0) {
+      showToast('warning', '파일 없음', '파일을 먼저 추가하세요.');
+      return;
+    }
     document.getElementById('globalLoading').style.display = 'flex';
     document.getElementById('globalLoadingText').innerText = '파일 병합 중...';
     document.getElementById('globalProgressBar').style.display = 'none';
@@ -1729,18 +1810,39 @@ const GeneralMerge = {
       if (mergedPdf.getPageCount() === 0) mergedPdf.addPage([595.276, 841.89]);
       this._mergedBytes = await mergedPdf.save();
       document.getElementById('globalLoading').style.display = 'none';
-      ['gmDownloadHwp','gmDownloadPdf','gmDownloadHwpx'].forEach(id => {
-        const el = document.getElementById(id); if (el) el.disabled = false;
-      });
-      showToast('success', '병합 완료', '병합 완료! 다운로드 버튼을 눌러 저장하세요.');
-    } catch(e) {
+      this._showFormatDialog();
+    } catch (e) {
       document.getElementById('globalLoading').style.display = 'none';
       showToast('error', '병합 실패', '파일 병합 중 오류가 발생했습니다.');
     }
   },
 
-  download(format) {
+  _showFormatDialog() {
+    const fd = document.getElementById('gmFormatDialog');
+    if (fd) { fd.style.display = 'flex'; lucide.createIcons(); }
+  },
+
+  closeFormatDialog() {
+    const fd = document.getElementById('gmFormatDialog');
+    if (fd) fd.style.display = 'none';
+  },
+
+  downloadSelected() {
     if (!this._mergedBytes) return;
+    const formats = [];
+    if (document.getElementById('gfPdf') && document.getElementById('gfPdf').checked) formats.push('pdf');
+    if (document.getElementById('gfHwp') && document.getElementById('gfHwp').checked) formats.push('hwp');
+    if (document.getElementById('gfHwpx') && document.getElementById('gfHwpx').checked) formats.push('hwpx');
+    if (formats.length === 0) {
+      showToast('warning', '형식 선택', '하나 이상의 형식을 선택하세요.');
+      return;
+    }
+    formats.forEach(fmt => this._downloadAs(fmt));
+    this.closeFormatDialog();
+    showToast('success', '다운로드 완료', `${formats.map(f => f.toUpperCase()).join(', ')} 파일이 저장되었습니다.`);
+  },
+
+  _downloadAs(format) {
     const blob = new Blob([this._mergedBytes], { type: 'application/pdf' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -1748,7 +1850,6 @@ const GeneralMerge = {
     a.download = `[병합완료]_통합자료.${format}`;
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    showToast('success', `${format.toUpperCase()} 다운로드`, '파일이 저장되었습니다.');
   },
 
   reset() { this._files = []; this._mergedBytes = null; }
@@ -1897,55 +1998,20 @@ const ModalModule = {
       case 'merge_complete':
         html = `
           <div class="modal__icon modal__icon--success">
-            <i data-lucide="check-circle-2"></i>
+            <i data-lucide="circle-check"></i>
           </div>
           <h3 class="modal__title">자료병합 완료</h3>
           <p class="modal__message">파일이 순서대로 병합되었습니다.<br>다운로드 형식을 선택하세요.</p>
           <div class="modal__actions" style="flex-direction:column;gap:8px;width:100%;">
             <div style="display:flex;gap:8px;width:100%;">
-              <button class="btn btn--secondary" onclick="ModalModule.closeModal();MergerModule.downloadHwp();" style="flex:1;">
-                <i data-lucide="download" style="width:14px;height:14px"></i> HWP
-              </button>
-              <button class="btn btn--secondary" onclick="ModalModule.closeModal();MergerModule.downloadPdf();" style="flex:1;">
-                <i data-lucide="download" style="width:14px;height:14px"></i> PDF
-              </button>
-              <button class="btn btn--secondary" onclick="ModalModule.closeModal();MergerModule.downloadHwpx();" style="flex:1;">
-                <i data-lucide="download" style="width:14px;height:14px"></i> HWPX
-              </button>
+              <button class="btn btn--secondary" id="mc_hwp" style="flex:1;">HWP</button>
+              <button class="btn btn--secondary" id="mc_pdf" style="flex:1;">PDF</button>
+              <button class="btn btn--secondary" id="mc_hwpx" style="flex:1;">HWPX</button>
             </div>
             <div style="display:flex;gap:8px;width:100%;">
-              <button class="btn btn--primary" onclick="ModalModule.closeModal();PreviewModule.openPreviewModal();" style="flex:1;">
-                <i data-lucide="eye" style="width:14px;height:14px"></i> 미리보기
-              </button>
-              <button class="btn btn--ghost" onclick="ModalModule.closeModal();" style="flex:1;">닫기</button>
+              <button class="btn btn--primary" id="mc_preview" style="flex:1;">미리보기</button>
+              <button class="btn btn--ghost" id="mc_close" style="flex:1;">닫기</button>
             </div>
-          </div>
-        `;
-        break;
-
-      case 'general_merge':
-        html = `
-          <h3 class="modal__title" style="margin-bottom:12px;">
-            <i data-lucide="layers" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;color:#1B4F8F"></i>
-            일반 파일 병합
-          </h3>
-          <p class="modal__message" style="margin-bottom:10px;">부서와 무관하게 파일을 선택해 하나로 병합합니다.</p>
-          <div style="border:2px dashed var(--gri-border);border-radius:8px;padding:14px;text-align:center;cursor:pointer;margin-bottom:8px;font-size:0.83rem;color:var(--gri-text-muted);"
-               onclick="document.getElementById('gmFileInput').click()">
-            <input type="file" id="gmFileInput" multiple accept=".pdf,.hwp,.hwpx" hidden onchange="GeneralMerge.addFiles(this.files)">
-            클릭 또는 드래그 · PDF / HWP / HWPX
-          </div>
-          <div id="gmFileList" style="max-height:160px;overflow-y:auto;margin-bottom:10px;display:flex;flex-direction:column;gap:4px;"></div>
-          <div class="modal__actions" style="flex-direction:column;gap:8px;width:100%;">
-            <div style="display:flex;gap:8px;width:100%;">
-              <button class="btn btn--primary" onclick="GeneralMerge.merge();" style="flex:1;">
-                <i data-lucide="layers" style="width:13px;height:13px"></i> 병합
-              </button>
-              <button class="btn btn--secondary" id="gmDownloadHwp" onclick="GeneralMerge.download('hwp')" disabled style="flex:1;">HWP</button>
-              <button class="btn btn--secondary" id="gmDownloadPdf" onclick="GeneralMerge.download('pdf')" disabled style="flex:1;">PDF</button>
-              <button class="btn btn--secondary" id="gmDownloadHwpx" onclick="GeneralMerge.download('hwpx')" disabled style="flex:1;">HWPX</button>
-            </div>
-            <button class="btn btn--ghost btn--sm" onclick="ModalModule.closeModal();GeneralMerge.reset();" style="width:100%;">닫기</button>
           </div>
         `;
         break;
@@ -1990,6 +2056,12 @@ const ModalModule = {
         this.closeModal();
         DeptModule.confirmDelete(data.deptId);
       };
+    } else if (type === 'merge_complete') {
+      document.getElementById('mc_hwp').onclick = () => { this.closeModal(); MergerModule.downloadHwp(); };
+      document.getElementById('mc_pdf').onclick = () => { this.closeModal(); MergerModule.downloadPdf(); };
+      document.getElementById('mc_hwpx').onclick = () => { this.closeModal(); MergerModule.downloadHwpx(); };
+      document.getElementById('mc_preview').onclick = () => { this.closeModal(); PreviewModule.openPreviewModal(); };
+      document.getElementById('mc_close').onclick = () => { this.closeModal(); };
     }
   },
 

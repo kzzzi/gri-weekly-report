@@ -86,26 +86,28 @@
           </div>
         </div>
 
-        <!-- 병합과 다운로드 (항상 표시) -->
+        <!-- 액션 바 -->
         <section class="wr-action-row card">
-          <div class="wr-action-merge">
+          <!-- ① 작업 -->
+          <div class="wr-action-group">
             <button class="btn btn--primary btn--sm" id="mergeBtn" onclick="MergerModule.merge()">
-              <i data-lucide="merge" style="width:13px;height:13px"></i>
-              파일 합치기
-            </button>
-          </div>
-          <div class="wr-action-downloads">
-            <button class="btn btn--secondary btn--sm" id="downloadHwpBtn" onclick="MergerModule.downloadHwp()" disabled>
-              <i data-lucide="download" style="width:13px;height:13px"></i> HWP
-            </button>
-            <button class="btn btn--secondary btn--sm" id="downloadPdfBtn" onclick="MergerModule.downloadPdf()" disabled>
-              <i data-lucide="download" style="width:13px;height:13px"></i> PDF
-            </button>
-            <button class="btn btn--secondary btn--sm" id="downloadHwpxBtn" onclick="MergerModule.downloadHwpx()" disabled>
-              <i data-lucide="download" style="width:13px;height:13px"></i> HWPX
+              <i data-lucide="layers" style="width:13px;height:13px"></i> 자료병합
             </button>
             <button class="btn btn--secondary btn--sm" id="previewOpenBtn" onclick="PreviewModule.openPreviewModal()" disabled>
               <i data-lucide="eye" style="width:13px;height:13px"></i> 미리보기
+            </button>
+          </div>
+          <!-- ② 다운로드 -->
+          <div class="wr-action-group wr-action-group--downloads">
+            <span class="wr-action-section-label">다운로드</span>
+            <button class="btn btn--secondary btn--sm" id="downloadHwpBtn" onclick="MergerModule.downloadHwp()" disabled>HWP</button>
+            <button class="btn btn--secondary btn--sm" id="downloadPdfBtn" onclick="MergerModule.downloadPdf()" disabled>PDF</button>
+            <button class="btn btn--secondary btn--sm" id="downloadHwpxBtn" onclick="MergerModule.downloadHwpx()" disabled>HWPX</button>
+          </div>
+          <!-- ③ 저장 -->
+          <div class="wr-action-group wr-action-group--save">
+            <button class="btn btn--sm btn--ghost" onclick="SessionModule.saveSession()">
+              <i data-lucide="save" style="width:13px;height:13px"></i> 저장
             </button>
           </div>
         </section>

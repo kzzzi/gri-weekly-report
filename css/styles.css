@@ -502,7 +502,7 @@ ul, ol {
 .upload-zone {
   border: 2px dashed var(--gri-border);
   border-radius: var(--gri-radius-md);
-  padding: 45px 20px;
+  padding: 18px 20px;
   text-align: center;
   background-color: rgba(var(--gri-surface-rgb), 0.3);
   transition: var(--gri-transition);
@@ -523,8 +523,8 @@ ul, ol {
 }
 
 .upload-icon-wrapper {
-  width: 60px;
-  height: 60px;
+  width: 40px;
+  height: 40px;
   background-color: rgba(var(--gri-primary-rgb), 0.05);
   border-radius: var(--gri-radius-circle);
   display: flex;
@@ -2476,11 +2476,24 @@ ul, ol {
 .dept-card {
   border: 2px solid var(--gri-success);
   border-radius: var(--gri-radius-md);
-  padding: 11px 12px 10px;
+  padding: 8px 10px;
   background-color: var(--gri-surface);
   transition: var(--gri-transition-fast);
   position: relative;
-  min-height: 80px;
+}
+
+.dept-card-order {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--gri-primary);
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 800;
+  flex-shrink: 0;
 }
 
 .dept-card:hover {
@@ -3340,28 +3353,31 @@ ul, ol {
   overflow: hidden;
 }
 
-.wr-action-merge {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 18px;
-  flex: 0 0 36%;
-  border-right: 1px solid var(--gri-border);
-}
-
-.wr-action-downloads {
+/* 액션 바 그룹: 구분선으로 3분할 */
+.wr-action-group {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 18px;
+  padding: 10px 16px;
+  border-right: 1px solid var(--gri-border);
+}
+
+.wr-action-group--downloads {
   flex: 1;
 }
 
-.wr-action-label {
-  font-size: 0.78rem;
+.wr-action-group--save {
+  border-right: none;
+  margin-left: auto;
+}
+
+.wr-action-section-label {
+  font-size: 0.68rem;
+  font-weight: 700;
   color: var(--gri-text-muted);
   white-space: nowrap;
-  margin-right: 4px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .wr-dept-section {

@@ -832,6 +832,7 @@ const DeptModule = {
           <div class="dept-card-drag-handle" title="드래그하여 순서 변경">
             <i data-lucide="grip-vertical" style="width:13px;height:13px"></i>
           </div>
+          <span class="dept-card-order">${idx + 1}</span>
           <span class="dept-card-name" title="${dept.name}">${dept.name}</span>
         </div>
         ${bodyHtml}
@@ -1015,9 +1016,18 @@ const MergerModule = {
 
       const mergedPdf = await PDFLib.PDFDocument.create();
 
-      for (let i = 0; i < AppState.files.length; i++) {
-        const fileData = AppState.files[i];
-        progressFill.style.width = `${40 + Math.round((i / AppState.files.length) * 40)}%`;
+      // dept 순서대로 파일 정렬
+      const orderedFiles = AppState.departments
+        .filter(d => d.submitted && d.fileId)
+        .map(d => AppState.files.find(f => f.id === d.fileId))
+        .filter(Boolean);
+      // dept 미매핑 파일은 뒤에 추가
+      const unmapped = AppState.files.filter(f => !AppState.departments.some(d => d.fileId === f.id));
+      const filesToMerge = [...orderedFiles, ...unmapped];
+
+      for (let i = 0; i < filesToMerge.length; i++) {
+        const fileData = filesToMerge[i];
+        progressFill.style.width = `${40 + Math.round((i / filesToMerge.length) * 40)}%`;
 
         if (fileData.type === 'pdf') {
           const arrayBuffer = await fileData.file.arrayBuffer();
@@ -1048,9 +1058,7 @@ const MergerModule = {
       document.getElementById('downloadHwpxBtn').removeAttribute('disabled');
       document.getElementById('previewOpenBtn').removeAttribute('disabled');
 
-      showToast('success', '병합 성공', '모든 부서의 파일들이 HWPX 기준 통합 문서로 병합 완료되었습니다. 미리보기를 확인하세요.');
-
-      PreviewModule.openPreview(mergedPdfBytes);
+      showToast('success', '자료병합 완료', '파일이 순서대로 병합되었습니다. 미리보기 또는 다운로드하세요.');
 
     } catch (error) {
       console.error(error);
@@ -1985,6 +1993,30 @@ const SessionModule = {
 
   renderDropdown() { this.renderSidebar(); },
   toggleDropdown() {},
+
+  saveSession() {
+    const current = AppState.sessions.find(s => s.status === 'current');
+    if (!current) { showToast('warning', '저장 실패', '현재 세션이 없습니다.'); return; }
+    // 현재 세션을 완료 처리 → 히스토리로
+    current.status = 'complete';
+    // 새 세션 생성
+    const newNum = current.number + 1;
+    const today = new Date();
+    const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+    AppState.sessions.unshift({ number: newNum, date: dateStr, status: 'current' });
+    AppState.currentSession = newNum;
+    // 파일·병합 상태 초기화
+    AppState.files = [];
+    AppState.mergedPdfBytes = null;
+    AppState.departments.forEach(d => { d.submitted = false; d.fileId = null; });
+    // 다운로드 버튼 다시 비활성화
+    ['downloadHwpBtn','downloadPdfBtn','downloadHwpxBtn','previewOpenBtn'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.disabled = true;
+    });
+    DeptModule.renderDeptStatus();
+    this.renderSidebar();
+    showToast('success', '저장 완료', `6월2주차 회의가 히스토리에 저장되었습니다. 새 세션이 시작됩니다.`);
+  },
 
   startNewSession() {
     const maxNum = Math.max(...AppState.sessions.map(s => s.number));

@@ -374,7 +374,7 @@ const AppState = {
   currentPreviewPage: 1,
   totalPreviewPages: 1,
   previewZoom: 1.0,
-  isDarkMode: false,
+
   isFileListCollapsed: false,
   isDeptPopupOpen: false,
   nextDeptId: 14,
@@ -463,7 +463,7 @@ const UploadModule = {
     });
   },
 
-  handleFiles(fileList) {
+  async handleFiles(fileList) {
     const newFiles = Array.from(fileList);
     let added = 0;
     for (const file of newFiles) {
@@ -477,7 +477,8 @@ const UploadModule = {
         ModalModule.showModal('size_error', { fileName: file.name });
         return;
       }
-      this.addFileToState(file, null, ext);
+      const deptName = await this.analyzeFileContentAndName(file);
+      this.addFileToState(file, deptName, ext);
       added++;
     }
     this.renderFileList();
@@ -486,8 +487,6 @@ const UploadModule = {
   },
 
   async analyzeFileContentAndName(file) {
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
     const cleanName = file.name.replace(/\.[^/.]+$/, "");
     
     for (const dept of AppState.departments) {
@@ -2102,44 +2101,6 @@ function showToast(type, title, message) {
   }, 3000);
 }
 
-// ==========================================================================
-// 11. 다크 모드 모듈 (DarkMode)
-// ==========================================================================
-const DarkMode = {
-  init() {
-    const savedTheme = localStorage.getItem('gri_theme');
-    if (savedTheme === 'dark') {
-      this.setTheme(true);
-    } else {
-      this.setTheme(false);
-    }
-  },
-
-  toggle() {
-    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    this.setTheme(!isDark);
-  },
-
-  setTheme(isDark) {
-    const toggleBtn = document.getElementById('darkModeToggle');
-    if (isDark) {
-      document.documentElement.setAttribute('data-theme', 'dark');
-      localStorage.setItem('gri_theme', 'dark');
-      if (toggleBtn) {
-        toggleBtn.innerHTML = '<i data-lucide="sun"></i>';
-      }
-      AppState.isDarkMode = true;
-    } else {
-      document.documentElement.setAttribute('data-theme', 'light');
-      localStorage.setItem('gri_theme', 'light');
-      if (toggleBtn) {
-        toggleBtn.innerHTML = '<i data-lucide="moon"></i>';
-      }
-      AppState.isDarkMode = false;
-    }
-    lucide.createIcons();
-  }
-};
 
 // ==========================================================================
 // 12. 공통 유틸리티 함수
@@ -2205,5 +2166,4 @@ document.addEventListener('DOMContentLoaded', () => {
   DeptModule.renderDeptStatus();
   SessionModule.init();
   DeadlineTimer.init();
-  DarkMode.init();
 });

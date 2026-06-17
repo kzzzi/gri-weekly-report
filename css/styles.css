@@ -57,28 +57,6 @@
   --gri-transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ==========================================================================
-   1-1. 다크 모드 변수 오버라이드
-   ========================================================================== */
-[data-theme='dark'] {
-  --gri-bg: #0B0F19;
-  --gri-surface: #151D30;
-  --gri-surface-rgb: 21, 29, 48;
-  --gri-border: #243049;
-  --gri-border-light: #1E293B;
-  
-  --gri-text-primary: #F1F5F9;
-  --gri-text-secondary: #94A3B8;
-  --gri-text-muted: #64748B;
-  
-  --gri-primary-dark: #071529;
-  --gri-primary-light: #4A90E2;
-  
-  --gri-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
-  --gri-shadow-md: 0 8px 16px rgba(0, 0, 0, 0.3);
-  --gri-shadow-lg: 0 16px 32px rgba(0, 0, 0, 0.4);
-  --gri-shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.5);
-}
 
 /* ==========================================================================
    2. CSS Reset & Base 스타일
@@ -483,7 +461,7 @@ ul, ol {
 
 .stat-card--deadline .stat-value {
   color: white;
-  font-family: monospace;
+  font-family: 'Pretendard', sans-serif;
 }
 
 .stat-card--deadline .stat-label {
@@ -1592,7 +1570,7 @@ ul, ol {
   border-radius: 0 var(--gri-radius-sm) var(--gri-radius-sm) 0;
   font-size: 0.85rem;
   color: var(--gri-primary-dark);
-  font-family: monospace;
+  font-family: 'Pretendard', sans-serif;
   margin-bottom: 24px;
   text-align: center;
 }
@@ -2415,7 +2393,7 @@ ul, ol {
 .deadline-time {
   font-size: 1.05rem;
   font-weight: 800;
-  font-family: monospace;
+  font-family: 'Pretendard', sans-serif;
   letter-spacing: 0.04em;
   line-height: 1;
 }

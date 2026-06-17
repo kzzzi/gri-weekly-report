@@ -5,6 +5,32 @@
  * ==========================================================================
  */
 
+const EVAL_PROFILES = {
+  '강민철': { school: '서울대학교', dept: '교통공학과', degree: '공학박사', advisor: '박영수 교수', company: '한국교통연구원', role: '선임연구위원', period: '2015~현재', region: '서울', family: '해당 없음', specialty: ['교통계획', '네트워크 최적화', '대중교통 정책'] },
+  '이준호': { school: 'KAIST', dept: '건설환경공학과', degree: '공학박사', advisor: '최민석 교수', company: 'KAIST', role: '부교수', period: '2019~현재', region: '대전', family: '해당 없음', specialty: ['교통공학', '교통류 분석', '자율주행'] },
+  '박성은': { school: '서울시립대학교', dept: '도시공학과', degree: '공학박사', advisor: '이재원 교수', company: '서울시립대학교', role: '조교수', period: '2020~현재', region: '서울', family: '해당 없음', specialty: ['도시계획', '토지이용', '도시재생'] },
+  '최현우': { school: '연세대학교', dept: '도시공학과', degree: '공학박사', advisor: '정상훈 교수', company: '국토연구원', role: '연구위원', period: '2012~현재', region: '세종', family: '해당 없음', specialty: ['도시계획', '스마트시티', '공간계획'] },
+  '정수연': { school: '경기대학교', dept: '도시공학과', degree: '공학석사', advisor: '김현수 교수', company: '경기대학교', role: '강사', period: '2018~현재', region: '수원', family: '해당 없음', specialty: ['지역계획', '도시재생', '주거정책'] },
+  '윤상혁': { school: '한양대학교', dept: '도시공학과', degree: '공학박사', advisor: '이태현 교수', company: '한국토지주택공사', role: '수석연구원', period: '2013~현재', region: '진주', family: '해당 없음', specialty: ['도시재생', '공공주택', '재개발'] },
+  '강태인': { school: '고려대학교', dept: '환경생태공학과', degree: '공학박사', advisor: '박기수 교수', company: '한국환경연구원', role: '연구위원', period: '2014~현재', region: '세종', family: '해당 없음', specialty: ['환경정책', '대기환경', '기후변화 대응'] },
+  '류세진': { school: '서울대학교', dept: '환경대학원', degree: '환경학박사', advisor: '최영진 교수', company: '국토연구원', role: '연구위원', period: '2016~현재', region: '세종', family: '해당 없음', specialty: ['환경관리', '환경영향평가', '지속가능개발'] },
+  '임재홍': { school: '서울대학교', dept: '경제학과', degree: '경제학박사', advisor: '이성호 교수', company: '한국개발연구원', role: '선임연구위원', period: '2010~현재', region: '세종', family: '해당 없음', specialty: ['경제정책', '공공재정', '정책평가'] },
+  '신동욱': { school: '성균관대학교', dept: '행정학과', degree: '행정학박사', advisor: '강수환 교수', company: '경기연구원', role: '연구위원', period: '2017~현재', region: '수원', family: '해당 없음', specialty: ['재정분석', '지방재정', '예산정책'] },
+  '노혜경': { school: '연세대학교', dept: '사회복지학과', degree: '사회복지학박사', advisor: '이미정 교수', company: '한국보건사회연구원', role: '연구위원', period: '2013~현재', region: '세종', family: '해당 없음', specialty: ['복지정책', '노인복지', '사회보장'] },
+  '김재원': { school: '성균관대학교', dept: '사회복지학과', degree: '사회복지학박사', advisor: '박상훈 교수', company: '성균관대학교', role: '조교수', period: '2019~현재', region: '서울', family: '해당 없음', specialty: ['사회복지', '복지급여', '취약계층 지원'] },
+  '조현석': { school: '고려대학교', dept: '에너지환경대학원', degree: '에너지공학박사', advisor: '장한술 교수', company: '에너지경제연구원', role: '선임연구위원', period: '2012~현재', region: '울산', family: '해당 없음', specialty: ['기후정책', '에너지전환', '탄소중립'] },
+  '류재원': { school: '한양대학교', dept: '에너지공학과', degree: '공학박사', advisor: '최민규 교수', company: '한국환경연구원', role: '연구위원', period: '2015~현재', region: '세종', family: '해당 없음', specialty: ['에너지정책', '신재생에너지', '에너지효율'] },
+  '박현수': { school: '서울대학교', dept: '전기공학부', degree: '공학박사', advisor: '이충훈 교수', company: '한국전자통신연구원', role: '책임연구원', period: '2011~현재', region: '대전', family: '해당 없음', specialty: ['스마트시티', 'IoT', '도시데이터 플랫폼'] },
+  '김태우': { school: 'KAIST', dept: '도시공학과', degree: '공학박사', advisor: '홍석현 교수', company: '국토연구원', role: '부연구위원', period: '2018~현재', region: '세종', family: '해당 없음', specialty: ['도시정보', 'GIS', '스마트도시'] },
+  '이수민': { school: '서울대학교', dept: '컴퓨터공학부', degree: '공학박사', advisor: '박준영 교수', company: '스마트도시연구원', role: '선임연구원', period: '2019~현재', region: '서울', family: '해당 없음', specialty: ['스마트시티', 'AI 분석', '데이터 거버넌스'] },
+  '최영진': { school: '연세대학교', dept: '통계학과', degree: '통계학박사', advisor: '한영수 교수', company: '통계청', role: '통계연구관', period: '2009~현재', region: '대전', family: '해당 없음', specialty: ['데이터분석', '공식통계', '사회조사'] },
+  '송민희': { school: '이화여자대학교', dept: '컴퓨터공학과', degree: '공학박사', advisor: '조현정 교수', company: '한국정보화진흥원', role: '수석연구원', period: '2014~현재', region: '서울', family: '해당 없음', specialty: ['빅데이터', '공공데이터', '디지털전환'] },
+  '강수현': { school: '성균관대학교', dept: '경제학과', degree: '경제학박사', advisor: '김민재 교수', company: '한국은행 경기본부', role: '과장', period: '2014~현재', region: '수원', family: '해당 없음', specialty: ['지역경제', '거시경제 분석', '금융정책'] },
+  '유재현': { school: '경기대학교', dept: '경영학과', degree: '경영학박사', advisor: '이상현 교수', company: '경기연구원', role: '연구위원', period: '2016~현재', region: '수원', family: '해당 없음', specialty: ['산업경제', '지역산업 육성', '중소기업 정책'] },
+  '백승민': { school: '서울대학교', dept: '고고미술사학과', degree: '예술학박사', advisor: '박미리 교수', company: '한국문화관광연구원', role: '선임연구위원', period: '2013~현재', region: '서울', family: '해당 없음', specialty: ['문화정책', '관광정책', '문화유산 보전'] },
+  '전혜진': { school: '성균관대학교', dept: '문화예술학과', degree: '문화학박사', advisor: '이혜원 교수', company: '경기문화재단', role: '연구위원', period: '2017~현재', region: '수원', family: '해당 없음', specialty: ['사회문화', '문화예술 지원', '지역문화 진흥'] },
+};
+
 // 전역 모듈 및 상태 관리 정의 (13개 지정 부서 및 채용 후보자 상태 통합)
 const AppState = {
   currentPage: 'weekly-report', // 'home', 'weekly-report', 'recruitment'
@@ -1516,24 +1542,38 @@ const RecruitModule = {
     empty.style.display = 'none';
     content.style.display = 'flex';
 
-    // ── 서류 검증 (아코디언) ──
-    const docRows = c.verification.documents.categories.map((cat, ci) => {
-      const icon = this._docIcon(cat.status);
-      const cls  = this._docCls(cat.status);
+    // ── 서류 검증: 문제있는 항목만 ! 배지 + 툴팁 ──
+    const missingDocs = c.verification.documents.categories
+      .filter(cat => cat.status !== 'ok' && cat.status !== 'na')
+      .map(cat => {
+        const missingSubs = (cat.subItems || []).filter(s => s.status !== 'ok' && s.status !== 'na');
+        return missingSubs.length > 0
+          ? missingSubs.map(s => s.name + (s.note ? ': ' + s.note : '')).join(', ')
+          : cat.name + (cat.note ? ': ' + cat.note : '');
+      }).join(' / ');
+
+    const docRows = c.verification.documents.categories.map(cat => {
       const hasIssue = cat.status !== 'ok' && cat.status !== 'na';
       const hasSub = cat.subItems && cat.subItems.length > 0;
-      const subHtml = hasSub ? cat.subItems.map(s => `
-        <div class="rd-sub-row">
-          <span class="rd-sub-icon rc-badge--${this._docCls(s.status)}">${this._docIcon(s.status)}</span>
-          <span class="rd-sub-name">${s.name}</span>
-          ${s.note ? `<span class="rd-sub-note">${s.note}</span>` : ''}
-        </div>`).join('') : '';
+      const missingSubs = hasSub ? cat.subItems.filter(s => s.status !== 'ok' && s.status !== 'na') : [];
+      const tooltip = missingSubs.length > 0
+        ? missingSubs.map(s => s.name + (s.note ? ': ' + s.note : '')).join(', ')
+        : (cat.note || '');
+      const badge = hasIssue
+        ? `<span class="rc-badge rc-badge--miss rd-doc-badge" title="${tooltip}">!</span>`
+        : '';
+      const subHtml = hasSub ? cat.subItems.map(s => {
+        const subIssue = s.status !== 'ok' && s.status !== 'na';
+        const subBadge = subIssue
+          ? `<span class="rc-badge rc-badge--miss" style="font-size:0.6rem;width:16px;height:14px;" title="${s.note || '미제출'}">!</span>`
+          : '';
+        return `<div class="rd-sub-row"><span class="rd-sub-name">${s.name}</span>${subBadge}</div>`;
+      }).join('') : '';
       return `
         <div class="rd-doc-accordion${hasIssue ? ' rd-doc-accordion--issue' : ''}">
           <div class="rd-doc-header" onclick="this.parentElement.classList.toggle('rd-doc-accordion--open')">
-            <span class="rc-badge rc-badge--${cls} rd-doc-badge">${icon}</span>
+            ${badge}
             <span class="rd-doc-name">${cat.name}</span>
-            ${cat.note ? `<span class="rd-doc-note">${cat.note}</span>` : ''}
             ${hasSub ? `<span class="rd-doc-chevron">›</span>` : ''}
           </div>
           ${hasSub ? `<div class="rd-doc-subs">${subHtml}</div>` : ''}
@@ -1542,18 +1582,21 @@ const RecruitModule = {
 
     // ── 논문 검증 ──
     let paperHtml = '';
+    const paperIssueItems = [];
     if (!c.verification.paper.applicable) {
       paperHtml = `<p class="rd-na">연구직이 아니므로 해당 없음</p>`;
     } else if (!c.verification.paper.items || c.verification.paper.items.length === 0) {
       paperHtml = `<p class="rd-na">논문 정보 없음</p>`;
     } else {
       paperHtml = c.verification.paper.items.map(p => {
-        const cls = p.status === 'ok' ? 'ok' : 'warn';
+        const isIssue = p.status !== 'ok';
+        if (isIssue) paperIssueItems.push(p.title);
         const label = { ok: '등재확인', warning: '주의', unverified: '미확인' }[p.status] || p.status;
+        const badge = isIssue ? `<span class="rc-badge rc-badge--miss rd-paper-badge" title="${p.note || '확인 필요'}">${label}</span>` : '';
         return `<div class="rd-paper-item">
           <div class="rd-paper-row">
             <span class="rd-paper-title">${p.title}</span>
-            <span class="rc-badge rc-badge--${cls} rd-paper-badge">${label}</span>
+            ${badge}
           </div>
           <div class="rd-paper-meta">${p.journal} · ${p.year} · ${p.authors}</div>
           ${p.note ? `<div class="rd-paper-note">${p.note}</div>` : ''}
@@ -1561,50 +1604,46 @@ const RecruitModule = {
       }).join('');
     }
 
-    // ── 블라인드 ──
+    // ── 블라인드 검토 ──
     let blindHtml = '';
-    if (!c.verification.blind.issues || c.verification.blind.issues.length === 0) {
-      blindHtml = `<div class="rd-blind-clear"><span class="rc-badge rc-badge--ok" style="margin-right:6px;">✓</span>위반 문구 미탐지</div>`;
+    const blindIssues = c.verification.blind.issues || [];
+    if (blindIssues.length === 0) {
+      blindHtml = `<div class="rd-blind-clear"><span style="color:var(--gri-primary);font-weight:800;margin-right:6px;font-size:0.9rem;">●</span>위반 문구 미탐지</div>`;
     } else {
-      blindHtml = c.verification.blind.issues.map(issue => `
+      blindHtml = blindIssues.map(issue => `
         <div class="rd-blind-item rd-blind-item--${issue.severity}">
           <span class="rd-blind-type">${issue.type}</span>
           <span class="rd-blind-excerpt">${issue.excerpt}</span>
         </div>`).join('');
     }
 
-    // ── 평가위원 (점수 내림차순 정렬) ──
+    // ── 심사위원: 이해충돌 제외, 클릭 시 프로필 팝업 ──
     let evalHtml = '';
-    const evalList = c.verification.evaluator.recommended || [];
-    if (evalList.length === 0) {
-      evalHtml = `<p class="rd-na">평가위원 추천 정보 없음</p>`;
+    const validEvals = (c.verification.evaluator.recommended || [])
+      .filter(e => !e.conflict)
+      .sort((a, b) => (b.score || 0) - (a.score || 0));
+    if (validEvals.length === 0) {
+      evalHtml = `<p class="rd-na">적합한 심사위원이 없습니다</p>`;
     } else {
-      const sorted = [...evalList].sort((a, b) => {
-        if (a.conflict && !b.conflict) return 1;
-        if (!a.conflict && b.conflict) return -1;
-        return (b.score || 0) - (a.score || 0);
-      });
-      evalHtml = sorted.map((ev, i) => {
-        const rank = !ev.conflict ? `<span class="rd-eval-rank">${i + 1}</span>` : '';
-        const scorePart = ev.conflict
-          ? `<span class="rd-eval-conflict-badge">이해충돌${ev.conflictReason ? ' · ' + ev.conflictReason : ''}</span>`
-          : `<span class="rd-eval-score">${ev.score != null ? ev.score.toFixed(1) : '—'}<small>/10</small></span>`;
-        return `<div class="rd-eval-row${ev.conflict ? ' rd-eval-row--conflict' : ''}">
-          ${rank}
-          <span class="rd-eval-name">${ev.name}</span>
-          <span class="rd-eval-affil">${ev.affil}</span>
-          ${scorePart}
-        </div>`;
-      }).join('');
+      evalHtml = validEvals.map((ev, i) => `
+        <div class="rd-eval-row" onclick="RecruitModule.openEvalProfile('${ev.name}', ${ev.score})">
+          <span class="rd-eval-rank">${i + 1}</span>
+          <div class="rd-eval-info">
+            <span class="rd-eval-name">${ev.name}</span>
+            <span class="rd-eval-affil">${ev.affil}</span>
+          </div>
+          <span class="rd-eval-score">${ev.score != null ? ev.score.toFixed(1) : '—'}<small>/10</small></span>
+          <span class="rd-eval-arrow">›</span>
+        </div>`).join('');
     }
 
-    const docStatus = c.verification.documents.status;
-    const docDot = docStatus === 'ok' ? 'ok' : (docStatus === 'missing' || docStatus === 'mismatch' ? 'miss' : 'warn');
-    const paperStatus = c.verification.paper.status;
-    const paperDot = !c.verification.paper.applicable ? 'na' : (paperStatus === 'ok' ? 'ok' : 'warn');
-    const blindDot = (!c.verification.blind.issues || c.verification.blind.issues.length === 0) ? 'ok' : 'warn';
-    const evalConflict = (c.verification.evaluator.recommended || []).some(e => e.conflict);
-    const evalDot = evalConflict ? 'warn' : 'ok';
+    // ── 섹션 배지: 문제 있을 때만 ! ──
+    const docIssue = missingDocs.length > 0;
+    const paperIssue = c.verification.paper.applicable && c.verification.paper.status !== 'ok';
+    const blindIssue = blindIssues.length > 0;
+    const badge = (hasIssue, tip) => hasIssue
+      ? `<span class="rc-badge rc-badge--miss rd-section-badge" title="${tip}">!</span>`
+      : '';
 
     content.innerHTML = `
       <div class="rd-header">
@@ -1617,47 +1656,81 @@ const RecruitModule = {
           : `<button class="btn btn--primary btn--sm" onclick="RecruitModule.markReviewed(${c.id})">검토완료 →</button>`}
       </div>
       <div class="rd-body">
-
         <div class="rd-section">
           <div class="rd-section-label">
             <i data-lucide="file-check" style="width:13px;height:13px"></i>
             서류 검증
-            <span class="rc-badge rc-badge--${docDot} rd-section-badge">${docDot === 'ok' ? '✓' : '!'}</span>
+            ${badge(docIssue, missingDocs || '서류 미비 항목 있음')}
           </div>
           <div class="rd-doc-list">${docRows}</div>
         </div>
-
         <div class="rd-section">
           <div class="rd-section-label">
             <i data-lucide="book-open" style="width:13px;height:13px"></i>
             논문 검증
-            <span class="rc-badge rc-badge--${paperDot} rd-section-badge">${paperDot === 'ok' ? '✓' : paperDot === 'na' ? '—' : '!'}</span>
+            ${badge(paperIssue, paperIssueItems.join(', ') || '논문 등재 확인 필요')}
           </div>
           ${paperHtml}
         </div>
-
         <div class="rd-section">
           <div class="rd-section-label">
             <i data-lucide="eye-off" style="width:13px;height:13px"></i>
             블라인드 검토
-            <span class="rc-badge rc-badge--${blindDot} rd-section-badge">${blindDot === 'ok' ? '✓' : '!'}</span>
+            ${badge(blindIssue, blindIssues.map(i => i.type).join(', ') || '블라인드 위반 항목 있음')}
           </div>
           ${blindHtml}
         </div>
-
         <div class="rd-section">
           <div class="rd-section-label">
             <i data-lucide="users" style="width:13px;height:13px"></i>
-            평가위원 매칭
-            <span class="rc-badge rc-badge--${evalDot} rd-section-badge">${evalDot === 'ok' ? '✓' : '!'}</span>
+            심사위원 추천
           </div>
           ${evalHtml}
         </div>
-
         ${c.reviewNote ? `<div class="rd-note"><strong>메모</strong> ${c.reviewNote}</div>` : ''}
       </div>
     `;
     lucide.createIcons();
+  },
+
+  openEvalProfile(name, score) {
+    const p = EVAL_PROFILES[name] || {};
+    const body = document.getElementById('evalPanelBody');
+    const tags = (p.specialty || []).map(t => `<span class="eval-profile-tag">${t}</span>`).join('');
+    body.innerHTML = `
+      <div class="eval-profile-name">${name}</div>
+      <div class="eval-profile-role">${p.role || ''} · ${p.company || ''}</div>
+      ${score != null ? `<div class="eval-profile-score-badge"><strong>${score.toFixed(1)}</strong><small> / 10점</small></div>` : ''}
+      <div class="eval-profile-section">
+        <div class="eval-profile-section-title">학력</div>
+        <div class="eval-profile-row"><span class="eval-profile-label">출신교</span><span class="eval-profile-value">${p.school || '—'}</span></div>
+        <div class="eval-profile-row"><span class="eval-profile-label">학과</span><span class="eval-profile-value">${p.dept || '—'}</span></div>
+        <div class="eval-profile-row"><span class="eval-profile-label">학위</span><span class="eval-profile-value">${p.degree || '—'}</span></div>
+        <div class="eval-profile-row"><span class="eval-profile-label">지도교수</span><span class="eval-profile-value">${p.advisor || '—'}</span></div>
+      </div>
+      <div class="eval-profile-section">
+        <div class="eval-profile-section-title">소속 및 경력</div>
+        <div class="eval-profile-row"><span class="eval-profile-label">소속</span><span class="eval-profile-value">${p.company || '—'}</span></div>
+        <div class="eval-profile-row"><span class="eval-profile-label">직위</span><span class="eval-profile-value">${p.role || '—'}</span></div>
+        <div class="eval-profile-row"><span class="eval-profile-label">재직기간</span><span class="eval-profile-value">${p.period || '—'}</span></div>
+      </div>
+      <div class="eval-profile-section">
+        <div class="eval-profile-section-title">기타</div>
+        <div class="eval-profile-row"><span class="eval-profile-label">지역</span><span class="eval-profile-value">${p.region || '—'}</span></div>
+        <div class="eval-profile-row"><span class="eval-profile-label">가족관계</span><span class="eval-profile-value">${p.family || '해당 없음'}</span></div>
+      </div>
+      ${tags ? `<div class="eval-profile-section">
+        <div class="eval-profile-section-title">전문 분야</div>
+        <div class="eval-profile-tags">${tags}</div>
+      </div>` : ''}
+    `;
+    document.getElementById('evalOverlay').classList.add('eval-overlay--active');
+    lucide.createIcons();
+  },
+
+  closeEvalProfile(e) {
+    if (e && e.target !== document.getElementById('evalOverlay')) return;
+    document.getElementById('evalOverlay').classList.remove('eval-overlay--active');
   },
 
   markReviewed(id) {

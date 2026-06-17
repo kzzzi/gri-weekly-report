@@ -19,7 +19,8 @@
       "PowerShell(cd C:\\\\Users\\\\1umbr\\\\ppt\\\\gri-weekly-report; $content = Get-Content \"index.html\" -Raw; Write-Host \"File size: $\\($content.Length\\) chars\"; $content.Substring\\(0, 500\\))",
       "PowerShell($env:PATH += \";C:\\\\Program Files\\\\Git\\\\bin;C:\\\\Program Files\\\\Git\\\\cmd\"; cd C:\\\\Users\\\\1umbr\\\\ppt\\\\gri-weekly-report; git log --oneline -5)",
       "PowerShell(Out-File *)",
-      "PowerShell(git checkout *)"
+      "PowerShell(git checkout *)",
+      "PowerShell(\\(Get-Content \"C:\\\\Users\\\\1umbr\\\\ppt\\\\gri-weekly-report\\\\css\\\\styles.css\" -Raw\\).Length; \\(Get-Content \"C:\\\\Users\\\\1umbr\\\\ppt\\\\gri-weekly-report\\\\css\\\\styles.css\"\\).Count)"
     ]
   }
 }

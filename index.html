@@ -17,14 +17,9 @@
   <nav class="navbar">
     <div class="nav-container">
       <div class="nav-logo">
-        <img src="assets/logo.png" alt="GRI 경기연구원" style="height:40px;width:auto;display:inline-block;vertical-align:middle;">
-        <span style="width:1px;height:24px;background:var(--gri-border);margin:0 12px;display:inline-block;vertical-align:middle;"></span>
-        <span style="font-size:0.95rem;color:var(--gri-text-secondary);font-weight:700;display:inline-block;vertical-align:middle;">업무 자동화 포털</span>
-      </div>
-      <div class="nav-menu" id="navMenu">
-        <button class="nav-item" data-page="home" onclick="Router.navigate('home')">홈</button>
-        <button class="nav-item nav-item--active" data-page="weekly-report" onclick="Router.navigate('weekly-report')">주간보고 취합</button>
-        <button class="nav-item" data-page="recruitment" onclick="Router.navigate('recruitment')">채용검증</button>
+        <img src="assets/logo.png" alt="GRI 경기연구원" style="height:38px;width:auto;display:inline-block;vertical-align:middle;">
+        <span style="width:1px;height:22px;background:var(--gri-border);margin:0 14px;display:inline-block;vertical-align:middle;"></span>
+        <span style="font-size:1rem;color:var(--gri-text-primary);font-weight:700;display:inline-block;vertical-align:middle;">채용자격검증</span>
       </div>
       <div class="nav-actions">
         <button class="btn btn--ghost btn--sm" style="gap:5px;" onclick="GeneralMerge.open()">
@@ -147,16 +142,6 @@
 
       <!-- ===== RECRUITMENT PAGE ===== -->
       <div id="page-recruitment" style="display:none;">
-
-        <!-- 헤더 -->
-        <div class="page-header" style="margin-bottom:10px;">
-          <div class="page-title-row">
-            <h1 class="page-title">
-              <i data-lucide="user-check" style="width:20px;height:20px;color:#2563eb"></i>
-              채용 자격 검증
-            </h1>
-          </div>
-        </div>
 
         <!-- 2분할 메인 레이아웃 -->
         <div class="recruit-layout">
@@ -441,6 +426,19 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- ============ EVALUATOR PROFILE POPUP ============ -->
+  <div class="eval-overlay" id="evalOverlay" onclick="RecruitModule.closeEvalProfile(event)">
+    <div class="eval-panel" id="evalPanel">
+      <div class="eval-panel-header">
+        <div class="eval-panel-title">심사위원 프로필</div>
+        <button class="btn btn--icon btn--ghost" onclick="RecruitModule.closeEvalProfile()">
+          <i data-lucide="x" style="width:16px;height:16px"></i>
+        </button>
+      </div>
+      <div class="eval-panel-body" id="evalPanelBody"></div>
     </div>
   </div>
 

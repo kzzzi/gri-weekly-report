@@ -5155,7 +5155,61 @@ ul, ol {
 .rc-session-name { font-size: 0.75rem; font-weight: 600; color: var(--gri-text-primary); }
 .rc-session-date { font-size: 0.65rem; color: var(--gri-text-muted); margin-top: 1px; }
 
-/* ── 평가위원 추가 모달 입력 ── */
+/* ── 평가위원 추가 모달 ── */
+.eval-add-dialog {
+  background: var(--gri-surface);
+  border-radius: 12px;
+  width: 400px;
+  max-width: 92vw;
+  border: 1px solid var(--gri-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.eval-add-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--gri-text-primary);
+}
+.eval-add-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: var(--gri-text-muted);
+  padding: 0 2px;
+  line-height: 1;
+}
+.eval-add-close:hover { color: var(--gri-text-primary); }
+.eval-add-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--gri-border-light);
+  padding: 10px 18px 0;
+}
+.eval-add-tab {
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--gri-text-muted);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  cursor: pointer;
+}
+.eval-add-tab--active { color: var(--gri-primary); border-bottom-color: var(--gri-primary); }
+.eval-add-panel { padding: 16px 18px; display: flex; flex-direction: column; gap: 0; }
+.eval-add-label {
+  font-size: 0.78rem;
+  color: var(--gri-text-secondary);
+  display: block;
+  margin-bottom: 4px;
+}
 .eval-add-input {
   width: 100%;
   padding: 7px 10px;
@@ -5168,6 +5222,68 @@ ul, ol {
   outline: none;
 }
 .eval-add-input:focus { border-color: var(--gri-primary); }
+.eval-add-footer {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+.eval-excel-hint {
+  font-size: 0.75rem;
+  color: var(--gri-text-muted);
+  background: rgba(var(--gri-primary-rgb), 0.05);
+  border: 1px dashed rgba(var(--gri-primary-rgb), 0.25);
+  border-radius: 6px;
+  padding: 6px 12px;
+  margin-bottom: 12px;
+}
+.eval-excel-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 2px dashed var(--gri-border);
+  border-radius: 10px;
+  padding: 28px 16px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+  background: var(--gri-bg);
+}
+.eval-excel-zone:hover,
+.eval-excel-zone--drag {
+  border-color: var(--gri-primary);
+  background: rgba(var(--gri-primary-rgb), 0.04);
+}
+.eval-excel-preview {
+  margin-top: 12px;
+  border: 1px solid var(--gri-border-light);
+  border-radius: 8px;
+  overflow: hidden;
+  max-height: 180px;
+  overflow-y: auto;
+}
+.eval-excel-preview-header {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--gri-primary);
+  padding: 6px 12px;
+  background: rgba(var(--gri-primary-rgb), 0.06);
+  border-bottom: 1px solid var(--gri-border-light);
+}
+.eval-excel-preview-list { padding: 4px; }
+.eval-excel-preview-row {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr 1fr;
+  gap: 4px;
+  padding: 5px 8px;
+  font-size: 0.78rem;
+  border-bottom: 1px solid var(--gri-border-light);
+}
+.eval-excel-preview-row:last-child { border-bottom: none; }
+.ep-name { font-weight: 600; color: var(--gri-text-primary); }
+.ep-affil { color: var(--gri-text-secondary); }
+.ep-field { color: var(--gri-text-muted); font-size: 0.73rem; }
 
 /* ── 블라인드 원본보기 모달 ── */
 .blind-orig-modal {

@@ -2638,6 +2638,75 @@ const RecruitModule = {
 
   closeEvalAddModal() {
     document.getElementById('evalAddModal').style.display = 'none';
+    const preview = document.getElementById('evalExcelPreview');
+    if (preview) { preview.style.display = 'none'; preview.innerHTML = ''; }
+    const btn = document.getElementById('evalExcelSubmitBtn');
+    if (btn) { btn.disabled = true; delete btn._parsed; }
+    const inp = document.getElementById('evalExcelInput');
+    if (inp) inp.value = '';
+  },
+
+  switchEvalAddTab(tab) {
+    document.getElementById('evalAddPanelManual').style.display = tab === 'manual' ? '' : 'none';
+    document.getElementById('evalAddPanelExcel').style.display = tab === 'excel' ? '' : 'none';
+    document.getElementById('evalTabManual').classList.toggle('eval-add-tab--active', tab === 'manual');
+    document.getElementById('evalTabExcel').classList.toggle('eval-add-tab--active', tab === 'excel');
+    if (tab === 'excel') lucide.createIcons();
+  },
+
+  handleEvalExcel(file) {
+    if (!file) return;
+    if (!window.XLSX) { alert('엑셀 라이브러리를 불러오는 중입니다. 잠시 후 다시 시도하세요.'); return; }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const wb = XLSX.read(e.target.result, { type: 'array' });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+        // 헤더 행 스킵 (첫 행이 텍스트면 스킵)
+        const dataRows = rows.filter((r, i) => {
+          if (i === 0 && typeof r[0] === 'string' && ['이름','name','성명'].includes((r[0]||'').toLowerCase().trim())) return false;
+          return r[0] && String(r[0]).trim();
+        });
+        if (dataRows.length === 0) { alert('데이터가 없습니다. A열에 이름을 입력하세요.'); return; }
+        const parsed = dataRows.map(r => ({
+          name: String(r[0] || '').trim(),
+          affil: String(r[1] || '').trim() || '소속 미입력',
+          field: String(r[2] || '').trim() || '—',
+          relevance: 0, max: 0, min: 0,
+        })).filter(p => p.name);
+
+        // 미리보기
+        const preview = document.getElementById('evalExcelPreview');
+        preview.innerHTML = `
+          <div class="eval-excel-preview-header">${parsed.length}명 인식됨</div>
+          <div class="eval-excel-preview-list">
+            ${parsed.map(p => `<div class="eval-excel-preview-row">
+              <span class="ep-name">${p.name}</span>
+              <span class="ep-affil">${p.affil}</span>
+              <span class="ep-field">${p.field}</span>
+            </div>`).join('')}
+          </div>`;
+        preview.style.display = '';
+        const btn = document.getElementById('evalExcelSubmitBtn');
+        btn.disabled = false;
+        btn._parsed = parsed;
+      } catch (err) {
+        alert('파일을 읽을 수 없습니다. 올바른 엑셀 파일인지 확인하세요.');
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  },
+
+  submitEvalExcel() {
+    const btn = document.getElementById('evalExcelSubmitBtn');
+    const parsed = btn && btn._parsed;
+    if (!parsed || parsed.length === 0) return;
+    if (!this._evalList) this._buildEvalList();
+    this._evalList.push(...parsed);
+    this.renderEvalTable();
+    this.closeEvalAddModal();
+    this.switchEvalAddTab('manual');
   },
 
   removeEvaluator(idx) {

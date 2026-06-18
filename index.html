@@ -9,6 +9,7 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -304,25 +305,56 @@
 
         <!-- 평가위원 추가 모달 -->
         <div id="evalAddModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;" onclick="if(event.target===this)RecruitModule.closeEvalAddModal()">
-          <div style="background:var(--gri-surface);border-radius:12px;padding:24px;width:360px;max-width:90vw;border:1px solid var(--gri-border);">
-            <div style="font-size:0.95rem;font-weight:700;color:var(--gri-text-primary);margin-bottom:16px;">평가위원 추가</div>
-            <div style="display:flex;flex-direction:column;gap:10px;">
-              <div>
-                <label style="font-size:0.78rem;color:var(--gri-text-secondary);display:block;margin-bottom:4px;">이름 *</label>
-                <input id="evalAddName" type="text" placeholder="홍길동" class="eval-add-input">
+          <div class="eval-add-dialog">
+            <div class="eval-add-dialog-header">
+              <span>평가위원 추가</span>
+              <button onclick="RecruitModule.closeEvalAddModal()" class="eval-add-close">×</button>
+            </div>
+            <!-- 탭 -->
+            <div class="eval-add-tabs">
+              <button class="eval-add-tab eval-add-tab--active" id="evalTabManual" onclick="RecruitModule.switchEvalAddTab('manual')">직접 입력</button>
+              <button class="eval-add-tab" id="evalTabExcel" onclick="RecruitModule.switchEvalAddTab('excel')">엑셀 업로드</button>
+            </div>
+            <!-- 직접 입력 패널 -->
+            <div id="evalAddPanelManual" class="eval-add-panel">
+              <div style="display:flex;flex-direction:column;gap:10px;">
+                <div>
+                  <label class="eval-add-label">이름 *</label>
+                  <input id="evalAddName" type="text" placeholder="홍길동" class="eval-add-input">
+                </div>
+                <div>
+                  <label class="eval-add-label">소속기관</label>
+                  <input id="evalAddAffil" type="text" placeholder="경기연구원" class="eval-add-input">
+                </div>
+                <div>
+                  <label class="eval-add-label">전문분야</label>
+                  <input id="evalAddField" type="text" placeholder="도시계획" class="eval-add-input">
+                </div>
               </div>
-              <div>
-                <label style="font-size:0.78rem;color:var(--gri-text-secondary);display:block;margin-bottom:4px;">소속기관</label>
-                <input id="evalAddAffil" type="text" placeholder="경기연구원" class="eval-add-input">
-              </div>
-              <div>
-                <label style="font-size:0.78rem;color:var(--gri-text-secondary);display:block;margin-bottom:4px;">전문분야</label>
-                <input id="evalAddField" type="text" placeholder="도시계획" class="eval-add-input">
+              <div class="eval-add-footer">
+                <button onclick="RecruitModule.closeEvalAddModal()" class="btn btn--ghost btn--sm">취소</button>
+                <button onclick="RecruitModule.submitEvaluatorAdd()" class="btn btn--primary btn--sm">추가</button>
               </div>
             </div>
-            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:20px;">
-              <button onclick="RecruitModule.closeEvalAddModal()" class="btn btn--ghost btn--sm">취소</button>
-              <button onclick="RecruitModule.submitEvaluatorAdd()" class="btn btn--primary btn--sm">추가</button>
+            <!-- 엑셀 업로드 패널 -->
+            <div id="evalAddPanelExcel" class="eval-add-panel" style="display:none;">
+              <div class="eval-excel-hint">
+                <span>A열: 이름 &nbsp;·&nbsp; B열: 소속기관 &nbsp;·&nbsp; C열: 전문분야</span>
+              </div>
+              <label class="eval-excel-zone" id="evalExcelZone"
+                ondragover="event.preventDefault();this.classList.add('eval-excel-zone--drag')"
+                ondragleave="this.classList.remove('eval-excel-zone--drag')"
+                ondrop="event.preventDefault();this.classList.remove('eval-excel-zone--drag');RecruitModule.handleEvalExcel(event.dataTransfer.files[0])">
+                <i data-lucide="file-spreadsheet" style="width:32px;height:32px;color:var(--gri-primary);opacity:.7;"></i>
+                <span style="font-size:0.85rem;color:var(--gri-text-secondary);margin-top:8px;">엑셀 파일을 드래그하거나 클릭하여 선택</span>
+                <span style="font-size:0.75rem;color:var(--gri-text-muted);">.xlsx · .xls 지원</span>
+                <input type="file" id="evalExcelInput" accept=".xlsx,.xls" hidden onchange="RecruitModule.handleEvalExcel(this.files[0])">
+              </label>
+              <div id="evalExcelPreview" style="display:none;" class="eval-excel-preview"></div>
+              <div class="eval-add-footer">
+                <button onclick="RecruitModule.closeEvalAddModal()" class="btn btn--ghost btn--sm">취소</button>
+                <button id="evalExcelSubmitBtn" onclick="RecruitModule.submitEvalExcel()" class="btn btn--primary btn--sm" disabled>추가</button>
+              </div>
             </div>
           </div>
         </div>

@@ -4450,11 +4450,11 @@ ul, ol {
 /* ── 업로드 카드 (상단 행 내) ── */
 .recruit-upload-card {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  gap: 14px;
-  padding: 0 28px;
+  justify-content: center;
+  gap: 5px;
+  padding: 0 24px;
   text-align: center;
   flex: 3;
   min-width: 0;
@@ -4503,8 +4503,8 @@ ul, ol {
 }
 
 .recruit-upload-icon {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   aspect-ratio: 1;
   flex-shrink: 0;
   border-radius: 50%;
@@ -4515,28 +4515,24 @@ ul, ol {
   justify-content: center;
 }
 
-.recruit-upload-body {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.recruit-upload-btn { flex-shrink: 0; }
-
 .recruit-upload-zone--over { background: rgba(var(--gri-primary-rgb), 0.04); }
 
 .recruit-upload-title {
-  font-size: 0.85rem;
-  font-weight: 700;
+  font-size: 0.82rem;
+  font-weight: 600;
   color: var(--gri-text-primary);
 }
 
 .recruit-upload-desc {
-  font-size: 0.75rem;
+  font-size: 0.73rem;
   color: var(--gri-text-muted);
   font-weight: 400;
+}
+
+.recruit-upload-btn {
+  padding: 4px 14px;
+  font-size: 0.75rem;
+  margin-top: 2px;
 }
 
 /* ── 서류 아코디언 ── */

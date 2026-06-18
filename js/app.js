@@ -1746,7 +1746,10 @@ const RecruitModule = {
 
   init() {
     const layout = document.getElementById('recruitMainLayout');
-    if (layout) layout.style.display = 'flex';
+    if (layout) {
+      layout.style.display = 'flex';
+      layout.classList.toggle('recruit-main--loaded', this._hasUploaded);
+    }
     this._renderPositionFilters();
     this._renderFieldFilters();
     this._updateTabCounts();
@@ -1971,6 +1974,8 @@ const RecruitModule = {
   _loadDummyData() {
     this._hasUploaded = true;
     this._showView(true);
+    const layout = document.getElementById('recruitMainLayout');
+    if (layout) layout.classList.add('recruit-main--loaded');
     this._filter = 'all';
     this._filterPosition = null;
     this._filterField = null;

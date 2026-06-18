@@ -3560,9 +3560,14 @@ ul, ol {
 .recruit-main {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  flex: 0 0 auto;
   min-height: 0;
+  max-height: 120px;
   gap: 0;
+}
+.recruit-main--loaded {
+  flex: 1;
+  max-height: none;
 }
 
 /* ── 대시보드 ── */

@@ -400,6 +400,435 @@ const AppState = {
         ]}
       },
       reviewStatus: 'pending', reviewNote: ''
+    },
+    {
+      id: 11, rawFileName: '250303_연구위원나급_교통계획_정재현',
+      date: '250303', position: '연구위원나급', field: '교통계획', name: '정재현', isResearch: true,
+      candidateProfile: { school: '한양대학교', dept: '교통공학과', company: '한국교통안전공단', region: '수원', coAuthors: [] },
+      verification: {
+        documents: { status: 'ok', categories: [
+          { id: 'application', name: '입사지원서', status: 'ok', note: '', subItems: [
+            { name: '기본인적사항', status: 'ok', note: '' },
+            { name: '학력사항', status: 'ok', note: '' },
+            { name: '경력사항', status: 'ok', note: '' },
+            { name: '자기소개서', status: 'ok', note: '' }
+          ]},
+          { id: 'privacy', name: '개인정보동의서', status: 'ok', note: '', subItems: [
+            { name: '수집·이용 동의서', status: 'ok', note: '' },
+            { name: '제3자 제공 동의서', status: 'ok', note: '' }
+          ]},
+          { id: 'academic', name: '학력증명서', status: 'ok', note: '', subItems: [
+            { name: '학위수여증명서', status: 'ok', note: '' },
+            { name: '성적증명서', status: 'ok', note: '' }
+          ]},
+          { id: 'career', name: '경력증명서', status: 'ok', note: '', subItems: [
+            { name: '재직(경력)증명서', status: 'ok', note: '' },
+            { name: '건강보험료납부확인서', status: 'ok', note: '' }
+          ]},
+          { id: 'research', name: '연구실적', status: 'ok', note: '', subItems: [
+            { name: '연구실적목록', status: 'ok', note: '' },
+            { name: '대표논문 1편', status: 'ok', note: '' }
+          ]},
+          { id: 'license', name: '자격증', status: 'ok', note: '', subItems: [
+            { name: '관련자격증 사본', status: 'ok', note: '' }
+          ]}
+        ]},
+        paper: { applicable: true, status: 'ok', items: [
+          { title: '경기도 간선급행버스 노선 최적화 연구', journal: '대한교통학회지', year: 2023, authors: '정재현', status: 'ok' }
+        ]},
+        blind: { status: 'warning', issues: [
+          { type: '출신학교', excerpt: '"한양대학교 교통공학과 재학 시절부터..."', severity: 'high' }
+        ]},
+        evaluator: { status: 'ok', recommended: [
+          { name: '강민철', affil: '한국교통연구원', field: '교통계획', conflict: false, score: 8.1 },
+          { name: '이준호', affil: 'KAIST 건설환경공학과', field: '교통공학', conflict: false, score: 7.6 }
+        ]}
+      },
+      reviewStatus: 'pending', reviewNote: ''
+    },
+    {
+      id: 12, rawFileName: '250303_연구위원가급_주거정책_남궁혜린',
+      date: '250303', position: '연구위원가급', field: '주거정책', name: '남궁혜린', isResearch: true,
+      candidateProfile: { school: '서울대학교', dept: '도시공학과', company: '국토연구원', region: '세종', coAuthors: [] },
+      verification: {
+        documents: { status: 'ok', categories: [
+          { id: 'application', name: '입사지원서', status: 'ok', note: '', subItems: [
+            { name: '기본인적사항', status: 'ok', note: '' },
+            { name: '학력사항', status: 'ok', note: '' },
+            { name: '경력사항', status: 'ok', note: '' },
+            { name: '자기소개서', status: 'ok', note: '' }
+          ]},
+          { id: 'privacy', name: '개인정보동의서', status: 'ok', note: '', subItems: [
+            { name: '수집·이용 동의서', status: 'ok', note: '' },
+            { name: '제3자 제공 동의서', status: 'ok', note: '' }
+          ]},
+          { id: 'academic', name: '학력증명서', status: 'ok', note: '', subItems: [
+            { name: '학위수여증명서', status: 'ok', note: '' },
+            { name: '성적증명서', status: 'ok', note: '' }
+          ]},
+          { id: 'career', name: '경력증명서', status: 'ok', note: '', subItems: [
+            { name: '재직(경력)증명서', status: 'ok', note: '' },
+            { name: '건강보험료납부확인서', status: 'ok', note: '' }
+          ]},
+          { id: 'research', name: '연구실적', status: 'ok', note: '', subItems: [
+            { name: '연구실적목록', status: 'ok', note: '' },
+            { name: '대표논문 1편', status: 'ok', note: '' }
+          ]},
+          { id: 'license', name: '자격증', status: 'ok', note: '', subItems: [
+            { name: '관련자격증 사본', status: 'ok', note: '' }
+          ]}
+        ]},
+        paper: { applicable: true, status: 'ok', items: [
+          { title: '수도권 공공임대주택 정책 효과 분석', journal: '국토연구', year: 2023, authors: '남궁혜린', status: 'ok' }
+        ]},
+        blind: { status: 'ok', issues: [] },
+        evaluator: { status: 'ok', recommended: [
+          { name: '최현우', affil: '국토연구원', field: '도시계획', conflict: false, score: 8.5 },
+          { name: '윤상혁', affil: '한국토지주택공사', field: '주거정책', conflict: false, score: 7.9 }
+        ]}
+      },
+      reviewStatus: 'completed', reviewNote: '서류 전체 이상 없음. 면접 진행 추천.'
+    },
+    {
+      id: 13, rawFileName: '250303_부연구위원나급_복지정책_손태양',
+      date: '250303', position: '부연구위원나급', field: '복지정책', name: '손태양', isResearch: true,
+      candidateProfile: { school: '연세대학교', dept: '사회복지학과', company: '한국보건사회연구원', region: '세종', coAuthors: [] },
+      verification: {
+        documents: { status: 'missing', categories: [
+          { id: 'application', name: '입사지원서', status: 'ok', note: '', subItems: [
+            { name: '기본인적사항', status: 'ok', note: '' },
+            { name: '학력사항', status: 'ok', note: '' },
+            { name: '경력사항', status: 'ok', note: '' },
+            { name: '자기소개서', status: 'ok', note: '' }
+          ]},
+          { id: 'privacy', name: '개인정보동의서', status: 'ok', note: '', subItems: [
+            { name: '수집·이용 동의서', status: 'ok', note: '' },
+            { name: '제3자 제공 동의서', status: 'ok', note: '' }
+          ]},
+          { id: 'academic', name: '학력증명서', status: 'missing', note: '성적증명서 미첨부', subItems: [
+            { name: '학위수여증명서', status: 'ok', note: '' },
+            { name: '성적증명서', status: 'missing', note: '미첨부' }
+          ]},
+          { id: 'career', name: '경력증명서', status: 'ok', note: '', subItems: [
+            { name: '재직(경력)증명서', status: 'ok', note: '' },
+            { name: '건강보험료납부확인서', status: 'ok', note: '' }
+          ]},
+          { id: 'research', name: '연구실적', status: 'ok', note: '', subItems: [
+            { name: '연구실적목록', status: 'ok', note: '' },
+            { name: '대표논문 1편', status: 'ok', note: '' }
+          ]},
+          { id: 'license', name: '자격증', status: 'ok', note: '', subItems: [
+            { name: '관련자격증 사본', status: 'ok', note: '' }
+          ]}
+        ]},
+        paper: { applicable: true, status: 'ok', items: [
+          { title: '경기도 기초생활보장 수급자 실태 및 지원방안', journal: '사회복지연구', year: 2023, authors: '손태양', status: 'ok' }
+        ]},
+        blind: { status: 'ok', issues: [] },
+        evaluator: { status: 'ok', recommended: [
+          { name: '노혜경', affil: '한국보건사회연구원', field: '복지정책', conflict: false, score: 7.8 },
+          { name: '김재원', affil: '성균관대학교 사회복지학과', field: '사회복지', conflict: false, score: 7.2 }
+        ]}
+      },
+      reviewStatus: 'pending', reviewNote: ''
+    },
+    {
+      id: 14, rawFileName: '250303_전문연구원_문화정책_백지유',
+      date: '250303', position: '전문연구원', field: '문화정책', name: '백지유', isResearch: false,
+      candidateProfile: { school: '이화여자대학교', dept: '문화예술학과', company: '경기문화재단', region: '수원', coAuthors: [] },
+      verification: {
+        documents: { status: 'ok', categories: [
+          { id: 'application', name: '입사지원서', status: 'ok', note: '', subItems: [
+            { name: '기본인적사항', status: 'ok', note: '' },
+            { name: '학력사항', status: 'ok', note: '' },
+            { name: '경력사항', status: 'ok', note: '' },
+            { name: '자기소개서', status: 'ok', note: '' }
+          ]},
+          { id: 'privacy', name: '개인정보동의서', status: 'ok', note: '', subItems: [
+            { name: '수집·이용 동의서', status: 'ok', note: '' },
+            { name: '제3자 제공 동의서', status: 'ok', note: '' }
+          ]},
+          { id: 'academic', name: '학력증명서', status: 'ok', note: '', subItems: [
+            { name: '학위수여증명서', status: 'ok', note: '' },
+            { name: '성적증명서', status: 'ok', note: '' }
+          ]},
+          { id: 'career', name: '경력증명서', status: 'ok', note: '', subItems: [
+            { name: '재직(경력)증명서', status: 'ok', note: '' },
+            { name: '건강보험료납부확인서', status: 'ok', note: '' }
+          ]},
+          { id: 'research', name: '연구실적', status: 'na', note: '행정직 — 해당 없음', subItems: [] },
+          { id: 'license', name: '자격증', status: 'ok', note: '', subItems: [
+            { name: '관련자격증 사본', status: 'ok', note: '' }
+          ]}
+        ]},
+        paper: { applicable: false, status: 'na', items: [] },
+        blind: { status: 'warning', issues: [
+          { type: '출신지역', excerpt: '"경기도 수원에서 태어나 문화 기획자로..."', severity: 'low' }
+        ]},
+        evaluator: { status: 'ok', recommended: [
+          { name: '백승민', affil: '한국문화관광연구원', field: '문화정책', conflict: false, score: 8.0 },
+          { name: '전혜진', affil: '경기문화재단', field: '사회문화', conflict: false, score: 7.4 }
+        ]}
+      },
+      reviewStatus: 'completed', reviewNote: '서류 이상 없음. 면접 진행 추천.'
+    },
+    {
+      id: 15, rawFileName: '250303_연구위원나급_경제정책_류민호',
+      date: '250303', position: '연구위원나급', field: '경제정책', name: '류민호', isResearch: true,
+      candidateProfile: { school: '고려대학교', dept: '경제학과', company: '한국개발연구원', region: '세종', coAuthors: [] },
+      verification: {
+        documents: { status: 'ok', categories: [
+          { id: 'application', name: '입사지원서', status: 'ok', note: '', subItems: [
+            { name: '기본인적사항', status: 'ok', note: '' },
+            { name: '학력사항', status: 'ok', note: '' },
+            { name: '경력사항', status: 'ok', note: '' },
+            { name: '자기소개서', status: 'ok', note: '' }
+          ]},
+          { id: 'privacy', name: '개인정보동의서', status: 'ok', note: '', subItems: [
+            { name: '수집·이용 동의서', status: 'ok', note: '' },
+            { name: '제3자 제공 동의서', status: 'ok', note: '' }
+          ]},
+          { id: 'academic', name: '학력증명서', status: 'ok', note: '', subItems: [
+            { name: '학위수여증명서', status: 'ok', note: '' },
+            { name: '성적증명서', status: 'ok', note: '' }
+          ]},
+          { id: 'career', name: '경력증명서', status: 'ok', note: '', subItems: [
+            { name: '재직(경력)증명서', status: 'ok', note: '' },
+            { name: '건강보험료납부확인서', status: 'ok', note: '' }
+          ]},
+          { id: 'research', name: '연구실적', status: 'ok', note: '', subItems: [
+            { name: '연구실적목록', status: 'ok', note: '' },
+            { name: '대표논문 1편', status: 'ok', note: '' }
+          ]},
+          { id: 'license', name: '자격증', status: 'ok', note: '', subItems: [
+            { name: '관련자격증 사본', status: 'ok', note: '' }
+          ]}
+        ]},
+        paper: { applicable: true, status: 'ok', items: [
+          { title: '지역 산업정책의 경제적 파급효과 분석', journal: '경제학연구', year: 2023, authors: '류민호', status: 'ok' }
+        ]},
+        blind: { status: 'ok', issues: [] },
+        evaluator: { status: 'ok', recommended: [
+          { name: '임재홍', affil: '한국개발연구원', field: '경제정책', conflict: false, score: 8.3 },
+          { name: '강수현', affil: '한국은행 경기본부', field: '지역경제', conflict: false, score: 7.7 }
+        ]}
+      },
+      reviewStatus: 'pending', reviewNote: ''
+    },
+    {
+      id: 16, rawFileName: '250303_부연구위원나급_환경정책_신예은',
+      date: '250303', position: '부연구위원나급', field: '환경정책', name: '신예은', isResearch: true,
+      candidateProfile: { school: '성균관대학교', dept: '환경공학부', company: '한국환경연구원', region: '세종', coAuthors: ['최재영'] },
+      verification: {
+        documents: { status: 'mismatch', categories: [
+          { id: 'application', name: '입사지원서', status: 'ok', note: '', subItems: [
+            { name: '기본인적사항', status: 'ok', note: '' },
+            { name: '학력사항', status: 'ok', note: '' },
+            { name: '경력사항', status: 'ok', note: '' },
+            { name: '자기소개서', status: 'ok', note: '' }
+          ]},
+          { id: 'privacy', name: '개인정보동의서', status: 'ok', note: '', subItems: [
+            { name: '수집·이용 동의서', status: 'ok', note: '' },
+            { name: '제3자 제공 동의서', status: 'ok', note: '' }
+          ]},
+          { id: 'academic', name: '학력증명서', status: 'ok', note: '', subItems: [
+            { name: '학위수여증명서', status: 'ok', note: '' },
+            { name: '성적증명서', status: 'ok', note: '' }
+          ]},
+          { id: 'career', name: '경력증명서', status: 'mismatch', note: '경력기간 불일치', subItems: [
+            { name: '재직(경력)증명서', status: 'mismatch', note: '기재 48개월 → 증빙 41개월' },
+            { name: '건강보험료납부확인서', status: 'ok', note: '' }
+          ]},
+          { id: 'research', name: '연구실적', status: 'ok', note: '', subItems: [
+            { name: '연구실적목록', status: 'ok', note: '' },
+            { name: '대표논문 1편', status: 'ok', note: '' }
+          ]},
+          { id: 'license', name: '자격증', status: 'ok', note: '', subItems: [
+            { name: '관련자격증 사본', status: 'ok', note: '' }
+          ]}
+        ]},
+        paper: { applicable: true, status: 'warning', items: [
+          { title: '경기도 미세먼지 저감 정책 실효성 평가', journal: '환경정책', year: 2023, authors: '신예은, 최재영', status: 'warning', note: '공저 관계 확인 필요 (최재영 — 현 한국환경연구원 재직)' }
+        ]},
+        blind: { status: 'warning', issues: [
+          { type: '출신학교', excerpt: '"성균관대학교 환경공학부 수석 졸업..."', severity: 'high' },
+          { type: '가족관계', excerpt: '"모친이 환경부 산하기관 근무 중..."', severity: 'medium' }
+        ]},
+        evaluator: { status: 'ok', recommended: [
+          { name: '강태인', affil: '한국환경연구원', field: '환경정책', conflict: false, score: 7.9 },
+          { name: '류재원', affil: '한국환경연구원', field: '에너지정책', conflict: false, score: 7.5 }
+        ]}
+      },
+      reviewStatus: 'pending', reviewNote: ''
+    },
+    {
+      id: 17, rawFileName: '250303_연구위원가급_도시재생_황준성',
+      date: '250303', position: '연구위원가급', field: '도시재생', name: '황준성', isResearch: true,
+      candidateProfile: { school: '서울시립대학교', dept: '도시공학과', company: '한국토지주택공사', region: '진주', coAuthors: [] },
+      verification: {
+        documents: { status: 'ok', categories: [
+          { id: 'application', name: '입사지원서', status: 'ok', note: '', subItems: [
+            { name: '기본인적사항', status: 'ok', note: '' },
+            { name: '학력사항', status: 'ok', note: '' },
+            { name: '경력사항', status: 'ok', note: '' },
+            { name: '자기소개서', status: 'ok', note: '' }
+          ]},
+          { id: 'privacy', name: '개인정보동의서', status: 'ok', note: '', subItems: [
+            { name: '수집·이용 동의서', status: 'ok', note: '' },
+            { name: '제3자 제공 동의서', status: 'ok', note: '' }
+          ]},
+          { id: 'academic', name: '학력증명서', status: 'ok', note: '', subItems: [
+            { name: '학위수여증명서', status: 'ok', note: '' },
+            { name: '성적증명서', status: 'ok', note: '' }
+          ]},
+          { id: 'career', name: '경력증명서', status: 'ok', note: '', subItems: [
+            { name: '재직(경력)증명서', status: 'ok', note: '' },
+            { name: '건강보험료납부확인서', status: 'ok', note: '' }
+          ]},
+          { id: 'research', name: '연구실적', status: 'ok', note: '', subItems: [
+            { name: '연구실적목록', status: 'ok', note: '' },
+            { name: '대표논문 1편', status: 'ok', note: '' }
+          ]},
+          { id: 'license', name: '자격증', status: 'ok', note: '', subItems: [
+            { name: '관련자격증 사본', status: 'ok', note: '' }
+          ]}
+        ]},
+        paper: { applicable: true, status: 'ok', items: [
+          { title: '구도심 도시재생뉴딜사업 성과평가 연구', journal: '국토계획', year: 2023, authors: '황준성', status: 'ok' }
+        ]},
+        blind: { status: 'ok', issues: [] },
+        evaluator: { status: 'ok', recommended: [
+          { name: '박성은', affil: '서울시립대학교 도시공학과', field: '도시재생', conflict: false, score: 8.6 },
+          { name: '윤상혁', affil: '한국토지주택공사', field: '도시재생', conflict: false, score: 8.0 }
+        ]}
+      },
+      reviewStatus: 'completed', reviewNote: '서류 전체 이상 없음. 면접 진행 추천.'
+    },
+    {
+      id: 18, rawFileName: '250303_전문연구원_데이터분석_강나리',
+      date: '250303', position: '전문연구원', field: '데이터분석', name: '강나리', isResearch: false,
+      candidateProfile: { school: 'KAIST', dept: '전산학부', company: '카카오엔터프라이즈', region: '서울', coAuthors: [] },
+      verification: {
+        documents: { status: 'ok', categories: [
+          { id: 'application', name: '입사지원서', status: 'ok', note: '', subItems: [
+            { name: '기본인적사항', status: 'ok', note: '' },
+            { name: '학력사항', status: 'ok', note: '' },
+            { name: '경력사항', status: 'ok', note: '' },
+            { name: '자기소개서', status: 'ok', note: '' }
+          ]},
+          { id: 'privacy', name: '개인정보동의서', status: 'ok', note: '', subItems: [
+            { name: '수집·이용 동의서', status: 'ok', note: '' },
+            { name: '제3자 제공 동의서', status: 'ok', note: '' }
+          ]},
+          { id: 'academic', name: '학력증명서', status: 'ok', note: '', subItems: [
+            { name: '학위수여증명서', status: 'ok', note: '' },
+            { name: '성적증명서', status: 'ok', note: '' }
+          ]},
+          { id: 'career', name: '경력증명서', status: 'ok', note: '', subItems: [
+            { name: '재직(경력)증명서', status: 'ok', note: '' },
+            { name: '건강보험료납부확인서', status: 'ok', note: '' }
+          ]},
+          { id: 'research', name: '연구실적', status: 'na', note: '행정직 — 해당 없음', subItems: [] },
+          { id: 'license', name: '자격증', status: 'ok', note: '', subItems: [
+            { name: '관련자격증 사본', status: 'ok', note: '' }
+          ]}
+        ]},
+        paper: { applicable: false, status: 'na', items: [] },
+        blind: { status: 'warning', issues: [
+          { type: '출신학교', excerpt: '"KAIST 전산학부 출신으로 AI 분석..."', severity: 'high' }
+        ]},
+        evaluator: { status: 'ok', recommended: [
+          { name: '최영진', affil: '통계청', field: '데이터분석', conflict: false, score: 8.4 },
+          { name: '송민희', affil: '한국정보화진흥원', field: '빅데이터', conflict: false, score: 8.0 }
+        ]}
+      },
+      reviewStatus: 'pending', reviewNote: ''
+    },
+    {
+      id: 19, rawFileName: '250303_부연구위원나급_기후변화_조현아',
+      date: '250303', position: '부연구위원나급', field: '기후변화', name: '조현아', isResearch: true,
+      candidateProfile: { school: '서울대학교', dept: '환경대학원', company: '에너지경제연구원', region: '울산', coAuthors: [] },
+      verification: {
+        documents: { status: 'ok', categories: [
+          { id: 'application', name: '입사지원서', status: 'ok', note: '', subItems: [
+            { name: '기본인적사항', status: 'ok', note: '' },
+            { name: '학력사항', status: 'ok', note: '' },
+            { name: '경력사항', status: 'ok', note: '' },
+            { name: '자기소개서', status: 'ok', note: '' }
+          ]},
+          { id: 'privacy', name: '개인정보동의서', status: 'ok', note: '', subItems: [
+            { name: '수집·이용 동의서', status: 'ok', note: '' },
+            { name: '제3자 제공 동의서', status: 'ok', note: '' }
+          ]},
+          { id: 'academic', name: '학력증명서', status: 'ok', note: '', subItems: [
+            { name: '학위수여증명서', status: 'ok', note: '' },
+            { name: '성적증명서', status: 'ok', note: '' }
+          ]},
+          { id: 'career', name: '경력증명서', status: 'ok', note: '', subItems: [
+            { name: '재직(경력)증명서', status: 'ok', note: '' },
+            { name: '건강보험료납부확인서', status: 'ok', note: '' }
+          ]},
+          { id: 'research', name: '연구실적', status: 'ok', note: '', subItems: [
+            { name: '연구실적목록', status: 'ok', note: '' },
+            { name: '대표논문 1편', status: 'ok', note: '' }
+          ]},
+          { id: 'license', name: '자격증', status: 'ok', note: '', subItems: [
+            { name: '관련자격증 사본', status: 'ok', note: '' }
+          ]}
+        ]},
+        paper: { applicable: true, status: 'ok', items: [
+          { title: '탄소중립 시나리오별 지역 경제영향 분석', journal: '에너지경제연구', year: 2023, authors: '조현아', status: 'ok' }
+        ]},
+        blind: { status: 'ok', issues: [] },
+        evaluator: { status: 'ok', recommended: [
+          { name: '조현석', affil: '에너지경제연구원', field: '기후정책', conflict: false, score: 8.7 },
+          { name: '강태인', affil: '한국환경연구원', field: '환경정책', conflict: false, score: 8.1 }
+        ]}
+      },
+      reviewStatus: 'pending', reviewNote: ''
+    },
+    {
+      id: 20, rawFileName: '250303_연구위원나급_사회정책_문지훈',
+      date: '250303', position: '연구위원나급', field: '사회정책', name: '문지훈', isResearch: true,
+      candidateProfile: { school: '성균관대학교', dept: '행정학과', company: '한국행정연구원', region: '서울', coAuthors: [] },
+      verification: {
+        documents: { status: 'ok', categories: [
+          { id: 'application', name: '입사지원서', status: 'ok', note: '', subItems: [
+            { name: '기본인적사항', status: 'ok', note: '' },
+            { name: '학력사항', status: 'ok', note: '' },
+            { name: '경력사항', status: 'ok', note: '' },
+            { name: '자기소개서', status: 'ok', note: '' }
+          ]},
+          { id: 'privacy', name: '개인정보동의서', status: 'ok', note: '', subItems: [
+            { name: '수집·이용 동의서', status: 'ok', note: '' },
+            { name: '제3자 제공 동의서', status: 'ok', note: '' }
+          ]},
+          { id: 'academic', name: '학력증명서', status: 'ok', note: '', subItems: [
+            { name: '학위수여증명서', status: 'ok', note: '' },
+            { name: '성적증명서', status: 'ok', note: '' }
+          ]},
+          { id: 'career', name: '경력증명서', status: 'ok', note: '', subItems: [
+            { name: '재직(경력)증명서', status: 'ok', note: '' },
+            { name: '건강보험료납부확인서', status: 'ok', note: '' }
+          ]},
+          { id: 'research', name: '연구실적', status: 'ok', note: '', subItems: [
+            { name: '연구실적목록', status: 'ok', note: '' },
+            { name: '대표논문 1편', status: 'ok', note: '' }
+          ]},
+          { id: 'license', name: '자격증', status: 'ok', note: '', subItems: [
+            { name: '관련자격증 사본', status: 'ok', note: '' }
+          ]}
+        ]},
+        paper: { applicable: true, status: 'ok', items: [
+          { title: '사회정책 거버넌스 구조 개선방안 연구', journal: '한국행정학보', year: 2023, authors: '문지훈', status: 'ok' }
+        ]},
+        blind: { status: 'ok', issues: [] },
+        evaluator: { status: 'ok', recommended: [
+          { name: '신동욱', affil: '경기연구원', field: '행정정책', conflict: false, score: 8.2 },
+          { name: '임재홍', affil: '한국개발연구원', field: '경제정책', conflict: false, score: 7.6 }
+        ]}
+      },
+      reviewStatus: 'completed', reviewNote: '서류 전체 이상 없음. 면접 진행 추천.'
     }
   ],
 

@@ -4256,6 +4256,8 @@ ul, ol {
 .recruit-upload-icon {
   width: 48px;
   height: 48px;
+  aspect-ratio: 1;
+  flex-shrink: 0;
   border-radius: 50%;
   background: var(--gri-bg);
   border: 1px solid var(--gri-border);

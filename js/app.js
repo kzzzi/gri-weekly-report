@@ -1761,7 +1761,7 @@ const RecruitModule = {
     if (layout) layout.style.display = 'flex';
   },
 
-  // 4가지 체크 기준으로 적합/검토필요/부적합 판정
+  // 5가지 체크 기준으로 적합/검증필요 판정
   _computeConflict(cand, ev) {
     const profile = cand.candidateProfile;
     const ep = EVAL_PROFILES[ev.name];
@@ -1771,7 +1771,7 @@ const RecruitModule = {
       sameSchoolDept:  false,
       sameSchoolOnly:  false,
       sameCompany:     false,
-      sameRegion:      false
+      samePrevCompany: false
     };
 
     if (profile && profile.coAuthors) checks.coAuthor = profile.coAuthors.includes(ev.name);
@@ -1782,19 +1782,19 @@ const RecruitModule = {
       checks.sameSchoolDept = ss && sd;
       checks.sameSchoolOnly = ss && !sd;
       checks.sameCompany    = !!(profile.company && ep.company && profile.company === ep.company);
-      checks.sameRegion     = !!(profile.region  && ep.region  && profile.region  === ep.region);
     }
 
-    const isBad     = checks.coAuthor || checks.sameSchoolDept || checks.sameCompany;
-    const isCaution = !isBad && (checks.sameSchoolOnly || checks.sameRegion);
-    const verdict   = isBad ? '부적합' : isCaution ? '검토필요' : '적합';
+    checks.samePrevCompany = !!(profile && profile.prevCompany && ep && ep.prevCompany && profile.prevCompany === ep.prevCompany);
+
+    const hasConflict = checks.coAuthor || checks.sameSchoolDept || checks.sameSchoolOnly || checks.sameCompany || checks.samePrevCompany;
+    const verdict = hasConflict ? '검증필요' : '적합';
 
     const reasons = [];
     if (checks.coAuthor)       reasons.push('논문 공동저자');
     if (checks.sameSchoolDept) reasons.push('동일 학교 + 동일 학과');
     if (checks.sameCompany)    reasons.push('동일 직장 경력');
     if (checks.sameSchoolOnly) reasons.push('동일 학교');
-    if (checks.sameRegion && !isBad && !checks.sameSchoolOnly) reasons.push('지역 겹침');
+    if (checks.samePrevCompany) reasons.push('이전 직장 겹침');
 
     // 프로필 없는 심사위원: 하드코딩 conflict 사용
     if (reasons.length === 0 && ev.conflict) {
@@ -1804,9 +1804,9 @@ const RecruitModule = {
         sameSchoolDept: reason.includes('학과') || reason.includes('출신'),
         sameSchoolOnly: false,
         sameCompany: reason.includes('직장') || reason.includes('경력'),
-        sameRegion: false
+        samePrevCompany: false
       };
-      return { verdict: '부적합', reasons: [reason], checks: fallbackChecks };
+      return { verdict: '검증필요', reasons: [reason], checks: fallbackChecks };
     }
 
     return { verdict, reasons, checks };
@@ -1817,7 +1817,7 @@ const RecruitModule = {
     const paper = c.verification.paper.applicable && c.verification.paper.status !== 'ok' && c.verification.paper.status !== 'na' && c.verification.paper.status !== 'pending';
     const blind = c.verification.blind.issues && c.verification.blind.issues.length > 0;
     const ev = (c.verification.evaluator.recommended || []).some(e =>
-      this._computeConflict(c, e).verdict === '부적합'
+      this._computeConflict(c, e).verdict === '검증필요'
     );
     return doc || paper || blind || ev;
   },
@@ -2018,7 +2018,8 @@ const RecruitModule = {
     if (!this._hasUploaded) {
       if (tabbar) tabbar.style.display = 'none';
       if (filterBar) filterBar.style.display = 'none';
-      container.innerHTML = `<div class="rc-empty" style="color:var(--gri-text-muted);padding:32px 0;text-align:center;">파일을 업로드하면 지원자 목록이 표시됩니다</div>`;
+      container.innerHTML = `<div class="rc-empty"><i data-lucide="upload" style="width:24px;height:24px;opacity:0.25;"></i><span>파일을 업로드하면<br>지원자 목록이 표시됩니다</span></div>`;
+      lucide.createIcons();
       return;
     }
     if (tabbar) tabbar.style.display = '';
@@ -2160,35 +2161,38 @@ const RecruitModule = {
         </div>`).join('');
     }
 
-    // ── 심사위원: 적합만 표시, 매핑점수 순 ──
+    // ── 심사위원: 전체 표시, 적합 먼저 정렬 ──
     const allEvals = (c.verification.evaluator.recommended || []).map(ev => ({
       ev, cf: this._computeConflict(c, ev)
     }));
-    const suitableEvals = allEvals
-      .filter(x => x.cf.verdict === '적합')
-      .sort((a, b) => (b.ev.score || 0) - (a.ev.score || 0));
+    // sort: 적합 first, then 검증필요
+    allEvals.sort((a, b) => {
+      if (a.cf.verdict === b.cf.verdict) return 0;
+      return a.cf.verdict === '적합' ? -1 : 1;
+    });
 
-    const evalRow = (ev, idx) => {
-      const score = ev.score || 0;
-      const matchCount = score >= 8.5 ? 3 : score >= 7.5 ? 2 : 1;
+    const evalRow = (item, idx) => {
+      const ev = item.ev;
+      const verdict = item.cf.verdict;
+      const isFit = verdict === '적합';
+      const badgeCls = isFit ? 'rd-eval-badge--fit' : 'rd-eval-badge--review';
+      const badgeLabel = isFit ? '적합' : '검증필요';
       return `<div class="rd-eval-row" onclick="RecruitModule.openEvalProfile('${ev.name}', ${c.id})">
         <span class="rd-eval-rank">${idx + 1}</span>
         <div class="rd-eval-info">
           <span class="rd-eval-name">${ev.name}</span>
           <span class="rd-eval-affil">${ev.affil}</span>
         </div>
-        <span class="rd-eval-match">${matchCount}개 일치</span>
+        <span class="rd-eval-badge ${badgeCls}">${badgeLabel}</span>
         <span class="rd-eval-arrow">›</span>
       </div>`;
     };
 
     let evalHtml = '';
-    if (suitableEvals.length === 0) {
-      evalHtml = allEvals.length === 0
-        ? `<p class="rd-na">심사위원 정보가 없습니다</p>`
-        : `<p class="rd-na">추천 가능한 심사위원이 없습니다</p>`;
+    if (allEvals.length === 0) {
+      evalHtml = `<p class="rd-na">심사위원 정보가 없습니다</p>`;
     } else {
-      evalHtml = suitableEvals.map((x, i) => evalRow(x.ev, i)).join('');
+      evalHtml = allEvals.map((x, i) => evalRow(x, i)).join('');
     }
 
     // ── 섹션 배지: 문제 있을 때만 ! ──
@@ -2251,10 +2255,10 @@ const RecruitModule = {
     const body = document.getElementById('evalPanelBody');
     const initials = name.length >= 2 ? name.slice(0, 2) : name;
 
-    // 매핑 기준 (score 기반)
-    const score = evObj.score || 0;
-    const matchCount = score >= 8.5 ? 3 : score >= 7.5 ? 2 : 1;
-    const CRITERIA = ['전문분야 직접 일치', '연구방법론 연관성', '정책분야 경험'];
+    // 연고 검증 (conflict-check 기반)
+    const cf = cand ? RecruitModule._computeConflict(cand, evObj) : { verdict: '적합', checks: { coAuthor: false, sameSchoolDept: false, sameSchoolOnly: false, sameCompany: false, samePrevCompany: false } };
+    const checks = cf.checks;
+    const isFit = cf.verdict === '적합';
 
     // 전문분야 태그
     const matched = (p.specialty || []).filter(s =>
@@ -2272,19 +2276,26 @@ const RecruitModule = {
       ['소속', p.company || evObj.affil], ['직위', p.role], ['재직기간', p.period], ['지역', p.region]
     ];
 
+    const conflictChecks = [
+      { label: '출신학교', ok: !checks.sameSchoolDept && !checks.sameSchoolOnly },
+      { label: '논문 공동저자', ok: !checks.coAuthor },
+      { label: '현재 직장', ok: !checks.sameCompany },
+      { label: '이전 직장', ok: !checks.samePrevCompany },
+    ];
+
     const matchHtml = `
       <div class="ep-divider"></div>
       <div class="ep-checks">
-        <div class="ep-checks-title">매핑 기준 <span class="ep-verdict ep-verdict--ok">${matchCount}/3 일치</span></div>
-        ${CRITERIA.map((label, i) => `
+        <div class="ep-checks-title">연고 검증 <span class="ep-verdict ep-verdict--${isFit ? 'ok' : 'bad'}">${isFit ? '적합' : '검증필요'}</span></div>
+        ${conflictChecks.map(({ label, ok }) => `
           <div class="ep-check-row">
-            <span class="ep-check-icon ep-check-icon--${i < matchCount ? 'ok' : 'neutral'}">${i < matchCount ? '✓' : '✕'}</span>
-            <span class="ep-check-label">${label}</span>
+            <span class="ep-check-icon ep-check-icon--${ok ? 'ok' : 'bad'}">${ok ? '✓' : '✕'}</span>
+            <span class="ep-check-label ep-check-label--${ok ? 'ok' : 'bad'}">${label} ${ok ? '이상없음' : '연고 있음'}</span>
           </div>`).join('')}
       </div>`;
 
     body.innerHTML = `
-      <div class="ep-top ep-top--ok">
+      <div class="ep-top ep-top--${isFit ? 'ok' : 'bad'}">
         <div class="ep-avatar">${initials}</div>
         <div class="ep-top-info">
           <div class="ep-name">${name}</div>

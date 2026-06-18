@@ -2104,23 +2104,27 @@ const RecruitModule = {
       const row = document.createElement('div');
       row.className = `rc-row${isSelected ? ' rc-row--selected' : ''}`;
       row.onclick = () => this.selectCandidate(c.id);
-      // 서류: 오류건수/전체건수
+      // 서류: 오류/전체
       const docCats = c.verification.documents.categories || [];
       const docTotal = docCats.length;
       const docBad = docCats.filter(cat => cat.status !== 'ok' && cat.status !== 'na').length;
       const docCell = docTotal > 0
-        ? (docBad > 0 ? `<span class="rc-cnt rc-cnt--bad">${docBad}건</span>` : `<span class="rc-cnt rc-cnt--ok">0건</span>`)
+        ? (docBad > 0
+            ? `<span class="rc-cnt rc-cnt--bad">${docBad}<span class="rc-cnt-sep">/</span>${docTotal}</span>`
+            : `<span class="rc-cnt rc-cnt--ok">0<span class="rc-cnt-sep">/</span>${docTotal}</span>`)
         : `<span class="rc-cnt rc-cnt--na">–</span>`;
 
-      // 논문: 오류건수만
+      // 논문: 오류/전체
       const paperItems = c.verification.paper.items || [];
       const paperTotal = paperItems.length;
       const paperBad = paperItems.filter(p => p.status !== 'ok').length;
       const paperCell = !c.verification.paper.applicable || paperTotal === 0
         ? `<span class="rc-cnt rc-cnt--na">–</span>`
-        : (paperBad > 0 ? `<span class="rc-cnt rc-cnt--bad">${paperBad}건</span>` : `<span class="rc-cnt rc-cnt--ok">0건</span>`);
+        : (paperBad > 0
+            ? `<span class="rc-cnt rc-cnt--bad">${paperBad}<span class="rc-cnt-sep">/</span>${paperTotal}</span>`
+            : `<span class="rc-cnt rc-cnt--ok">0<span class="rc-cnt-sep">/</span>${paperTotal}</span>`);
 
-      // 블라인드: 건수만
+      // 블라인드: N건
       const blindCount = (c.verification.blind.issues || []).length;
       const blindCell = blindCount > 0 ? `<span class="rc-cnt rc-cnt--bad">${blindCount}건</span>` : `<span class="rc-cnt rc-cnt--ok">0건</span>`;
 

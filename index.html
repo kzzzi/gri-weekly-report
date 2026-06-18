@@ -166,11 +166,13 @@
                   ondragleave="RecruitModule.onDragLeave(event)"
                   ondrop="RecruitModule.onDrop(event)">
                   <div class="recruit-upload-icon">
-                    <i data-lucide="upload" style="width:22px;height:22px;color:var(--gri-text-muted)"></i>
+                    <i data-lucide="upload" style="width:18px;height:18px;color:var(--gri-text-muted)"></i>
                   </div>
-                  <div class="recruit-upload-title">파일을 드래그하거나 클릭하여 업로드</div>
-                  <div class="recruit-upload-desc">PDF · HWP · HWPX · DOCX 파일이 포함된 폴더</div>
-                  <label class="btn btn--secondary btn--sm" for="recruitFolderInput" style="cursor:pointer;margin-top:4px;">
+                  <div class="recruit-upload-body">
+                    <div class="recruit-upload-title">파일을 드래그하거나 클릭하여 업로드</div>
+                    <div class="recruit-upload-desc">PDF · HWP · HWPX · DOCX 파일이 포함된 폴더</div>
+                  </div>
+                  <label class="btn btn--secondary btn--sm recruit-upload-btn" for="recruitFolderInput" style="cursor:pointer;">
                     폴더 선택
                   </label>
                   <input type="file" id="recruitFolderInput" webkitdirectory multiple hidden

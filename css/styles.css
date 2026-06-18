@@ -3623,12 +3623,12 @@ ul, ol {
 
 /* ── 가로형 카드 전용 아이콘/숫자 스타일 ── */
 .rc-dash-card--col .rc-dash-icon {
-  width: 34px;
-  height: 34px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
 }
 .rc-dash-card--col .rc-dash-num {
-  font-size: 1.45rem;
+  font-size: 1.25rem;
   font-weight: 700;
 }
 /* 지원자: 중립 회색 (a1.png 총부서 스타일) */
@@ -3983,6 +3983,7 @@ ul, ol {
 .rc-cnt--ok { color: var(--gri-text-muted); }
 .rc-cnt--bad { color: var(--gri-error); }
 .rc-cnt--na { color: var(--gri-text-muted); }
+.rc-cnt-sep { font-weight: 400; opacity: 0.5; margin: 0 1px; }
 
 /* ── rc-badge (인라인 아이콘 배지) ── */
 .rc-badge {
@@ -4449,11 +4450,11 @@ ul, ol {
 /* ── 업로드 카드 (상단 행 내) ── */
 .recruit-upload-card {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 14px 24px;
+  justify-content: flex-start;
+  gap: 14px;
+  padding: 0 28px;
   text-align: center;
   flex: 3;
   min-width: 0;
@@ -4502,8 +4503,8 @@ ul, ol {
 }
 
 .recruit-upload-icon {
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   aspect-ratio: 1;
   flex-shrink: 0;
   border-radius: 50%;
@@ -4512,20 +4513,28 @@ ul, ol {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 4px;
 }
+
+.recruit-upload-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.recruit-upload-btn { flex-shrink: 0; }
 
 .recruit-upload-zone--over { background: rgba(var(--gri-primary-rgb), 0.04); }
 
 .recruit-upload-title {
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: var(--gri-text-primary);
-  margin-top: 0;
 }
 
 .recruit-upload-desc {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: var(--gri-text-muted);
   font-weight: 400;
 }

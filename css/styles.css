@@ -4207,7 +4207,7 @@ ul, ol {
   gap: 8px;
   padding: 24px 32px;
   text-align: center;
-  flex: 3;
+  flex: 1;
   min-width: 0;
   background: var(--gri-surface);
   border: 2px dashed var(--gri-border);
@@ -4218,7 +4218,7 @@ ul, ol {
 
 /* ── 대시보드: 우측 가로 배치 (3개 나란히) ── */
 .rc-dashboard--side {
-  flex: 1;
+  flex: 2;
   flex-direction: row;
   gap: 10px;
   min-width: 0;

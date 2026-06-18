@@ -3562,7 +3562,7 @@ ul, ol {
   flex-direction: column;
   flex: 0 0 auto;
   min-height: 0;
-  max-height: 120px;
+  max-height: 240px;
   gap: 0;
 }
 .recruit-main--loaded {

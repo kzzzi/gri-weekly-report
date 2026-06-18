@@ -3872,7 +3872,7 @@ ul, ol {
 
 .rc-status--done    { background: rgba(var(--gri-primary-rgb), 0.1); color: var(--gri-primary-dark); }
 .rc-status--anomaly { background: rgba(var(--gri-error-rgb), 0.08); color: var(--gri-error); }
-.rc-status--pending { background: var(--gri-border-light); color: var(--gri-text-muted); }
+.rc-status--pending { background: #f8f9fa; color: #c1c8d2; }
 
 /* ── rc-badge (인라인 아이콘 배지) ── */
 .rc-badge {

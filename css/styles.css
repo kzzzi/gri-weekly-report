@@ -3624,13 +3624,21 @@ ul, ol {
   font-size: 1.45rem;
   font-weight: 700;
 }
-/* 지원자·검토중: 중립 회색 (a1.png 총부서·미제출 스타일) */
-.rc-dash-card--col:not(.rc-dash-card--done) .rc-dash-icon {
+/* 지원자: 중립 회색 (a1.png 총부서 스타일) */
+.rc-dash-card--col:not(.rc-dash-card--done):not(.rc-dash-card--pending) .rc-dash-icon {
   background: var(--gri-bg);
   color: var(--gri-text-secondary);
 }
-.rc-dash-card--col:not(.rc-dash-card--done) .rc-dash-num {
+.rc-dash-card--col:not(.rc-dash-card--done):not(.rc-dash-card--pending) .rc-dash-num {
   color: var(--gri-text-primary);
+}
+/* 검토중: 연한 회색 (a1.png 미제출 스타일) */
+.rc-dash-card--col.rc-dash-card--pending .rc-dash-icon {
+  background: var(--gri-bg);
+  color: #c8cdd4;
+}
+.rc-dash-card--col.rc-dash-card--pending .rc-dash-num {
+  color: #c8cdd4;
 }
 /* 완료: 파란색 (a1.png 제출 스타일) */
 .rc-dash-card--col.rc-dash-card--done .rc-dash-icon {
@@ -3872,7 +3880,7 @@ ul, ol {
 
 .rc-status--done    { background: rgba(var(--gri-primary-rgb), 0.1); color: var(--gri-primary-dark); }
 .rc-status--anomaly { background: rgba(var(--gri-error-rgb), 0.08); color: var(--gri-error); }
-.rc-status--pending { background: #f8f9fa; color: #c1c8d2; }
+.rc-status--pending { background: var(--gri-border-light); color: var(--gri-text-muted); }
 
 /* ── rc-badge (인라인 아이콘 배지) ── */
 .rc-badge {

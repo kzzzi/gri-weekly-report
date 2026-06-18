@@ -1745,19 +1745,17 @@ const RecruitModule = {
   _filterField: null,
 
   init() {
-    // 페이지 진입마다 상태 유지
-    this._showView(this._hasUploaded);
-    if (this._hasUploaded) {
-      this._renderPositionFilters();
-      this._renderFieldFilters();
-      this._updateTabCounts();
-      this.renderTable();
-    }
+    const layout = document.getElementById('recruitMainLayout');
+    if (layout) layout.style.display = 'flex';
+    this._renderPositionFilters();
+    this._renderFieldFilters();
+    this._updateTabCounts();
+    this.renderTable();
   },
 
   _showView(uploaded) {
     const layout = document.getElementById('recruitMainLayout');
-    if (layout) layout.style.display = uploaded ? 'flex' : 'none';
+    if (layout) layout.style.display = 'flex';
   },
 
   // 4가지 체크 기준으로 적합/검토필요/부적합 판정
@@ -2005,6 +2003,10 @@ const RecruitModule = {
   renderTable() {
     const container = document.getElementById('recruitTableBody');
     if (!container) return;
+    if (!this._hasUploaded) {
+      container.innerHTML = `<div class="rc-empty" style="color:var(--gri-text-muted);padding:32px 0;">파일을 업로드하면 지원자 목록이 표시됩니다</div>`;
+      return;
+    }
     const list = this._filtered();
     // 검토필요 먼저, 그다음 이름 가나다순
     list.sort((a, b) => {

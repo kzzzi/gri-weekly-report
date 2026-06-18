@@ -156,20 +156,20 @@
               onchange="RecruitModule.handleUpload(this.files)">
           </div>
           <div class="rc-dashboard rc-dashboard--side">
-            <div class="rc-dash-card rc-dash-card--col">
-              <div class="rc-dash-icon"><i data-lucide="users" style="width:18px;height:18px;"></i></div>
-              <div class="rc-dash-num" id="rdTotal">0</div>
-              <div class="rc-dash-label">지원자</div>
+            <div class="rc-dash-card rc-dash-card--col rc-dash-cat-card" onclick="RecruitModule.setCategoryFilter('doc')" style="cursor:pointer;">
+              <div class="rc-dash-icon"><i data-lucide="file-text" style="width:18px;height:18px;"></i></div>
+              <div class="rc-dash-num" id="rdDoc">0</div>
+              <div class="rc-dash-label">서류</div>
             </div>
-            <div class="rc-dash-card rc-dash-card--col rc-dash-card--pending">
-              <div class="rc-dash-icon"><i data-lucide="x-circle" style="width:18px;height:18px;"></i></div>
-              <div class="rc-dash-num" id="rdPending">0</div>
-              <div class="rc-dash-label">검토중</div>
+            <div class="rc-dash-card rc-dash-card--col rc-dash-cat-card" onclick="RecruitModule.setCategoryFilter('paper')" style="cursor:pointer;">
+              <div class="rc-dash-icon"><i data-lucide="book-open" style="width:18px;height:18px;"></i></div>
+              <div class="rc-dash-num" id="rdPaper">0</div>
+              <div class="rc-dash-label">논문</div>
             </div>
-            <div class="rc-dash-card rc-dash-card--col rc-dash-card--done">
-              <div class="rc-dash-icon"><i data-lucide="check-circle-2" style="width:18px;height:18px;"></i></div>
-              <div class="rc-dash-num" id="rdDone">0</div>
-              <div class="rc-dash-label">검수완료</div>
+            <div class="rc-dash-card rc-dash-card--col rc-dash-cat-card" onclick="RecruitModule.setCategoryFilter('blind')" style="cursor:pointer;">
+              <div class="rc-dash-icon"><i data-lucide="eye-off" style="width:18px;height:18px;"></i></div>
+              <div class="rc-dash-num" id="rdBlind">0</div>
+              <div class="rc-dash-label">블라인드</div>
             </div>
           </div>
         </div>
@@ -191,10 +191,10 @@
                     전체 <span class="rc-tab-cnt" id="rtcAll">0</span>
                   </button>
                   <button class="rc-tab" data-filter="pending" onclick="RecruitModule.setFilter('pending')">
-                    확인필요 <span class="rc-tab-cnt" id="rtcPending">0</span>
+                    검토 <span class="rc-tab-cnt" id="rtcPending">0</span>
                   </button>
                   <button class="rc-tab" data-filter="done" onclick="RecruitModule.setFilter('done')">
-                    검수완료 <span class="rc-tab-cnt" id="rtcDone">0</span>
+                    완료 <span class="rc-tab-cnt" id="rtcDone">0</span>
                   </button>
                 </div>
                 <div class="rc-tabbar-actions">

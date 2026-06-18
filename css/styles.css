@@ -3654,6 +3654,8 @@ ul, ol {
   color: var(--gri-primary);
 }
 
+.rc-dash-card--active { border-color: var(--gri-primary) !important; box-shadow: 0 0 0 2px rgba(var(--gri-primary-rgb),0.15); }
+
 /* ── 채용검증 2-패널 레이아웃 ── */
 .recruit-layout {
   display: grid;
@@ -3894,6 +3896,13 @@ ul, ol {
 .rc-status--anomaly { background: rgba(var(--gri-error-rgb), 0.08); color: var(--gri-error); }
 .rc-status--pending { background: var(--gri-border-light); color: var(--gri-text-muted); }
 
+/* ── O/X 컬럼 ── */
+.rc-ox-group { display: flex; gap: 3px; align-items: center; flex-shrink: 0; }
+.rc-ox { font-size: 0.72rem; font-weight: 700; width: 16px; text-align: center; }
+.rc-ox--ok { color: var(--gri-primary); }
+.rc-ox--bad { color: var(--gri-error); }
+.rc-ox--na { color: var(--gri-text-muted); }
+
 /* ── rc-badge (인라인 아이콘 배지) ── */
 .rc-badge {
   display: inline-flex;
@@ -3995,6 +4004,20 @@ ul, ol {
   background: var(--gri-bg);
 }
 
+.rd-summary {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  background: rgba(var(--gri-primary-rgb), 0.04);
+  border-bottom: 1px solid var(--gri-border-light);
+  font-size: 0.8rem;
+  color: var(--gri-text-secondary);
+  line-height: 1.5;
+}
+.rd-summary-icon { color: var(--gri-primary); font-size: 0.7rem; margin-top: 2px; flex-shrink: 0; }
+.rd-summary-text { flex: 1; }
+
 /* ── 섹션 카드 ── */
 .rd-section {
   background: var(--gri-surface);
@@ -4021,6 +4044,8 @@ ul, ol {
 }
 
 .rd-section-badge { margin-left: auto; }
+.rd-progress { font-size: 0.72rem; font-weight: 600; color: var(--gri-text-muted); margin-left: auto; }
+.rd-progress--warn { color: var(--gri-error); }
 
 /* ── 서류 아코디언 목록 ── */
 .rd-doc-list {
@@ -4060,7 +4085,24 @@ ul, ol {
   font-size: 0.82rem;
   border-left: 3px solid var(--gri-error);
   background: rgba(var(--gri-error-rgb), 0.04);
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
 }
+.rd-blind-main { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.rd-blind-orig-btn {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  padding: 3px 8px;
+  border: 1px solid var(--gri-border);
+  border-radius: 4px;
+  background: var(--gri-surface);
+  color: var(--gri-text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  align-self: flex-start;
+}
+.rd-blind-orig-btn:hover { border-color: var(--gri-primary); color: var(--gri-primary); }
 
 .rd-blind-item--high { border-color: var(--gri-error); background: rgba(var(--gri-error-rgb), 0.06); }
 .rd-blind-item--medium { border-color: var(--gri-error); }

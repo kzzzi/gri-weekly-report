@@ -1743,6 +1743,7 @@ const RecruitModule = {
   _sortDir: 'asc',
   _filterPosition: [],
   _filterField: [],
+  _filterCategory: null,
 
   init() {
     const layout = document.getElementById('recruitMainLayout');
@@ -1826,6 +1827,15 @@ const RecruitModule = {
     let list = AppState.candidates.filter(c => {
       if (this._filterPosition.length > 0 && !this._filterPosition.includes(c.position)) return false;
       if (this._filterField.length > 0 && !this._filterField.includes(c.field)) return false;
+      if (this._filterCategory === 'doc') {
+        if (c.verification.documents.status === 'ok' || c.verification.documents.status === 'pending') return false;
+      }
+      if (this._filterCategory === 'paper') {
+        if (!c.verification.paper.applicable || c.verification.paper.status === 'ok' || c.verification.paper.status === 'na') return false;
+      }
+      if (this._filterCategory === 'blind') {
+        if (!c.verification.blind.issues || c.verification.blind.issues.length === 0) return false;
+      }
       if (this._filter === 'done') return c.reviewStatus === 'completed';
       if (this._filter === 'pending') return c.reviewStatus !== 'completed';
       return true;
@@ -1879,6 +1889,16 @@ const RecruitModule = {
       else this._filterField.splice(idx, 1);
     }
     this._renderFieldFilters();
+    this._updateTabCounts();
+    this.renderTable();
+  },
+
+  setCategoryFilter(cat) {
+    this._filterCategory = (this._filterCategory === cat) ? null : cat;
+    document.querySelectorAll('.rc-dash-cat-card').forEach(el => {
+      const elCat = (el.getAttribute('onclick') || '').match(/'(\w+)'/)?.[1];
+      el.classList.toggle('rc-dash-card--active', elCat === this._filterCategory);
+    });
     this._updateTabCounts();
     this.renderTable();
   },
@@ -1948,7 +1968,7 @@ const RecruitModule = {
     const set = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
     if (!this._hasUploaded) {
       set('rtcAll', 0); set('rtcPending', 0); set('rtcDone', 0);
-      set('rdTotal', 0); set('rdPending', 0); set('rdDone', 0);
+      set('rdDoc', 0); set('rdPaper', 0); set('rdBlind', 0);
       return;
     }
     const total = AppState.candidates.length;
@@ -1956,7 +1976,11 @@ const RecruitModule = {
     const pending = AppState.candidates.filter(c => c.reviewStatus !== 'completed').length;
     const inReview = total - done;
     set('rtcAll', total); set('rtcPending', pending); set('rtcDone', done);
-    set('rdTotal', total); set('rdPending', inReview); set('rdDone', done);
+    const docIssues = AppState.candidates.filter(c => c.verification.documents.status !== 'ok' && c.verification.documents.status !== 'pending').length;
+    const paperIssues = AppState.candidates.filter(c => c.verification.paper.applicable && c.verification.paper.status !== 'ok' && c.verification.paper.status !== 'na').length;
+    const blindIssues = AppState.candidates.filter(c => c.verification.blind.issues && c.verification.blind.issues.length > 0).length;
+    const set2 = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
+    set2('rdDoc', docIssues); set2('rdPaper', paperIssues); set2('rdBlind', blindIssues);
   },
 
   // ── 폴더 드래그앤드롭 ──
@@ -1989,6 +2013,7 @@ const RecruitModule = {
     this._filter = 'all';
     this._filterPosition = [];
     this._filterField = [];
+    this._filterCategory = null;
     document.querySelectorAll('.rc-tab').forEach(btn => {
       btn.classList.toggle('rc-tab--active', btn.dataset.filter === 'all');
     });
@@ -2062,11 +2087,15 @@ const RecruitModule = {
       const row = document.createElement('div');
       row.className = `rc-row${isSelected ? ' rc-row--selected' : ''}`;
       row.onclick = () => this.selectCandidate(c.id);
+      const docOx = (c.verification.documents.status === 'ok' || c.verification.documents.status === 'pending') ? '<span class="rc-ox rc-ox--ok">○</span>' : '<span class="rc-ox rc-ox--bad">✕</span>';
+      const paperOx = !c.verification.paper.applicable ? '<span class="rc-ox rc-ox--na">-</span>' : (c.verification.paper.status === 'ok' || c.verification.paper.status === 'na') ? '<span class="rc-ox rc-ox--ok">○</span>' : '<span class="rc-ox rc-ox--bad">✕</span>';
+      const blindOx = (!c.verification.blind.issues || c.verification.blind.issues.length === 0) ? '<span class="rc-ox rc-ox--ok">○</span>' : '<span class="rc-ox rc-ox--bad">✕</span>';
       row.innerHTML = `
         <span class="rc-row-num">${idx + 1}</span>
         <div class="rc-row-body">
           <div class="rc-cand-name">${c.name}</div>
         </div>
+        <div class="rc-ox-group">${docOx}${paperOx}${blindOx}</div>
         ${statusHtml}
       `;
       container.appendChild(row);
@@ -2166,8 +2195,11 @@ const RecruitModule = {
     } else {
       blindHtml = blindIssues.map(issue => `
         <div class="rd-blind-item rd-blind-item--${issue.severity}">
-          <span class="rd-blind-type">${issue.type}</span>
-          <span class="rd-blind-excerpt">${issue.excerpt}</span>
+          <div class="rd-blind-main">
+            <span class="rd-blind-type">${issue.type}</span>
+            <span class="rd-blind-excerpt">${issue.excerpt}</span>
+          </div>
+          <button class="rd-blind-orig-btn" onclick="RecruitModule.openOriginalDoc(event)" title="원본보기">원본보기</button>
         </div>`).join('');
     }
 
@@ -2213,6 +2245,36 @@ const RecruitModule = {
       ? `<span class="rc-badge rc-badge--miss rd-section-badge" title="${tip}">!</span>`
       : '';
 
+    // ── 요약 메시지 생성 ──
+    const missingDocsCount = c.verification.documents.categories.filter(cat => cat.status !== 'ok' && cat.status !== 'na').length;
+    const summaryParts = [];
+    if (missingDocsCount > 0) summaryParts.push(`서류 ${missingDocsCount}건 미비`);
+    if (c.verification.paper.applicable && c.verification.paper.status !== 'ok' && c.verification.paper.status !== 'na') {
+      const badPapers = (c.verification.paper.items || []).filter(p => p.status !== 'ok').length;
+      if (badPapers > 0) summaryParts.push(`논문 ${badPapers}건 확인 필요`);
+    }
+    if (blindIssues.length > 0) summaryParts.push(`블라인드 ${blindIssues.length}건 탐지`);
+    const allEvalConflict = allEvals.filter(x => x.cf.verdict === '검증필요').length;
+    if (allEvalConflict > 0) summaryParts.push(`심사위원 ${allEvalConflict}명 검증 필요`);
+
+    const summaryText = summaryParts.length > 0
+      ? `${summaryParts.join(', ')}로 추가 검토가 필요합니다.`
+      : `서류·논문·블라인드 검증에서 이상이 발견되지 않았습니다. 검수 완료를 권장합니다.`;
+    const summaryHtml = `<div class="rd-summary"><span class="rd-summary-icon">✦</span><span class="rd-summary-text">${summaryText}</span></div>`;
+
+    // ── 섹션 진행 카운터 ──
+    const docCats = c.verification.documents.categories || [];
+    const docOk = docCats.filter(d => d.status === 'ok' || d.status === 'na').length;
+    const docTotal = docCats.length;
+    const docProgress = docTotal > 0 ? `<span class="rd-progress">${docOk}/${docTotal}</span>` : '';
+
+    const paperItems = c.verification.paper.items || [];
+    const paperBad = paperItems.filter(p => p.status !== 'ok').length;
+    const paperProgress = !c.verification.paper.applicable ? '' : paperBad > 0 ? `<span class="rd-progress rd-progress--warn">${paperBad}건 문제</span>` : `<span class="rd-progress">이상없음</span>`;
+
+    const blindCount = blindIssues.length;
+    const blindProgress = blindCount > 0 ? `<span class="rd-progress rd-progress--warn">${blindCount}건 언급</span>` : '';
+
     content.innerHTML = `
       <div class="rd-header">
         <div class="rd-header-info">
@@ -2223,11 +2285,13 @@ const RecruitModule = {
           ? `<button class="btn btn--ghost btn--sm rd-btn-inactive" onclick="RecruitModule.cancelReviewed(${c.id})">완료취소</button>`
           : `<button class="btn btn--primary btn--sm" onclick="RecruitModule.markReviewed(${c.id})">검수완료</button>`}
       </div>
+      ${summaryHtml}
       <div class="rd-body">
         <div class="rd-section">
           <div class="rd-section-label">
             서류 검증
             ${badge(docIssue, missingDocs || '서류 미비 항목 있음')}
+            ${docProgress}
           </div>
           <div class="rd-doc-list">${docRows}</div>
         </div>
@@ -2235,6 +2299,7 @@ const RecruitModule = {
           <div class="rd-section-label">
             논문 검증
             ${badge(paperIssue, paperIssueItems.join(', ') || '논문 등재 확인 필요')}
+            ${paperProgress}
           </div>
           ${paperHtml}
         </div>
@@ -2242,14 +2307,9 @@ const RecruitModule = {
           <div class="rd-section-label">
             블라인드 검토
             ${badge(blindIssue, blindIssues.map(i => i.type).join(', ') || '블라인드 위반 항목 있음')}
+            ${blindProgress}
           </div>
           ${blindHtml}
-        </div>
-        <div class="rd-section">
-          <div class="rd-section-label">
-            심사위원 추천
-          </div>
-          ${evalHtml}
         </div>
         ${c.reviewNote ? `<div class="rd-note"><strong>메모</strong> ${c.reviewNote}</div>` : ''}
       </div>
@@ -2333,6 +2393,11 @@ const RecruitModule = {
   closeEvalProfile(e) {
     if (e && e.target !== document.getElementById('evalOverlay')) return;
     document.getElementById('evalOverlay').classList.remove('eval-overlay--active');
+  },
+
+  openOriginalDoc(e) {
+    e.stopPropagation();
+    alert('원본 문서 뷰어는 실제 파일 업로드 후 사용 가능합니다.');
   },
 
   markReviewed(id) {

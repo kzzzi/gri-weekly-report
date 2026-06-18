@@ -2758,84 +2758,83 @@ const RecruitModule = {
     const svg = document.getElementById('ontologySvg');
     if (!svg) return;
 
-    // 640×420 viewBox
-    // 6 candidate nodes (left, x=80, blue)
+    const ns = 'http://www.w3.org/2000/svg';
+
+    // 지원자: 작은 점 r=9, 불규칙 y배치
     const candidates = [
-      { id: 'c0', x: 80, y:  55, label: '홍길동', color: '#2563eb' },
-      { id: 'c1', x: 80, y: 105, label: '김민준', color: '#2563eb' },
-      { id: 'c2', x: 80, y: 155, label: '이서연', color: '#2563eb' },
-      { id: 'c3', x: 80, y: 205, label: '박준혁', color: '#2563eb' },
-      { id: 'c4', x: 80, y: 255, label: '최수진', color: '#2563eb' },
-      { id: 'c5', x: 80, y: 305, label: '윤지현', color: '#2563eb' },
+      { id:'c0', x:68,  y:38,  r:9,  label:'김도현', color:'#2563eb' },
+      { id:'c1', x:62,  y:88,  r:9,  label:'이서연', color:'#2563eb' },
+      { id:'c2', x:74,  y:138, r:9,  label:'박준혁', color:'#2563eb' },
+      { id:'c3', x:60,  y:183, r:9,  label:'최수진', color:'#2563eb' },
+      { id:'c4', x:72,  y:233, r:9,  label:'홍길동', color:'#2563eb' },
+      { id:'c5', x:64,  y:278, r:9,  label:'윤지현', color:'#2563eb' },
+      { id:'c6', x:76,  y:325, r:9,  label:'강민서', color:'#2563eb' },
+      { id:'c7', x:62,  y:372, r:9,  label:'신예준', color:'#2563eb' },
     ];
-    // 6 topic nodes (center, x=290-350, gray)
+    // 분야 토픽: 중간, 불규칙 배치
     const topics = [
-      { id: 't0', x: 320, y:  55, label: '교통계획', color: '#64748b' },
-      { id: 't1', x: 320, y: 115, label: '도시정책', color: '#64748b' },
-      { id: 't2', x: 320, y: 175, label: '환경정책', color: '#64748b' },
-      { id: 't3', x: 320, y: 235, label: '경제분석', color: '#64748b' },
-      { id: 't4', x: 320, y: 295, label: '복지정책', color: '#64748b' },
-      { id: 't5', x: 320, y: 355, label: '에너지정책', color: '#64748b' },
+      { id:'t0', x:248, y:52,  r:15, label:'교통계획', color:'#64748b' },
+      { id:'t1', x:355, y:105, r:15, label:'도시정책', color:'#64748b' },
+      { id:'t2', x:252, y:175, r:15, label:'환경정책', color:'#64748b' },
+      { id:'t3', x:360, y:238, r:15, label:'경제분석', color:'#64748b' },
+      { id:'t4', x:248, y:308, r:15, label:'복지정책', color:'#64748b' },
+      { id:'t5', x:355, y:368, r:15, label:'에너지정책', color:'#64748b' },
     ];
-    // 6 evaluator nodes (right, x=570, green)
+    // 심사위원: 크게 r=26, 4명
     const evaluators = [
-      { id: 'e0', x: 570, y:  55, label: '강민철', color: '#059669' },
-      { id: 'e1', x: 570, y: 115, label: '이준호', color: '#059669' },
-      { id: 'e2', x: 570, y: 175, label: '박성은', color: '#059669' },
-      { id: 'e3', x: 570, y: 235, label: '최현우', color: '#059669' },
-      { id: 'e4', x: 570, y: 295, label: '강태인', color: '#059669' },
-      { id: 'e5', x: 570, y: 355, label: '임재홍', color: '#059669' },
+      { id:'e0', x:572, y:78,  r:26, label:'강민철', color:'#059669' },
+      { id:'e1', x:566, y:188, r:26, label:'이준호', color:'#059669' },
+      { id:'e2', x:574, y:298, r:26, label:'박성은', color:'#059669' },
+      { id:'e3', x:562, y:385, r:26, label:'최현우', color:'#059669' },
     ];
+
     const allNodes = [...candidates, ...topics, ...evaluators];
 
-    // Edges: [fromId, toId]
+    // 불규칙 연결: 지원자마다 1~3개 분야, 분야마다 1~3명 심사위원
     const edges = [
-      ['c0','t0'], ['c0','t1'],
-      ['c1','t1'], ['c1','t2'],
-      ['c2','t2'], ['c2','t4'],
-      ['c3','t3'], ['c3','t5'],
-      ['c4','t4'], ['c4','t3'],
-      ['c5','t5'], ['c5','t2'],
-      ['t0','e0'], ['t0','e1'],
-      ['t1','e2'], ['t1','e3'],
-      ['t2','e4'], ['t2','e2'],
-      ['t3','e5'], ['t3','e3'],
-      ['t4','e4'], ['t4','e5'],
-      ['t5','e4'], ['t5','e1'],
+      ['c0','t0'],
+      ['c1','t0'], ['c1','t1'],
+      ['c2','t1'], ['c2','t2'], ['c2','t3'],
+      ['c3','t2'],
+      ['c4','t3'], ['c4','t4'],
+      ['c5','t1'], ['c5','t4'],
+      ['c6','t4'], ['c6','t5'],
+      ['c7','t3'], ['c7','t5'],
+      ['t0','e0'],
+      ['t1','e0'], ['t1','e1'],
+      ['t2','e1'], ['t2','e2'],
+      ['t3','e1'], ['t3','e3'],
+      ['t4','e2'], ['t4','e3'],
+      ['t5','e2'], ['t5','e3'],
     ];
 
     const nodeMap = {};
     allNodes.forEach(n => { nodeMap[n.id] = n; });
 
-    // Build adjacency: nodeId -> set of connected nodeIds
     const adj = {};
     allNodes.forEach(n => { adj[n.id] = new Set(); });
     edges.forEach(([a, b]) => { adj[a].add(b); adj[b].add(a); });
 
-    const r = 18;
-    const ns = 'http://www.w3.org/2000/svg';
-
     svg.innerHTML = '';
 
-    // Draw edges as bezier paths
+    // 엣지
     const edgeEls = [];
     edges.forEach(([a, b]) => {
       const na = nodeMap[a], nb = nodeMap[b];
-      const cx = (na.x + nb.x) / 2;
-      const cy = (na.y + nb.y) / 2;
+      const mx = (na.x + nb.x) / 2;
+      const bend = (na.y - nb.y) * 0.18;
       const path = document.createElementNS(ns, 'path');
-      path.setAttribute('d', `M${na.x},${na.y} Q${cx},${cy} ${nb.x},${nb.y}`);
+      path.setAttribute('d', `M${na.x},${na.y} C${mx + bend},${na.y} ${mx - bend},${nb.y} ${nb.x},${nb.y}`);
       path.setAttribute('stroke', '#cbd5e1');
-      path.setAttribute('stroke-width', '1.5');
+      path.setAttribute('stroke-width', '1.2');
       path.setAttribute('fill', 'none');
       path.setAttribute('class', 'ont-edge');
-      path.dataset.a = a;
-      path.dataset.b = b;
+      path.dataset.a = a; path.dataset.b = b;
       svg.appendChild(path);
       edgeEls.push(path);
     });
 
-    // Draw nodes
+    // 노드
     const nodeEls = {};
     allNodes.forEach(n => {
       const g = document.createElementNS(ns, 'g');
@@ -2844,71 +2843,82 @@ const RecruitModule = {
       g.style.cursor = 'pointer';
 
       const circle = document.createElementNS(ns, 'circle');
-      circle.setAttribute('cx', n.x);
-      circle.setAttribute('cy', n.y);
-      circle.setAttribute('r', r);
+      circle.setAttribute('cx', n.x); circle.setAttribute('cy', n.y);
+      circle.setAttribute('r', n.r);
       circle.setAttribute('fill', n.color);
-      circle.setAttribute('opacity', '0.9');
-
-      const text = document.createElementNS(ns, 'text');
-      text.setAttribute('x', n.x);
-      text.setAttribute('y', n.y);
-      text.setAttribute('text-anchor', 'middle');
-      text.setAttribute('dominant-baseline', 'middle');
-      text.setAttribute('font-size', '9');
-      text.setAttribute('fill', 'white');
-      text.setAttribute('font-weight', '600');
-      text.setAttribute('pointer-events', 'none');
-      text.textContent = n.label;
-
+      circle.setAttribute('opacity', '0.88');
       g.appendChild(circle);
-      g.appendChild(text);
+
+      if (n.id.startsWith('e')) {
+        // 심사위원: 이름 안에
+        const txt = document.createElementNS(ns, 'text');
+        txt.setAttribute('x', n.x); txt.setAttribute('y', n.y);
+        txt.setAttribute('text-anchor', 'middle'); txt.setAttribute('dominant-baseline', 'middle');
+        txt.setAttribute('font-size', '9.5'); txt.setAttribute('fill', 'white');
+        txt.setAttribute('font-weight', '700'); txt.setAttribute('pointer-events', 'none');
+        txt.textContent = n.label;
+        g.appendChild(txt);
+      } else if (n.id.startsWith('t')) {
+        // 분야: 이름 아래
+        const txt = document.createElementNS(ns, 'text');
+        txt.setAttribute('x', n.x); txt.setAttribute('y', n.y + n.r + 9);
+        txt.setAttribute('text-anchor', 'middle');
+        txt.setAttribute('font-size', '8.5'); txt.setAttribute('fill', '#475569');
+        txt.setAttribute('font-weight', '500'); txt.setAttribute('pointer-events', 'none');
+        txt.textContent = n.label;
+        g.appendChild(txt);
+      } else {
+        // 지원자: 이름 왼쪽
+        const txt = document.createElementNS(ns, 'text');
+        txt.setAttribute('x', n.x - n.r - 4); txt.setAttribute('y', n.y);
+        txt.setAttribute('text-anchor', 'end'); txt.setAttribute('dominant-baseline', 'middle');
+        txt.setAttribute('font-size', '8'); txt.setAttribute('fill', '#475569');
+        txt.setAttribute('pointer-events', 'none');
+        txt.textContent = n.label;
+        g.appendChild(txt);
+      }
+
       svg.appendChild(g);
       nodeEls[n.id] = { g, circle };
 
-      // Hover: highlight connected edges and dim unconnected nodes
       g.addEventListener('mouseenter', () => {
         const connected = adj[n.id];
+        const hColor = n.id.startsWith('e') ? '#059669' : n.id.startsWith('t') ? '#475569' : '#2563eb';
         edgeEls.forEach(ep => {
           const isConn = (ep.dataset.a === n.id || ep.dataset.b === n.id);
-          ep.setAttribute('stroke', isConn ? '#2563eb' : '#e2e8f0');
-          ep.setAttribute('stroke-width', isConn ? '2.5' : '1');
-          ep.setAttribute('opacity', isConn ? '1' : '0.3');
+          ep.setAttribute('stroke', isConn ? hColor : '#e2e8f0');
+          ep.setAttribute('stroke-width', isConn ? '2' : '0.8');
+          ep.setAttribute('opacity', isConn ? '1' : '0.25');
         });
         allNodes.forEach(nd => {
-          const isDim = (nd.id !== n.id && !connected.has(nd.id));
-          nodeEls[nd.id].circle.setAttribute('opacity', isDim ? '0.2' : '1');
+          const isDim = nd.id !== n.id && !connected.has(nd.id);
+          nodeEls[nd.id].circle.setAttribute('opacity', isDim ? '0.15' : '1');
         });
       });
       g.addEventListener('mouseleave', () => {
         edgeEls.forEach(ep => {
           ep.setAttribute('stroke', '#cbd5e1');
-          ep.setAttribute('stroke-width', '1.5');
+          ep.setAttribute('stroke-width', '1.2');
           ep.setAttribute('opacity', '1');
         });
         allNodes.forEach(nd => {
-          nodeEls[nd.id].circle.setAttribute('opacity', '0.9');
+          nodeEls[nd.id].circle.setAttribute('opacity', '0.88');
         });
       });
     });
 
-    // Legend
-    const legendY = 400;
-    const legendItems = [
-      { color: '#2563eb', label: '지원자' },
-      { color: '#64748b', label: '분야' },
-      { color: '#059669', label: '심사위원' },
-    ];
-    legendItems.forEach((item, i) => {
-      const gx = 160 + i * 120;
+    // 범례
+    const legendY = 410;
+    [{ color:'#2563eb', label:'지원자', r:5 }, { color:'#64748b', label:'분야', r:8 }, { color:'#059669', label:'심사위원', r:11 }].forEach((item, i) => {
+      const gx = 175 + i * 110;
       const lc = document.createElementNS(ns, 'circle');
       lc.setAttribute('cx', gx); lc.setAttribute('cy', legendY);
-      lc.setAttribute('r', '7'); lc.setAttribute('fill', item.color);
+      lc.setAttribute('r', item.r); lc.setAttribute('fill', item.color); lc.setAttribute('opacity', '0.88');
       svg.appendChild(lc);
       const lt = document.createElementNS(ns, 'text');
-      lt.setAttribute('x', gx + 12); lt.setAttribute('y', legendY);
+      lt.setAttribute('x', gx + item.r + 6); lt.setAttribute('y', legendY);
       lt.setAttribute('dominant-baseline', 'middle');
-      lt.setAttribute('font-size', '10'); lt.setAttribute('fill', '#64748b');
+      lt.setAttribute('font-size', '9.5'); lt.setAttribute('fill', '#64748b');
       lt.textContent = item.label;
       svg.appendChild(lt);
     });

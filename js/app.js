@@ -881,7 +881,7 @@ const Router = {
       RecruitModule.init();
     }
 
-    const labels = { home: '홈', 'weekly-report': '주간보고 취합', recruitment: '채용검증' };
+    const labels = { home: '홈', 'weekly-report': '주간보고 취합', recruitment: '지원자검증' };
     showToast('info', '화면 전환', `[${labels[pageId]}] 화면으로 이동했습니다.`);
   }
 };
@@ -2095,12 +2095,10 @@ const RecruitModule = {
       const anomaly = this._isAnomalous(c);
       const isSelected = this._selectedId === c.id;
       let statusHtml;
-      if (c.reviewStatus === 'completed') {
-        statusHtml = '<span class="rc-status rc-status--done">완료</span>';
-      } else if (anomaly) {
+      if (anomaly && c.reviewStatus !== 'completed') {
         statusHtml = '<span class="rc-status rc-status--anomaly">검토</span>';
       } else {
-        statusHtml = '<span class="rc-status rc-status--pending">대기</span>';
+        statusHtml = '<span class="rc-status rc-status--done">완료</span>';
       }
 
       const row = document.createElement('div');
@@ -2596,8 +2594,8 @@ const RecruitModule = {
         <span class="rc-eval-td rc-eval-td--affil">${ev.affil}</span>
         <span class="rc-eval-td rc-eval-td--field">${ev.field || '—'}</span>
         <span class="rc-eval-td rc-eval-td--score">${ev.relevance}%</span>
-        <span class="rc-eval-td rc-eval-td--score rc-eval-td--high">${ev.max}점</span>
-        <span class="rc-eval-td rc-eval-td--score rc-eval-td--low">${ev.min}점</span>
+        <span class="rc-eval-td rc-eval-td--score rc-eval-td--high">${ev.max}%</span>
+        <span class="rc-eval-td rc-eval-td--score rc-eval-td--low">${ev.min}%</span>
         <span class="rc-eval-td rc-eval-td--action">
           <button class="rc-eval-del" onclick="RecruitModule.removeEvaluator(${i})" title="삭제">×</button>
         </span>
@@ -2798,19 +2796,78 @@ const RecruitModule = {
   renderSessionList() {
     const list = document.getElementById('rcSessionList');
     if (!list || !this._sessions) return;
-    list.innerHTML = this._sessions.map(s => {
+    const sorted = [...this._sessions].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+    list.innerHTML = sorted.map(s => {
       const date = new Date(s.savedAt);
       const dateStr = `${date.getMonth()+1}/${date.getDate()} ${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
       const isActive = s.id === this._currentSessionId;
-      return `<div class="rc-session-item${isActive ? ' rc-session-item--active' : ''}" onclick="RecruitModule.loadSession(${s.id})">
-        <div class="rc-session-name">${s.name}</div>
-        <div class="rc-session-date">${dateStr}</div>
+      return `<div class="rc-session-item${isActive ? ' rc-session-item--active' : ''}${s.pinned ? ' rc-session-item--pinned' : ''}" onclick="RecruitModule.loadSession(${s.id})">
+        <div class="rc-session-info">
+          <div class="rc-session-name">${s.pinned ? '<span class="rc-session-pin">📌</span>' : ''}${s.name}</div>
+          <div class="rc-session-date">${dateStr}</div>
+        </div>
+        <button class="rc-session-menu-btn" onclick="event.stopPropagation();RecruitModule.openSessionMenu(${s.id},this)" title="메뉴">···</button>
       </div>`;
     }).join('');
   },
 
   loadSession(id) {
     this._currentSessionId = id;
+    this.renderSessionList();
+  },
+
+  openSessionMenu(id, btn) {
+    // 기존 열린 메뉴 닫기
+    document.querySelectorAll('.rc-session-dropdown').forEach(el => el.remove());
+    const menu = document.createElement('div');
+    menu.className = 'rc-session-dropdown';
+    const s = this._sessions.find(x => x.id === id);
+    menu.innerHTML = `
+      <div class="rc-sd-item" onclick="RecruitModule.renameSession(${id})"><i data-lucide="pencil" style="width:13px;height:13px;"></i> 이름 수정</div>
+      <div class="rc-sd-item" onclick="RecruitModule.togglePinSession(${id})">${s && s.pinned ? '<i data-lucide="pin-off" style="width:13px;height:13px;"></i> 고정 해제' : '<i data-lucide="pin" style="width:13px;height:13px;"></i> 세션 고정'}</div>
+      <div class="rc-sd-divider"></div>
+      <div class="rc-sd-item rc-sd-item--danger" onclick="RecruitModule.deleteSession(${id})"><i data-lucide="trash-2" style="width:13px;height:13px;"></i> 삭제</div>`;
+    btn.parentElement.appendChild(menu);
+    lucide.createIcons();
+    // 외부 클릭 닫기
+    setTimeout(() => {
+      const close = (e) => {
+        if (!menu.contains(e.target)) { menu.remove(); document.removeEventListener('click', close); }
+      };
+      document.addEventListener('click', close);
+    }, 10);
+  },
+
+  renameSession(id) {
+    document.querySelectorAll('.rc-session-dropdown').forEach(el => el.remove());
+    const s = this._sessions.find(x => x.id === id);
+    if (!s) return;
+    const name = prompt('새 이름을 입력하세요:', s.name);
+    if (!name || !name.trim()) return;
+    s.name = name.trim();
+    this._saveSessions();
+    this.renderSessionList();
+  },
+
+  togglePinSession(id) {
+    document.querySelectorAll('.rc-session-dropdown').forEach(el => el.remove());
+    const s = this._sessions.find(x => x.id === id);
+    if (!s) return;
+    s.pinned = !s.pinned;
+    this._saveSessions();
+    this.renderSessionList();
+  },
+
+  deleteSession(id) {
+    document.querySelectorAll('.rc-session-dropdown').forEach(el => el.remove());
+    if (!confirm('이 세션을 삭제하시겠습니까?')) return;
+    const idx = this._sessions.findIndex(x => x.id === id);
+    if (idx === -1) return;
+    this._sessions.splice(idx, 1);
+    if (this._currentSessionId === id) {
+      this._currentSessionId = this._sessions.length ? this._sessions[0].id : null;
+    }
+    this._saveSessions();
     this.renderSessionList();
   },
 

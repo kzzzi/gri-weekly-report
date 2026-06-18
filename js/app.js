@@ -1327,9 +1327,7 @@ const RecruitModule = {
   },
 
   _showView(uploaded) {
-    const initial = document.getElementById('recruitInitialZone');
     const layout = document.getElementById('recruitMainLayout');
-    if (initial) initial.style.display = uploaded ? 'none' : 'flex';
     if (layout) layout.style.display = uploaded ? 'flex' : 'none';
   },
 

@@ -3517,7 +3517,7 @@ ul, ol {
 #page-recruitment {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 10px;
   height: calc(100vh - 114px);
   overflow: hidden;
 }
@@ -3559,7 +3559,7 @@ ul, ol {
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  gap: 10px;
+  gap: 0;
 }
 
 /* ── 대시보드 ── */
@@ -4160,32 +4160,50 @@ ul, ol {
   height: auto !important;
 }
 
-/* ── 업로드 존 ── */
-/* ── 초기 업로드: 전체폭 가운데 ── */
-.recruit-initial-zone {
-  flex: 1;
-  min-height: 0;
+/* ── 상단 고정 행: 업로드 + 대시보드 ── */
+.recruit-top-row {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  gap: 12px;
+  flex-shrink: 0;
+  height: 156px;
 }
 
+/* ── 업로드 카드 (상단 행 내) ── */
 .recruit-upload-card {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 52px 56px;
+  gap: 6px;
+  padding: 16px 24px;
   text-align: center;
-  width: 420px;
-  max-width: 90%;
+  flex: 3;
+  min-width: 0;
   background: var(--gri-surface);
   border: 2px dashed var(--gri-border);
   border-radius: var(--gri-radius-xl);
   box-shadow: var(--gri-shadow-sm);
   cursor: default;
   transition: border-color 0.15s, background-color 0.15s;
+}
+
+/* ── 대시보드: 우측 세로 배치 ── */
+.rc-dashboard--side {
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 120px;
+}
+
+/* ── 세로형 대시 카드 ── */
+.rc-dash-card--col {
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 3px;
+  padding: 8px 6px;
 }
 
 .recruit-upload-card--over {
@@ -4207,23 +4225,23 @@ ul, ol {
 }
 
 .recruit-upload-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: 16px;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
   background: rgba(var(--gri-primary-rgb), 0.07);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .recruit-upload-zone--over { background: rgba(var(--gri-primary-rgb), 0.04); }
 
 .recruit-upload-title {
-  font-size: 1rem;
+  font-size: 0.88rem;
   font-weight: 700;
   color: var(--gri-text-primary);
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 .recruit-upload-desc {

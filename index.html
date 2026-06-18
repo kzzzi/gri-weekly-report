@@ -138,52 +138,44 @@
       <!-- ===== RECRUITMENT PAGE ===== -->
       <div id="page-recruitment" style="display:none;">
 
-        <!-- 초기 업로드 상태: 전체폭 가운데 정렬 -->
-        <div id="recruitInitialZone" class="recruit-initial-zone">
+        <!-- 상단 고정: 업로드 + 대시보드 카드 -->
+        <div class="recruit-top-row">
           <div class="recruit-upload-card" id="recruitUploadZone"
             ondragover="RecruitModule.onDragOver(event)"
             ondragleave="RecruitModule.onDragLeave(event)"
             ondrop="RecruitModule.onDrop(event)">
             <div class="recruit-upload-icon">
-              <i data-lucide="folder-up" style="width:36px;height:36px;color:var(--gri-primary);opacity:0.7"></i>
+              <i data-lucide="folder-up" style="width:26px;height:26px;color:var(--gri-primary);opacity:0.7"></i>
             </div>
             <div class="recruit-upload-title">지원자 폴더를 드래그하세요</div>
             <div class="recruit-upload-desc">PDF · HWP · HWPX · DOCX 파일이 포함된 폴더</div>
-            <label class="btn btn--primary btn--sm" for="recruitFolderInput" style="cursor:pointer;margin-top:10px;">
+            <label class="btn btn--primary btn--sm" for="recruitFolderInput" style="cursor:pointer;margin-top:8px;">
               <i data-lucide="folder-open" style="width:13px;height:13px"></i> 폴더 선택
             </label>
             <input type="file" id="recruitFolderInput" webkitdirectory multiple hidden
               onchange="RecruitModule.handleUpload(this.files)">
           </div>
-        </div>
-
-        <!-- 업로드 후 메인 영역 -->
-        <div class="recruit-main" id="recruitMainLayout" style="display:none;">
-
-          <!-- 대시보드 -->
-          <div class="rc-dashboard">
-            <div class="rc-dash-card">
-              <div class="rc-dash-icon"><i data-lucide="users" style="width:18px;height:18px;"></i></div>
-              <div>
-                <div class="rc-dash-num" id="rdTotal">0</div>
-                <div class="rc-dash-label">지원자</div>
-              </div>
+          <div class="rc-dashboard rc-dashboard--side">
+            <div class="rc-dash-card rc-dash-card--col">
+              <div class="rc-dash-icon"><i data-lucide="users" style="width:16px;height:16px;"></i></div>
+              <div class="rc-dash-num" id="rdTotal">0</div>
+              <div class="rc-dash-label">지원자</div>
             </div>
-            <div class="rc-dash-card rc-dash-card--pending">
-              <div class="rc-dash-icon"><i data-lucide="clock" style="width:18px;height:18px;"></i></div>
-              <div>
-                <div class="rc-dash-num" id="rdPending">0</div>
-                <div class="rc-dash-label">검토중</div>
-              </div>
+            <div class="rc-dash-card rc-dash-card--col rc-dash-card--pending">
+              <div class="rc-dash-icon"><i data-lucide="clock" style="width:16px;height:16px;"></i></div>
+              <div class="rc-dash-num" id="rdPending">0</div>
+              <div class="rc-dash-label">검토중</div>
             </div>
-            <div class="rc-dash-card rc-dash-card--done">
-              <div class="rc-dash-icon"><i data-lucide="check-circle" style="width:18px;height:18px;"></i></div>
-              <div>
-                <div class="rc-dash-num" id="rdDone">0</div>
-                <div class="rc-dash-label">완료</div>
-              </div>
+            <div class="rc-dash-card rc-dash-card--col rc-dash-card--done">
+              <div class="rc-dash-icon"><i data-lucide="check-circle" style="width:16px;height:16px;"></i></div>
+              <div class="rc-dash-num" id="rdDone">0</div>
+              <div class="rc-dash-label">완료</div>
             </div>
           </div>
+        </div>
+
+        <!-- 업로드 후 표시: 지원자 목록 + 상세 패널 -->
+        <div class="recruit-main" id="recruitMainLayout" style="display:none;">
 
           <!-- 2분할 레이아웃 -->
           <div class="recruit-layout">

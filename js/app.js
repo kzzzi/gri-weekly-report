@@ -2305,15 +2305,15 @@ const RecruitModule = {
       </div>
       <div class="ep-divider"></div>
       <div class="ep-rows">
-        ${rows.map(([label, val]) => val ? `
+        ${rows.map(([label, val]) => `
           <div class="ep-row">
             <span class="ep-label">${label}</span>
-            <span class="ep-value">${val}</span>
-          </div>` : '').join('')}
+            <span class="ep-value">${val || '-'}</span>
+          </div>`).join('')}
       </div>
       ${matchHtml}
       ${tags ? `<div class="ep-divider"></div>
-        <div class="ep-spec-title">전문 분야${matched.length > 0 ? ' <span class="ep-match-badge">매핑 ' + matched.length + '개</span>' : ''}</div>
+        <div class="ep-spec-title">전문 분야</div>
         <div class="eval-profile-tags">${tags}</div>` : ''}
     `;
     document.getElementById('evalOverlay').classList.add('eval-overlay--active');

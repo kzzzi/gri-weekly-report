@@ -1397,7 +1397,7 @@ const RecruitModule = {
       if (this._filterPosition && c.position !== this._filterPosition) return false;
       if (this._filterField && c.field !== this._filterField) return false;
       if (this._filter === 'done') return c.reviewStatus === 'completed';
-      if (this._filter === 'pending') return this._isAnomalous(c) && c.reviewStatus !== 'completed';
+      if (this._filter === 'pending') return c.reviewStatus !== 'completed';
       return true;
     });
     if (this._sortField) {
@@ -1602,11 +1602,11 @@ const RecruitModule = {
       const isSelected = this._selectedId === c.id;
       let statusHtml;
       if (c.reviewStatus === 'completed') {
-        statusHtml = '<span class="rc-status rc-status--done">완료</span>';
+        statusHtml = '<span class="rc-status rc-status--done">검수완료</span>';
       } else if (anomaly) {
-        statusHtml = '<span class="rc-status rc-status--anomaly">검토필요</span>';
+        statusHtml = '<span class="rc-status rc-status--anomaly">확인필요</span>';
       } else {
-        statusHtml = '<span class="rc-status rc-status--pending">대기</span>';
+        statusHtml = '<span class="rc-status rc-status--pending">검수대기</span>';
       }
 
       const row = document.createElement('div');
@@ -1767,8 +1767,8 @@ const RecruitModule = {
           <div class="rd-cand-meta">${c.position} · ${c.field}</div>
         </div>
         ${c.reviewStatus === 'completed'
-          ? `<button class="btn btn--sm rd-btn-cancel" onclick="RecruitModule.cancelReviewed(${c.id})">완료취소</button>`
-          : `<button class="btn btn--primary btn--sm" onclick="RecruitModule.markReviewed(${c.id})">검토완료</button>`}
+          ? `<button class="btn btn--primary btn--sm" onclick="RecruitModule.cancelReviewed(${c.id})">완료취소</button>`
+          : `<button class="btn btn--ghost btn--sm rd-btn-inactive" onclick="RecruitModule.markReviewed(${c.id})">검수완료</button>`}
       </div>
       <div class="rd-body">
         <div class="rd-section">

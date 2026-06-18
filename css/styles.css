@@ -3944,16 +3944,16 @@ ul, ol {
 .rd-cand-name { font-size: 1rem; font-weight: 800; color: var(--gri-text-primary); line-height: 1.3; }
 .rd-cand-meta { font-size: 0.8rem; color: var(--gri-text-muted); margin-top: 2px; }
 
-.rd-btn-cancel {
-  border: 1.5px solid var(--gri-primary) !important;
-  color: var(--gri-primary) !important;
-  background: rgba(var(--gri-primary-rgb), 0.06) !important;
-  display: inline-flex !important;
-  align-items: center;
-  gap: 5px;
+/* 미완료 상태 버튼 (검수완료 전): 회색/비활성 */
+.rd-btn-inactive {
+  color: var(--gri-text-muted) !important;
+  border-color: var(--gri-border) !important;
+  background: var(--gri-surface) !important;
 }
-
-.rd-btn-cancel:hover { background: rgba(var(--gri-primary-rgb), 0.12) !important; }
+.rd-btn-inactive:hover {
+  background: var(--gri-bg) !important;
+  color: var(--gri-text-secondary) !important;
+}
 
 /* ── 상세 본문 ── */
 .rd-body {

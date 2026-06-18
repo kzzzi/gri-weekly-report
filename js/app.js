@@ -1903,6 +1903,13 @@ const RecruitModule = {
       const elCat = (el.getAttribute('onclick') || '').match(/'(\w+)'/)?.[1];
       el.classList.toggle('rc-dash-card--active', elCat === this._filterCategory);
     });
+    // 카테고리 필터 활성화 시 전체 탭으로 리셋
+    if (this._filterCategory !== null) {
+      this._filter = 'all';
+      document.querySelectorAll('.rc-tab').forEach(btn => {
+        btn.classList.toggle('rc-tab--active', btn.dataset.filter === 'all');
+      });
+    }
     this._updateTabCounts();
     this.renderTable();
   },
@@ -1937,7 +1944,7 @@ const RecruitModule = {
     const cur = type === 'position' ? this._filterPosition : this._filterField;
     const fn = type === 'position' ? 'setPositionFilter' : 'setFieldFilter';
     const noneSelected = cur.length === 0;
-    const chk = `<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    const chk = '✓';
     menu.innerHTML = `
       <div class="rc-dd-item${noneSelected ? ' rc-dd-item--checked' : ''}" onclick="RecruitModule.${fn}(null)">
         <span class="rc-dd-check">${noneSelected ? chk : ''}</span> 전체
@@ -2301,14 +2308,19 @@ const RecruitModule = {
     if (paperBadCount > 0) summaryParts.push(`paper:${paperBadCount}`);
     if (blindCount2 > 0) summaryParts.push(`blind:${blindCount2}`);
 
-    if (summaryParts.length === 0) {
-      summaryText = '서류·논문·블라인드 검증에서 이상이 발견되지 않았습니다. 검수 완료를 권장합니다.';
+    const totalIssues = docBadCount + paperBadCount + blindCount2;
+    if (totalIssues === 0) {
+      summaryText = `서류·논문·블라인드 검증 전 항목에서 이상이 발견되지 않았습니다.<br>검수 완료 처리를 권장드립니다.`;
     } else {
-      const parts = [];
-      if (docBadCount > 0) parts.push(`누락 서류가 ${docBadCount}건 확인되었습니다. 서류 보완 후 다시 한번 검토해 주시길 바랍니다.`);
-      if (paperBadCount > 0) parts.push(`일부 논문(${paperBadCount}건)은 등재 확인이 필요합니다. 해당 논문의 게재 여부를 재확인해 주세요.`);
-      if (blindCount2 > 0) parts.push(`블라인드 검토에서 ${blindCount2}건의 개인 식별 가능 문구가 탐지되었습니다. 해당 문단을 검토해 주세요.`);
-      summaryText = parts.join(' ');
+      const lines = [];
+      lines.push(`총 <strong>${totalIssues}건</strong>의 검토 항목이 확인되었습니다. 아래 내용을 직접 확인하신 후 최종 판단 부탁드립니다.`);
+      lines.push('');
+      if (docBadCount > 0) lines.push(`· 서류 미확인 <strong>${docBadCount}건</strong> — 제출 서류 목록을 재확인하고 누락·위조 여부를 검토해 주세요.`);
+      if (paperBadCount > 0) lines.push(`· 논문 등재 미확인 <strong>${paperBadCount}건</strong> — 해당 논문의 학술지 게재 여부 및 저자 일치 여부를 검토하시기 바랍니다.`);
+      if (blindCount2 > 0) lines.push(`· 블라인드 위반 의심 <strong>${blindCount2}건</strong> — 원문을 직접 열람하여 개인 식별 정보 노출 여부를 확인해 주세요.`);
+      lines.push('');
+      lines.push('각 항목 검토 후 이상이 없으면 검수 완료 처리하시기 바랍니다.');
+      summaryText = lines.join('<br>');
     }
     const summaryHtml = `<div class="rd-summary"><span class="rd-summary-icon">✦</span><span class="rd-summary-text">${summaryText}</span></div>`;
 
@@ -2498,28 +2510,40 @@ const RecruitModule = {
     if (!c) return;
     const issue = (c.verification.blind.issues || [])[issueIdx];
     if (!issue) return;
-    const excerptRaw = issue.excerpt.replace(/"/g, '');
-    const dummyParagraphs = [
-      '경기연구원 채용공고 자기소개서',
-      '',
-      '1. 지원동기',
-      '경기연구원의 공공정책 연구 역량과 지역 발전에 대한 기여 가능성에 큰 매력을 느꼈습니다. 석사 과정 이후 다양한 연구 프로젝트에 참여하며 정책 분석 및 데이터 기반 연구에 깊은 흥미를 가지게 되었습니다.',
-      '',
-      '2. 주요 경력 및 역량',
-      '재직 기간 동안 정책 분석, 도시 계획, 환경 정책 등 다양한 분야에서 연구 활동을 수행하였습니다. ' + excerptRaw + ' 이를 바탕으로 연구의 질적 향상에 기여할 자신이 있습니다.',
-      '',
-      '3. 입사 후 포부',
-      '경기연구원의 일원으로서 연구 역량을 십분 발휘하여 경기도 정책 수립에 실질적으로 기여하고자 합니다.',
-    ];
-    const rawText = dummyParagraphs.join('\n');
+    const excerptRaw = issue.excerpt.replace(/["""]/g, '');
     const safeExcerpt = excerptRaw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const highlighted = rawText.replace(new RegExp(safeExcerpt, 'g'), `<mark class="bo-highlight">${excerptRaw}</mark>`);
+
+    const pages = [
+      { title: '지원동기', body: `경기연구원의 공공정책 연구 역량과 지역사회 발전에 대한 기여 가능성에 깊이 매력을 느껴 지원하게 되었습니다. 대학원 과정 이후 다양한 연구 프로젝트에 참여하며 정책 분석 및 데이터 기반 연구 분야에서 전문성을 쌓아왔습니다.\n\n경기연구원이 경기도 정책 수립의 핵심 기관으로서 지역 균형 발전과 주민 삶의 질 향상을 위해 수행하는 연구들은 제가 추구하는 연구 방향과 매우 부합합니다.` },
+      { title: '주요 경력 및 역량', body: `재직 기간 동안 정책 분석, 도시 계획, 환경 정책 등 다양한 연구 분야에서 실무 경험을 쌓았습니다.\n\n${excerptRaw}\n\n이를 바탕으로 연구의 질적 향상과 정책 수립의 실효성 제고에 기여할 수 있을 것입니다. 특히 정량적 분석과 현장 연구를 병행하여 실증적 연구 성과를 도출해 왔습니다.` },
+      { title: '입사 후 포부', body: `경기연구원의 일원으로서 연구 역량을 최대한 발휘하여 경기도의 미래 발전에 기여하고자 합니다.\n\n중장기적으로는 연구 전문가로서 성장하며, 지역사회의 실질적 문제 해결에 기여하는 연구자가 되겠습니다.` },
+    ];
+
+    const pageHtml = pages.map((p, i) => {
+      const bodyHighlighted = p.body.replace(new RegExp(safeExcerpt, 'g'),
+        `<mark class="bo-highlight">${excerptRaw}</mark>`);
+      return `<div class="hwp-page">
+        <div class="hwp-page-inner">
+          <div class="hwp-doc-title">자기소개서</div>
+          <div class="hwp-doc-subtitle">${c.name} 지원자 | ${c.position} | ${c.field}</div>
+          <hr class="hwp-doc-hr">
+          <div class="hwp-section-title">${i + 1}. ${p.title}</div>
+          <div class="hwp-section-body">${bodyHighlighted.replace(/\n/g, '<br>')}</div>
+        </div>
+      </div>`;
+    }).join('');
+
     document.getElementById('blindOrigContent').innerHTML = `
-      <div class="bo-doc-text">${highlighted.replace(/\n/g, '<br>')}</div>
+      <div class="hwp-viewer-bar">
+        <span class="hwp-viewer-filename"><i data-lucide="file-text" style="width:13px;height:13px;color:#e05c2e;"></i> 자기소개서_${c.name}.hwp</span>
+        <span class="hwp-viewer-info">읽기 전용 미리보기</span>
+      </div>
+      <div class="hwp-viewer-doc">${pageHtml}</div>
       <div class="bo-issue-bar">
         <span class="bo-issue-type">${issue.type}</span>
-        <span class="bo-issue-note">개인 식별 가능 문구 탐지 — "${excerptRaw}"</span>
+        <span class="bo-issue-note">블라인드 위반 탐지 구간 — "${excerptRaw}"</span>
       </div>`;
+    lucide.createIcons();
     document.getElementById('blindOrigModal').style.display = 'flex';
   },
 
@@ -2733,26 +2757,161 @@ const RecruitModule = {
   _drawOntologyMap() {
     const svg = document.getElementById('ontologySvg');
     if (!svg) return;
-    // 샘플 노드와 엣지
-    const nodes = [
-      { id: 0, x: 260, y: 180, label: '지원자', r: 28, color: '#2563eb' },
-      { id: 1, x: 120, y: 80,  label: '교통계획', r: 22, color: '#64748b' },
-      { id: 2, x: 400, y: 80,  label: '도시정책', r: 22, color: '#64748b' },
-      { id: 3, x: 80,  y: 240, label: '환경정책', r: 22, color: '#64748b' },
-      { id: 4, x: 440, y: 240, label: '재정분석', r: 22, color: '#64748b' },
-      { id: 5, x: 200, y: 300, label: '강민철', r: 18, color: '#10b981' },
-      { id: 6, x: 320, y: 300, label: '이준호', r: 18, color: '#10b981' },
-      { id: 7, x: 150, y: 150, label: '박성은', r: 18, color: '#10b981' },
-      { id: 8, x: 370, y: 150, label: '최현우', r: 18, color: '#f59e0b' },
+
+    // 640×420 viewBox
+    // 6 candidate nodes (left, x=80, blue)
+    const candidates = [
+      { id: 'c0', x: 80, y:  55, label: '홍길동', color: '#2563eb' },
+      { id: 'c1', x: 80, y: 105, label: '김민준', color: '#2563eb' },
+      { id: 'c2', x: 80, y: 155, label: '이서연', color: '#2563eb' },
+      { id: 'c3', x: 80, y: 205, label: '박준혁', color: '#2563eb' },
+      { id: 'c4', x: 80, y: 255, label: '최수진', color: '#2563eb' },
+      { id: 'c5', x: 80, y: 305, label: '윤지현', color: '#2563eb' },
     ];
-    const edges = [[0,1],[0,2],[0,3],[0,4],[1,5],[1,7],[2,6],[2,8],[3,5],[4,6]];
-    svg.innerHTML = edges.map(([a,b]) => {
-      const na = nodes[a], nb = nodes[b];
-      return `<line x1="${na.x}" y1="${na.y}" x2="${nb.x}" y2="${nb.y}" stroke="#e2e8f0" stroke-width="2"/>`;
-    }).join('') + nodes.map(n => `
-      <circle cx="${n.x}" cy="${n.y}" r="${n.r}" fill="${n.color}" opacity="0.9"/>
-      <text x="${n.x}" y="${n.y}" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="white" font-weight="600">${n.label}</text>
-    `).join('');
+    // 6 topic nodes (center, x=290-350, gray)
+    const topics = [
+      { id: 't0', x: 320, y:  55, label: '교통계획', color: '#64748b' },
+      { id: 't1', x: 320, y: 115, label: '도시정책', color: '#64748b' },
+      { id: 't2', x: 320, y: 175, label: '환경정책', color: '#64748b' },
+      { id: 't3', x: 320, y: 235, label: '경제분석', color: '#64748b' },
+      { id: 't4', x: 320, y: 295, label: '복지정책', color: '#64748b' },
+      { id: 't5', x: 320, y: 355, label: '에너지정책', color: '#64748b' },
+    ];
+    // 6 evaluator nodes (right, x=570, green)
+    const evaluators = [
+      { id: 'e0', x: 570, y:  55, label: '강민철', color: '#059669' },
+      { id: 'e1', x: 570, y: 115, label: '이준호', color: '#059669' },
+      { id: 'e2', x: 570, y: 175, label: '박성은', color: '#059669' },
+      { id: 'e3', x: 570, y: 235, label: '최현우', color: '#059669' },
+      { id: 'e4', x: 570, y: 295, label: '강태인', color: '#059669' },
+      { id: 'e5', x: 570, y: 355, label: '임재홍', color: '#059669' },
+    ];
+    const allNodes = [...candidates, ...topics, ...evaluators];
+
+    // Edges: [fromId, toId]
+    const edges = [
+      ['c0','t0'], ['c0','t1'],
+      ['c1','t1'], ['c1','t2'],
+      ['c2','t2'], ['c2','t4'],
+      ['c3','t3'], ['c3','t5'],
+      ['c4','t4'], ['c4','t3'],
+      ['c5','t5'], ['c5','t2'],
+      ['t0','e0'], ['t0','e1'],
+      ['t1','e2'], ['t1','e3'],
+      ['t2','e4'], ['t2','e2'],
+      ['t3','e5'], ['t3','e3'],
+      ['t4','e4'], ['t4','e5'],
+      ['t5','e4'], ['t5','e1'],
+    ];
+
+    const nodeMap = {};
+    allNodes.forEach(n => { nodeMap[n.id] = n; });
+
+    // Build adjacency: nodeId -> set of connected nodeIds
+    const adj = {};
+    allNodes.forEach(n => { adj[n.id] = new Set(); });
+    edges.forEach(([a, b]) => { adj[a].add(b); adj[b].add(a); });
+
+    const r = 18;
+    const ns = 'http://www.w3.org/2000/svg';
+
+    svg.innerHTML = '';
+
+    // Draw edges as bezier paths
+    const edgeEls = [];
+    edges.forEach(([a, b]) => {
+      const na = nodeMap[a], nb = nodeMap[b];
+      const cx = (na.x + nb.x) / 2;
+      const cy = (na.y + nb.y) / 2;
+      const path = document.createElementNS(ns, 'path');
+      path.setAttribute('d', `M${na.x},${na.y} Q${cx},${cy} ${nb.x},${nb.y}`);
+      path.setAttribute('stroke', '#cbd5e1');
+      path.setAttribute('stroke-width', '1.5');
+      path.setAttribute('fill', 'none');
+      path.setAttribute('class', 'ont-edge');
+      path.dataset.a = a;
+      path.dataset.b = b;
+      svg.appendChild(path);
+      edgeEls.push(path);
+    });
+
+    // Draw nodes
+    const nodeEls = {};
+    allNodes.forEach(n => {
+      const g = document.createElementNS(ns, 'g');
+      g.setAttribute('class', 'ont-node');
+      g.dataset.id = n.id;
+      g.style.cursor = 'pointer';
+
+      const circle = document.createElementNS(ns, 'circle');
+      circle.setAttribute('cx', n.x);
+      circle.setAttribute('cy', n.y);
+      circle.setAttribute('r', r);
+      circle.setAttribute('fill', n.color);
+      circle.setAttribute('opacity', '0.9');
+
+      const text = document.createElementNS(ns, 'text');
+      text.setAttribute('x', n.x);
+      text.setAttribute('y', n.y);
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('dominant-baseline', 'middle');
+      text.setAttribute('font-size', '9');
+      text.setAttribute('fill', 'white');
+      text.setAttribute('font-weight', '600');
+      text.setAttribute('pointer-events', 'none');
+      text.textContent = n.label;
+
+      g.appendChild(circle);
+      g.appendChild(text);
+      svg.appendChild(g);
+      nodeEls[n.id] = { g, circle };
+
+      // Hover: highlight connected edges and dim unconnected nodes
+      g.addEventListener('mouseenter', () => {
+        const connected = adj[n.id];
+        edgeEls.forEach(ep => {
+          const isConn = (ep.dataset.a === n.id || ep.dataset.b === n.id);
+          ep.setAttribute('stroke', isConn ? '#2563eb' : '#e2e8f0');
+          ep.setAttribute('stroke-width', isConn ? '2.5' : '1');
+          ep.setAttribute('opacity', isConn ? '1' : '0.3');
+        });
+        allNodes.forEach(nd => {
+          const isDim = (nd.id !== n.id && !connected.has(nd.id));
+          nodeEls[nd.id].circle.setAttribute('opacity', isDim ? '0.2' : '1');
+        });
+      });
+      g.addEventListener('mouseleave', () => {
+        edgeEls.forEach(ep => {
+          ep.setAttribute('stroke', '#cbd5e1');
+          ep.setAttribute('stroke-width', '1.5');
+          ep.setAttribute('opacity', '1');
+        });
+        allNodes.forEach(nd => {
+          nodeEls[nd.id].circle.setAttribute('opacity', '0.9');
+        });
+      });
+    });
+
+    // Legend
+    const legendY = 400;
+    const legendItems = [
+      { color: '#2563eb', label: '지원자' },
+      { color: '#64748b', label: '분야' },
+      { color: '#059669', label: '심사위원' },
+    ];
+    legendItems.forEach((item, i) => {
+      const gx = 160 + i * 120;
+      const lc = document.createElementNS(ns, 'circle');
+      lc.setAttribute('cx', gx); lc.setAttribute('cy', legendY);
+      lc.setAttribute('r', '7'); lc.setAttribute('fill', item.color);
+      svg.appendChild(lc);
+      const lt = document.createElementNS(ns, 'text');
+      lt.setAttribute('x', gx + 12); lt.setAttribute('y', legendY);
+      lt.setAttribute('dominant-baseline', 'middle');
+      lt.setAttribute('font-size', '10'); lt.setAttribute('fill', '#64748b');
+      lt.textContent = item.label;
+      svg.appendChild(lt);
+    });
   },
 
   _initSessions() {

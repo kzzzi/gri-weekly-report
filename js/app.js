@@ -56,6 +56,7 @@ const AppState = {
     {
       id: 1, rawFileName: '250303_연구위원나급_교통계획및공학_홍길동',
       date: '250303', position: '연구위원나급', field: '교통계획및공학', name: '홍길동', isResearch: true,
+      candidateProfile: { school: '연세대학교', dept: '교통공학과', company: '한국교통공사', region: '서울', coAuthors: [] },
       verification: {
         documents: { status: 'warning', categories: [
           { id: 'application', name: '입사지원서', status: 'ok', note: '', subItems: [
@@ -103,6 +104,7 @@ const AppState = {
     {
       id: 2, rawFileName: '250303_부연구위원나급_도시및지역계획_김민준',
       date: '250303', position: '부연구위원나급', field: '도시및지역계획', name: '김민준', isResearch: true,
+      candidateProfile: { school: '서울대학교', dept: '도시공학과', company: '한국토지주택공사', region: '세종', coAuthors: [] },
       verification: {
         documents: { status: 'ok', categories: [
           { id: 'application', name: '입사지원서', status: 'ok', note: '', subItems: [
@@ -147,6 +149,7 @@ const AppState = {
     {
       id: 3, rawFileName: '250303_연구위원가급_환경정책_이서연',
       date: '250303', position: '연구위원가급', field: '환경정책', name: '이서연', isResearch: true,
+      candidateProfile: { school: '서울대학교', dept: '환경대학원', company: '경기연구원', region: '수원', coAuthors: ['박기훈'] },
       verification: {
         documents: { status: 'mismatch', categories: [
           { id: 'application', name: '입사지원서', status: 'ok', note: '', subItems: [
@@ -195,6 +198,7 @@ const AppState = {
     {
       id: 4, rawFileName: '250303_전문연구원_경제분석_박준혁',
       date: '250303', position: '전문연구원', field: '경제분석', name: '박준혁', isResearch: false,
+      candidateProfile: { school: '성균관대학교', dept: '경제학과', company: '기획재정부', region: '대전', coAuthors: [] },
       verification: {
         documents: { status: 'ok', categories: [
           { id: 'application', name: '입사지원서', status: 'ok', note: '', subItems: [
@@ -233,6 +237,7 @@ const AppState = {
     {
       id: 5, rawFileName: '250303_부연구위원나급_복지정책_최수진',
       date: '250303', position: '부연구위원나급', field: '복지정책', name: '최수진', isResearch: true,
+      candidateProfile: { school: '이화여자대학교', dept: '사회복지학과', company: '경기복지재단', region: '수원', coAuthors: [] },
       verification: {
         documents: { status: 'missing', categories: [
           { id: 'application', name: '입사지원서', status: 'ok', note: '', subItems: [
@@ -278,6 +283,7 @@ const AppState = {
     {
       id: 6, rawFileName: '250303_부연구위원나급_기후에너지정책_윤지현',
       date: '250303', position: '부연구위원나급', field: '기후에너지정책', name: '윤지현', isResearch: true,
+      candidateProfile: { school: '연세대학교', dept: '에너지공학과', company: '한국환경공단', region: '서울', coAuthors: [] },
       verification: {
         documents: { status: 'ok', categories: [
           { id: 'application', name: '입사지원서', status: 'ok', note: '', subItems: [{ name: '기본인적사항', status: 'ok', note: '' }, { name: '학력사항', status: 'ok', note: '' }, { name: '경력사항', status: 'ok', note: '' }, { name: '자기소개서', status: 'ok', note: '' }] },
@@ -300,6 +306,7 @@ const AppState = {
     {
       id: 7, rawFileName: '250303_연구위원나급_스마트시티_장민서',
       date: '250303', position: '연구위원나급', field: '스마트시티', name: '장민서', isResearch: true,
+      candidateProfile: { school: 'KAIST', dept: '도시공학과', company: 'NHN', region: '서울', coAuthors: [] },
       verification: {
         documents: { status: 'warning', categories: [
           { id: 'application', name: '입사지원서', status: 'ok', note: '', subItems: [{ name: '기본인적사항', status: 'ok', note: '' }, { name: '학력사항', status: 'ok', note: '' }, { name: '경력사항', status: 'ok', note: '' }, { name: '자기소개서', status: 'ok', note: '' }] },
@@ -322,6 +329,7 @@ const AppState = {
     {
       id: 8, rawFileName: '250303_전문연구원_데이터분석_한동훈',
       date: '250303', position: '전문연구원', field: '데이터분석', name: '한동훈', isResearch: false,
+      candidateProfile: { school: '서울대학교', dept: '통계학과', company: 'LG CNS', region: '서울', coAuthors: [] },
       verification: {
         documents: { status: 'mismatch', categories: [
           { id: 'application', name: '입사지원서', status: 'ok', note: '', subItems: [{ name: '기본인적사항', status: 'ok', note: '' }, { name: '학력사항', status: 'ok', note: '' }, { name: '경력사항', status: 'ok', note: '' }, { name: '자기소개서', status: 'ok', note: '' }] },
@@ -344,6 +352,7 @@ const AppState = {
     {
       id: 9, rawFileName: '250303_부연구위원나급_지역경제_오수아',
       date: '250303', position: '부연구위원나급', field: '지역경제', name: '오수아', isResearch: true,
+      candidateProfile: { school: '고려대학교', dept: '경제학과', company: '경기연구원', region: '수원', coAuthors: [] },
       verification: {
         documents: { status: 'ok', categories: [
           { id: 'application', name: '입사지원서', status: 'ok', note: '', subItems: [{ name: '기본인적사항', status: 'ok', note: '' }, { name: '학력사항', status: 'ok', note: '' }, { name: '경력사항', status: 'ok', note: '' }, { name: '자기소개서', status: 'ok', note: '' }] },
@@ -369,6 +378,7 @@ const AppState = {
     {
       id: 10, rawFileName: '250303_연구위원가급_사회문화정책_임채원',
       date: '250303', position: '연구위원가급', field: '사회문화정책', name: '임채원', isResearch: true,
+      candidateProfile: { school: '성균관대학교', dept: '문화예술학과', company: '경기문화재단', region: '수원', coAuthors: [] },
       verification: {
         documents: { status: 'missing', categories: [
           { id: 'application', name: '입사지원서', status: 'ok', note: '', subItems: [{ name: '기본인적사항', status: 'ok', note: '' }, { name: '학력사항', status: 'ok', note: '' }, { name: '경력사항', status: 'ok', note: '' }, { name: '자기소개서', status: 'ok', note: '' }] },
@@ -1317,17 +1327,70 @@ const RecruitModule = {
   },
 
   _showView(uploaded) {
-    const zone = document.getElementById('recruitUploadZone');
-    const list = document.getElementById('recruitListView');
-    if (zone) zone.style.display = uploaded ? 'none' : 'flex';
-    if (list) list.style.display = uploaded ? 'flex' : 'none';
+    const initial = document.getElementById('recruitInitialZone');
+    const layout = document.getElementById('recruitMainLayout');
+    if (initial) initial.style.display = uploaded ? 'none' : 'flex';
+    if (layout) layout.style.display = uploaded ? 'flex' : 'none';
+  },
+
+  // 4가지 체크 기준으로 적합/검토필요/부적합 판정
+  _computeConflict(cand, ev) {
+    const profile = cand.candidateProfile;
+    const ep = EVAL_PROFILES[ev.name];
+
+    const checks = {
+      coAuthor:        false,
+      sameSchoolDept:  false,
+      sameSchoolOnly:  false,
+      sameCompany:     false,
+      sameRegion:      false
+    };
+
+    if (profile && profile.coAuthors) checks.coAuthor = profile.coAuthors.includes(ev.name);
+
+    if (profile && ep) {
+      const ss = !!(profile.school && ep.school && profile.school === ep.school);
+      const sd = !!(profile.dept   && ep.dept   && profile.dept   === ep.dept);
+      checks.sameSchoolDept = ss && sd;
+      checks.sameSchoolOnly = ss && !sd;
+      checks.sameCompany    = !!(profile.company && ep.company && profile.company === ep.company);
+      checks.sameRegion     = !!(profile.region  && ep.region  && profile.region  === ep.region);
+    }
+
+    const isBad     = checks.coAuthor || checks.sameSchoolDept || checks.sameCompany;
+    const isCaution = !isBad && (checks.sameSchoolOnly || checks.sameRegion);
+    const verdict   = isBad ? '부적합' : isCaution ? '검토필요' : '적합';
+
+    const reasons = [];
+    if (checks.coAuthor)       reasons.push('논문 공동저자');
+    if (checks.sameSchoolDept) reasons.push('동일 학교 + 동일 학과');
+    if (checks.sameCompany)    reasons.push('동일 직장 경력');
+    if (checks.sameSchoolOnly) reasons.push('동일 학교');
+    if (checks.sameRegion && !isBad && !checks.sameSchoolOnly) reasons.push('지역 겹침');
+
+    // 프로필 없는 심사위원: 하드코딩 conflict 사용
+    if (reasons.length === 0 && ev.conflict) {
+      const reason = ev.conflictReason || '이해충돌';
+      const fallbackChecks = {
+        coAuthor: reason.includes('공저') || reason.includes('공동저자'),
+        sameSchoolDept: reason.includes('학과') || reason.includes('출신'),
+        sameSchoolOnly: false,
+        sameCompany: reason.includes('직장') || reason.includes('경력'),
+        sameRegion: false
+      };
+      return { verdict: '부적합', reasons: [reason], checks: fallbackChecks };
+    }
+
+    return { verdict, reasons, checks };
   },
 
   _isAnomalous(c) {
     const doc = c.verification.documents.status !== 'ok' && c.verification.documents.status !== 'pending';
     const paper = c.verification.paper.applicable && c.verification.paper.status !== 'ok' && c.verification.paper.status !== 'na' && c.verification.paper.status !== 'pending';
     const blind = c.verification.blind.issues && c.verification.blind.issues.length > 0;
-    const ev = c.verification.evaluator.recommended && c.verification.evaluator.recommended.some(e => e.conflict);
+    const ev = (c.verification.evaluator.recommended || []).some(e =>
+      this._computeConflict(c, e).verdict === '부적합'
+    );
     return doc || paper || blind || ev;
   },
 
@@ -1447,24 +1510,26 @@ const RecruitModule = {
     const total = AppState.candidates.length;
     const done = AppState.candidates.filter(c => c.reviewStatus === 'completed').length;
     const pending = AppState.candidates.filter(c => this._isAnomalous(c) && c.reviewStatus !== 'completed').length;
+    const inReview = total - done;
     const set = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
     set('rtcAll', total); set('rtcPending', pending); set('rtcDone', done);
+    set('rdTotal', total); set('rdPending', inReview); set('rdDone', done);
   },
 
   // ── 폴더 드래그앤드롭 ──
   onDragOver(e) {
     e.preventDefault();
     const zone = document.getElementById('recruitUploadZone');
-    if (zone) zone.classList.add('recruit-upload-zone--over');
+    if (zone) zone.classList.add('recruit-upload-card--over');
   },
   onDragLeave(e) {
     const zone = document.getElementById('recruitUploadZone');
-    if (zone) zone.classList.remove('recruit-upload-zone--over');
+    if (zone) zone.classList.remove('recruit-upload-card--over');
   },
   onDrop(e) {
     e.preventDefault();
     const zone = document.getElementById('recruitUploadZone');
-    if (zone) zone.classList.remove('recruit-upload-zone--over');
+    if (zone) zone.classList.remove('recruit-upload-card--over');
     const files = e.dataTransfer ? e.dataTransfer.files : null;
     this.handleUpload(files);
   },
@@ -1649,7 +1714,7 @@ const RecruitModule = {
     let blindHtml = '';
     const blindIssues = c.verification.blind.issues || [];
     if (blindIssues.length === 0) {
-      blindHtml = `<div class="rd-blind-clear"><span style="color:var(--gri-primary);font-weight:800;margin-right:6px;font-size:0.9rem;">●</span>위반 문구 미탐지</div>`;
+      blindHtml = `<div class="rd-blind-clear" style="color:#111;font-weight:400;">위반문구 미탐지</div>`;
     } else {
       blindHtml = blindIssues.map(issue => `
         <div class="rd-blind-item rd-blind-item--${issue.severity}">
@@ -1658,24 +1723,35 @@ const RecruitModule = {
         </div>`).join('');
     }
 
-    // ── 심사위원: 이해충돌 제외, 클릭 시 프로필 팝업 ──
+    // ── 심사위원: 적합만 표시, 매핑점수 순 ──
+    const allEvals = (c.verification.evaluator.recommended || []).map(ev => ({
+      ev, cf: this._computeConflict(c, ev)
+    }));
+    const suitableEvals = allEvals
+      .filter(x => x.cf.verdict === '적합')
+      .sort((a, b) => (b.ev.score || 0) - (a.ev.score || 0));
+
+    const evalRow = (ev, idx) => {
+      const score = ev.score || 0;
+      const matchCount = score >= 8.5 ? 3 : score >= 7.5 ? 2 : 1;
+      return `<div class="rd-eval-row" onclick="RecruitModule.openEvalProfile('${ev.name}', ${c.id})">
+        <span class="rd-eval-rank">${idx + 1}</span>
+        <div class="rd-eval-info">
+          <span class="rd-eval-name">${ev.name}</span>
+          <span class="rd-eval-affil">${ev.affil}</span>
+        </div>
+        <span class="rd-eval-match">${matchCount}개 일치</span>
+        <span class="rd-eval-arrow">›</span>
+      </div>`;
+    };
+
     let evalHtml = '';
-    const validEvals = (c.verification.evaluator.recommended || [])
-      .filter(e => !e.conflict)
-      .sort((a, b) => (b.score || 0) - (a.score || 0));
-    if (validEvals.length === 0) {
-      evalHtml = `<p class="rd-na">적합한 심사위원이 없습니다</p>`;
+    if (suitableEvals.length === 0) {
+      evalHtml = allEvals.length === 0
+        ? `<p class="rd-na">심사위원 정보가 없습니다</p>`
+        : `<p class="rd-na">추천 가능한 심사위원이 없습니다</p>`;
     } else {
-      evalHtml = validEvals.map((ev, i) => `
-        <div class="rd-eval-row" onclick="RecruitModule.openEvalProfile('${ev.name}', ${ev.score}, '${c.field}')">
-          <span class="rd-eval-rank">${i + 1}</span>
-          <div class="rd-eval-info">
-            <span class="rd-eval-name">${ev.name}</span>
-            <span class="rd-eval-affil">${ev.affil}</span>
-          </div>
-          <span class="rd-eval-score">${ev.score != null ? ev.score.toFixed(1) : '—'}<small>/10</small></span>
-          <span class="rd-eval-arrow">›</span>
-        </div>`).join('');
+      evalHtml = suitableEvals.map((x, i) => evalRow(x.ev, i)).join('');
     }
 
     // ── 섹션 배지: 문제 있을 때만 ! ──
@@ -1699,7 +1775,6 @@ const RecruitModule = {
       <div class="rd-body">
         <div class="rd-section">
           <div class="rd-section-label">
-            <i data-lucide="file-check" style="width:13px;height:13px"></i>
             서류 검증
             ${badge(docIssue, missingDocs || '서류 미비 항목 있음')}
           </div>
@@ -1707,7 +1782,6 @@ const RecruitModule = {
         </div>
         <div class="rd-section">
           <div class="rd-section-label">
-            <i data-lucide="book-open" style="width:13px;height:13px"></i>
             논문 검증
             ${badge(paperIssue, paperIssueItems.join(', ') || '논문 등재 확인 필요')}
           </div>
@@ -1715,7 +1789,6 @@ const RecruitModule = {
         </div>
         <div class="rd-section">
           <div class="rd-section-label">
-            <i data-lucide="eye-off" style="width:13px;height:13px"></i>
             블라인드 검토
             ${badge(blindIssue, blindIssues.map(i => i.type).join(', ') || '블라인드 위반 항목 있음')}
           </div>
@@ -1723,7 +1796,6 @@ const RecruitModule = {
         </div>
         <div class="rd-section">
           <div class="rd-section-label">
-            <i data-lucide="users" style="width:13px;height:13px"></i>
             심사위원 추천
           </div>
           ${evalHtml}
@@ -1734,11 +1806,20 @@ const RecruitModule = {
     lucide.createIcons();
   },
 
-  openEvalProfile(name, score, candidateField) {
+  openEvalProfile(name, candidateId) {
+    const cand = AppState.candidates.find(x => x.id === candidateId);
+    const candidateField = cand ? cand.field : '';
+    const evObj = cand ? (cand.verification.evaluator.recommended || []).find(e => e.name === name) || { name } : { name };
     const p = EVAL_PROFILES[name] || {};
     const body = document.getElementById('evalPanelBody');
     const initials = name.length >= 2 ? name.slice(0, 2) : name;
-    // 매핑: 심사위원 전문분야 중 후보자 분야와 관련된 것 표시
+
+    // 매핑 기준 (score 기반)
+    const score = evObj.score || 0;
+    const matchCount = score >= 8.5 ? 3 : score >= 7.5 ? 2 : 1;
+    const CRITERIA = ['전문분야 직접 일치', '연구방법론 연관성', '정책분야 경험'];
+
+    // 전문분야 태그
     const matched = (p.specialty || []).filter(s =>
       candidateField && (s.includes(candidateField.replace('및', '').slice(0, 4)) ||
       candidateField.includes(s.slice(0, 4)))
@@ -1747,20 +1828,32 @@ const RecruitModule = {
       const isMatch = matched.includes(t);
       return `<span class="eval-profile-tag${isMatch ? ' eval-profile-tag--match' : ''}">${t}</span>`;
     }).join('');
+
+    // 프로필 정보 행
     const rows = [
       ['출신교', p.school], ['학과', p.dept], ['학위', p.degree], ['지도교수', p.advisor],
-      ['소속', p.company], ['직위', p.role], ['재직기간', p.period],
-      ['지역', p.region], ['가족관계', p.family || '해당 없음']
+      ['소속', p.company || evObj.affil], ['직위', p.role], ['재직기간', p.period], ['지역', p.region]
     ];
+
+    const matchHtml = `
+      <div class="ep-divider"></div>
+      <div class="ep-checks">
+        <div class="ep-checks-title">매핑 기준 <span class="ep-verdict ep-verdict--ok">${matchCount}/3 일치</span></div>
+        ${CRITERIA.map((label, i) => `
+          <div class="ep-check-row">
+            <span class="ep-check-icon ep-check-icon--${i < matchCount ? 'ok' : 'neutral'}">${i < matchCount ? '✓' : '✕'}</span>
+            <span class="ep-check-label">${label}</span>
+          </div>`).join('')}
+      </div>`;
+
     body.innerHTML = `
-      <div class="ep-top">
+      <div class="ep-top ep-top--ok">
         <div class="ep-avatar">${initials}</div>
         <div class="ep-top-info">
           <div class="ep-name">${name}</div>
-          <div class="ep-role">${p.role || ''}</div>
-          <div class="ep-org">${p.company || ''}</div>
+          <div class="ep-role">${p.role || evObj.field || ''}</div>
+          <div class="ep-org">${p.company || evObj.affil || ''}</div>
         </div>
-        ${score != null ? `<div class="ep-score"><span class="ep-score-num">${score.toFixed(1)}</span><span class="ep-score-unit">/10</span></div>` : ''}
       </div>
       <div class="ep-divider"></div>
       <div class="ep-rows">
@@ -1770,6 +1863,7 @@ const RecruitModule = {
             <span class="ep-value">${val}</span>
           </div>` : '').join('')}
       </div>
+      ${matchHtml}
       ${tags ? `<div class="ep-divider"></div>
         <div class="ep-spec-title">전문 분야${matched.length > 0 ? ' <span class="ep-match-badge">매핑 ' + matched.length + '개</span>' : ''}</div>
         <div class="eval-profile-tags">${tags}</div>` : ''}

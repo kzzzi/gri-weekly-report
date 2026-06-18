@@ -19,12 +19,7 @@
       <div class="nav-logo">
         <img src="assets/logo.png" alt="GRI 경기연구원" style="height:38px;width:auto;display:inline-block;vertical-align:middle;">
         <span style="width:1px;height:22px;background:var(--gri-border);margin:0 14px;display:inline-block;vertical-align:middle;"></span>
-        <span style="font-size:1rem;color:var(--gri-text-primary);font-weight:700;display:inline-block;vertical-align:middle;">채용자격검증</span>
-      </div>
-      <div class="nav-actions">
-        <button class="btn btn--ghost btn--sm" style="gap:5px;" onclick="GeneralMerge.open()">
-          <i data-lucide="layers" style="width:13px;height:13px"></i> 일반 파일병합
-        </button>
+        <span style="font-size:0.95rem;color:var(--gri-text-primary);font-weight:600;display:inline-block;vertical-align:middle;letter-spacing:-0.01em;">채용자격검증</span>
       </div>
     </div>
   </nav>
@@ -143,31 +138,59 @@
       <!-- ===== RECRUITMENT PAGE ===== -->
       <div id="page-recruitment" style="display:none;">
 
-        <!-- 2분할 메인 레이아웃 -->
-        <div class="recruit-layout">
-
-          <!-- LEFT: 업로드 존 or 지원자 목록 -->
-          <div class="recruit-list-col">
-
-            <!-- 초기 업로드 상태 -->
-            <div class="recruit-upload-zone" id="recruitUploadZone"
-              ondragover="RecruitModule.onDragOver(event)"
-              ondragleave="RecruitModule.onDragLeave(event)"
-              ondrop="RecruitModule.onDrop(event)">
-              <div class="recruit-upload-icon">
-                <i data-lucide="folder-up" style="width:32px;height:32px;color:var(--gri-primary);opacity:0.6"></i>
-              </div>
-              <div class="recruit-upload-title">지원자 폴더를 드래그하세요</div>
-              <div class="recruit-upload-desc">PDF · HWP · HWPX · DOCX 파일 포함 폴더</div>
-              <label class="btn btn--primary btn--sm" for="recruitFolderInput" style="cursor:pointer;margin-top:6px;">
-                <i data-lucide="folder-open" style="width:13px;height:13px"></i> 폴더 선택
-              </label>
-              <input type="file" id="recruitFolderInput" webkitdirectory multiple hidden
-                onchange="RecruitModule.handleUpload(this.files)">
+        <!-- 초기 업로드 상태: 전체폭 가운데 정렬 -->
+        <div id="recruitInitialZone" class="recruit-initial-zone">
+          <div class="recruit-upload-card" id="recruitUploadZone"
+            ondragover="RecruitModule.onDragOver(event)"
+            ondragleave="RecruitModule.onDragLeave(event)"
+            ondrop="RecruitModule.onDrop(event)">
+            <div class="recruit-upload-icon">
+              <i data-lucide="folder-up" style="width:36px;height:36px;color:var(--gri-primary);opacity:0.7"></i>
             </div>
+            <div class="recruit-upload-title">지원자 폴더를 드래그하세요</div>
+            <div class="recruit-upload-desc">PDF · HWP · HWPX · DOCX 파일이 포함된 폴더</div>
+            <label class="btn btn--primary btn--sm" for="recruitFolderInput" style="cursor:pointer;margin-top:10px;">
+              <i data-lucide="folder-open" style="width:13px;height:13px"></i> 폴더 선택
+            </label>
+            <input type="file" id="recruitFolderInput" webkitdirectory multiple hidden
+              onchange="RecruitModule.handleUpload(this.files)">
+          </div>
+        </div>
 
-            <!-- 업로드 후 목록 뷰 -->
-            <div id="recruitListView" style="display:none;flex-direction:column;flex:1;min-height:0;">
+        <!-- 업로드 후 메인 영역 -->
+        <div class="recruit-main" id="recruitMainLayout" style="display:none;">
+
+          <!-- 대시보드 -->
+          <div class="rc-dashboard">
+            <div class="rc-dash-card">
+              <div class="rc-dash-icon"><i data-lucide="users" style="width:18px;height:18px;"></i></div>
+              <div>
+                <div class="rc-dash-num" id="rdTotal">0</div>
+                <div class="rc-dash-label">지원자</div>
+              </div>
+            </div>
+            <div class="rc-dash-card rc-dash-card--pending">
+              <div class="rc-dash-icon"><i data-lucide="clock" style="width:18px;height:18px;"></i></div>
+              <div>
+                <div class="rc-dash-num" id="rdPending">0</div>
+                <div class="rc-dash-label">검토중</div>
+              </div>
+            </div>
+            <div class="rc-dash-card rc-dash-card--done">
+              <div class="rc-dash-icon"><i data-lucide="check-circle" style="width:18px;height:18px;"></i></div>
+              <div>
+                <div class="rc-dash-num" id="rdDone">0</div>
+                <div class="rc-dash-label">완료</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2분할 레이아웃 -->
+          <div class="recruit-layout">
+
+          <!-- LEFT: 지원자 목록 -->
+          <div class="recruit-list-col">
+            <div id="recruitListView" style="display:flex;flex-direction:column;flex:1;min-height:0;">
 
               <!-- 상단 탭바 -->
               <div class="rc-tabbar">
@@ -215,7 +238,6 @@
                 <div id="recruitTableBody"></div>
               </div>
             </div>
-
           </div><!-- /recruit-list-col -->
 
           <!-- RIGHT: 상세 패널 -->
@@ -224,10 +246,11 @@
               <i data-lucide="mouse-pointer-click" style="width:28px;height:28px;opacity:0.15"></i>
               <span>지원자를 선택하면<br>상세 검증 결과가 표시됩니다</span>
             </div>
-            <div id="recruitDetailContent" style="display:none;height:100%;flex-direction:column;overflow:hidden;"></div>
+            <div id="recruitDetailContent" style="display:none;"></div>
           </div>
 
-        </div><!-- /recruit-layout -->
+          </div><!-- /recruit-layout -->
+        </div><!-- /recruit-main -->
       </div><!-- /page-recruitment -->
 
     </main><!-- /main-content -->
@@ -377,66 +400,6 @@
       <div class="loading-text" id="globalLoadingText">처리 중입니다...</div>
       <div class="progress-bar" id="globalProgressBar" style="display:none;">
         <div class="progress-bar__fill" id="globalProgressFill" style="width:0%"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ============ GENERAL MERGE OVERLAY ============ -->
-  <div class="gm-overlay" id="gmOverlay" onclick="GeneralMerge._handleOverlayClick(event)">
-    <div class="gm-panel" id="gmPanel">
-      <!-- Header -->
-      <div class="gm-header">
-        <div class="gm-title">
-          <i data-lucide="layers" style="width:16px;height:16px;color:#2563eb"></i>
-          일반 파일 병합
-        </div>
-        <button class="btn btn--icon btn--ghost" onclick="GeneralMerge.close()">
-          <i data-lucide="x" style="width:18px;height:18px"></i>
-        </button>
-      </div>
-
-      <!-- Drop zone -->
-      <div class="gm-dropzone" id="gmDropzone" onclick="document.getElementById('gmFileInput').click()">
-        <input type="file" id="gmFileInput" multiple accept=".pdf,.hwp,.hwpx" hidden>
-        <i data-lucide="file-plus" style="width:24px;height:24px;opacity:0.35"></i>
-        <span>클릭 또는 드래그하여 파일 추가</span>
-        <span class="gm-dropzone-sub">PDF · HWP · HWPX</span>
-      </div>
-
-      <!-- File list -->
-      <div class="gm-file-list" id="gmFileList"></div>
-
-      <!-- Footer -->
-      <div class="gm-footer">
-        <span class="gm-file-count" id="gmFileCount">0개 파일</span>
-        <button class="btn btn--primary btn--sm" onclick="GeneralMerge.merge()">
-          <i data-lucide="layers" style="width:13px;height:13px"></i> 파일 병합
-        </button>
-      </div>
-
-      <!-- Format selection sub-dialog -->
-      <div class="gm-format-dialog" id="gmFormatDialog" style="display:none;">
-        <div class="gm-format-panel">
-          <h4 class="gm-format-title">다운로드 형식 선택</h4>
-          <p class="gm-format-desc">원하는 형식을 선택 후 다운로드하세요.</p>
-          <div class="gm-format-checks">
-            <label class="gm-format-check">
-              <input type="checkbox" id="gfPdf" checked> PDF
-            </label>
-            <label class="gm-format-check">
-              <input type="checkbox" id="gfHwp"> HWP
-            </label>
-            <label class="gm-format-check">
-              <input type="checkbox" id="gfHwpx"> HWPX
-            </label>
-          </div>
-          <div class="gm-format-actions">
-            <button class="btn btn--primary btn--sm" style="flex:1;" onclick="GeneralMerge.downloadSelected()">
-              <i data-lucide="download" style="width:13px;height:13px"></i> 다운로드
-            </button>
-            <button class="btn btn--ghost btn--sm" style="flex:1;" onclick="GeneralMerge.closeFormatDialog()">취소</button>
-          </div>
-        </div>
       </div>
     </div>
   </div>

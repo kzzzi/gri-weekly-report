@@ -1937,13 +1937,14 @@ const RecruitModule = {
     const cur = type === 'position' ? this._filterPosition : this._filterField;
     const fn = type === 'position' ? 'setPositionFilter' : 'setFieldFilter';
     const noneSelected = cur.length === 0;
+    const chk = `<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
     menu.innerHTML = `
       <div class="rc-dd-item${noneSelected ? ' rc-dd-item--checked' : ''}" onclick="RecruitModule.${fn}(null)">
-        <span class="rc-dd-check">${noneSelected ? '✓' : ''}</span> 전체
+        <span class="rc-dd-check">${noneSelected ? chk : ''}</span> 전체
       </div>
       ${items.map(v => `
         <div class="rc-dd-item${cur.includes(v) ? ' rc-dd-item--checked' : ''}" onclick="RecruitModule.${fn}('${v}')">
-          <span class="rc-dd-check">${cur.includes(v) ? '✓' : ''}</span> ${v}
+          <span class="rc-dd-check">${cur.includes(v) ? chk : ''}</span> ${v}
         </div>`).join('')}`;
     menu.classList.add('rc-dd-menu--open');
     // 외부 클릭 닫기
@@ -2380,7 +2381,7 @@ const RecruitModule = {
           <div class="rd-cand-meta">${c.position} · ${c.field}</div>
         </div>
         ${c.reviewStatus === 'completed'
-          ? `<button class="btn btn--ghost btn--sm rd-btn-inactive" onclick="RecruitModule.cancelReviewed(${c.id})">완료취소</button>`
+          ? `<button class="btn btn--ghost btn--sm rd-btn-inactive" onclick="RecruitModule.cancelReviewed(${c.id})">완료해제</button>`
           : `<button class="btn btn--primary btn--sm" onclick="RecruitModule.markReviewed(${c.id})">검수완료</button>`}
       </div>
       <div class="rd-detail-tabs">

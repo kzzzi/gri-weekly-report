@@ -1769,8 +1769,8 @@ const RecruitModule = {
           <div class="rd-cand-meta">${c.position} · ${c.field}</div>
         </div>
         ${c.reviewStatus === 'completed'
-          ? `<button class="btn btn--sm rd-btn-cancel" onclick="RecruitModule.cancelReviewed(${c.id})"><i data-lucide="check" style="width:13px;height:13px"></i> 검토완료</button>`
-          : `<button class="btn btn--primary btn--sm" onclick="RecruitModule.markReviewed(${c.id})">검토완료 →</button>`}
+          ? `<button class="btn btn--sm rd-btn-cancel" onclick="RecruitModule.cancelReviewed(${c.id})">완료취소</button>`
+          : `<button class="btn btn--primary btn--sm" onclick="RecruitModule.markReviewed(${c.id})">검토완료</button>`}
       </div>
       <div class="rd-body">
         <div class="rd-section">

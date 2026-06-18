@@ -1741,8 +1741,8 @@ const RecruitModule = {
   _hasUploaded: false,
   _sortField: null,
   _sortDir: 'asc',
-  _filterPosition: null,
-  _filterField: null,
+  _filterPosition: [],
+  _filterField: [],
 
   init() {
     const layout = document.getElementById('recruitMainLayout');
@@ -1824,8 +1824,8 @@ const RecruitModule = {
 
   _filtered() {
     let list = AppState.candidates.filter(c => {
-      if (this._filterPosition && c.position !== this._filterPosition) return false;
-      if (this._filterField && c.field !== this._filterField) return false;
+      if (this._filterPosition.length > 0 && !this._filterPosition.includes(c.position)) return false;
+      if (this._filterField.length > 0 && !this._filterField.includes(c.field)) return false;
       if (this._filter === 'done') return c.reviewStatus === 'completed';
       if (this._filter === 'pending') return c.reviewStatus !== 'completed';
       return true;
@@ -1859,8 +1859,12 @@ const RecruitModule = {
   },
 
   setPositionFilter(pos) {
-    this._filterPosition = (pos === this._filterPosition) ? null : pos;
-    this._filterField = null;
+    if (pos === null) { this._filterPosition = []; }
+    else {
+      const idx = this._filterPosition.indexOf(pos);
+      if (idx === -1) this._filterPosition.push(pos);
+      else this._filterPosition.splice(idx, 1);
+    }
     this._renderPositionFilters();
     this._renderFieldFilters();
     this._updateTabCounts();
@@ -1868,7 +1872,12 @@ const RecruitModule = {
   },
 
   setFieldFilter(field) {
-    this._filterField = (field === this._filterField) ? null : field;
+    if (field === null) { this._filterField = []; }
+    else {
+      const idx = this._filterField.indexOf(field);
+      if (idx === -1) this._filterField.push(field);
+      else this._filterField.splice(idx, 1);
+    }
     this._renderFieldFilters();
     this._updateTabCounts();
     this.renderTable();
@@ -1878,12 +1887,12 @@ const RecruitModule = {
     const posBtn = document.getElementById('rcPosBtn');
     const fieldBtn = document.getElementById('rcFieldBtn');
     if (posBtn) {
-      posBtn.classList.toggle('rc-dd-btn--active', !!this._filterPosition);
-      posBtn.innerHTML = (this._filterPosition || '직책') + ' <i data-lucide="chevron-down" style="width:11px;height:11px;"></i>';
+      posBtn.classList.toggle('rc-dd-btn--active', this._filterPosition.length > 0);
+      posBtn.innerHTML = '직책 <i data-lucide="chevron-down" style="width:11px;height:11px;"></i>';
     }
     if (fieldBtn) {
-      fieldBtn.classList.toggle('rc-dd-btn--active', !!this._filterField);
-      fieldBtn.innerHTML = (this._filterField || '분야') + ' <i data-lucide="chevron-down" style="width:11px;height:11px;"></i>';
+      fieldBtn.classList.toggle('rc-dd-btn--active', this._filterField.length > 0);
+      fieldBtn.innerHTML = '분야 <i data-lucide="chevron-down" style="width:11px;height:11px;"></i>';
     }
     lucide.createIcons();
   },
@@ -1903,13 +1912,14 @@ const RecruitModule = {
       : [...new Set(AppState.candidates.map(c => c.field))].sort((a, b) => a.localeCompare(b, 'ko'));
     const cur = type === 'position' ? this._filterPosition : this._filterField;
     const fn = type === 'position' ? 'setPositionFilter' : 'setFieldFilter';
+    const noneSelected = cur.length === 0;
     menu.innerHTML = `
-      <div class="rc-dd-item${!cur ? ' rc-dd-item--checked' : ''}" onclick="RecruitModule.${fn}(null)">
-        <span class="rc-dd-check">${!cur ? '✓' : ''}</span> 전체
+      <div class="rc-dd-item${noneSelected ? ' rc-dd-item--checked' : ''}" onclick="RecruitModule.${fn}(null)">
+        <span class="rc-dd-check">${noneSelected ? '✓' : ''}</span> 전체
       </div>
       ${items.map(v => `
-        <div class="rc-dd-item${cur === v ? ' rc-dd-item--checked' : ''}" onclick="RecruitModule.${fn}('${v}')">
-          <span class="rc-dd-check">${cur === v ? '✓' : ''}</span> ${v}
+        <div class="rc-dd-item${cur.includes(v) ? ' rc-dd-item--checked' : ''}" onclick="RecruitModule.${fn}('${v}')">
+          <span class="rc-dd-check">${cur.includes(v) ? '✓' : ''}</span> ${v}
         </div>`).join('')}`;
     menu.classList.add('rc-dd-menu--open');
     // 외부 클릭 닫기
@@ -1943,7 +1953,7 @@ const RecruitModule = {
     }
     const total = AppState.candidates.length;
     const done = AppState.candidates.filter(c => c.reviewStatus === 'completed').length;
-    const pending = AppState.candidates.filter(c => this._isAnomalous(c) && c.reviewStatus !== 'completed').length;
+    const pending = AppState.candidates.filter(c => c.reviewStatus !== 'completed').length;
     const inReview = total - done;
     set('rtcAll', total); set('rtcPending', pending); set('rtcDone', done);
     set('rdTotal', total); set('rdPending', inReview); set('rdDone', done);
@@ -1977,8 +1987,8 @@ const RecruitModule = {
     const layout = document.getElementById('recruitMainLayout');
     if (layout) layout.classList.add('recruit-main--loaded');
     this._filter = 'all';
-    this._filterPosition = null;
-    this._filterField = null;
+    this._filterPosition = [];
+    this._filterField = [];
     document.querySelectorAll('.rc-tab').forEach(btn => {
       btn.classList.toggle('rc-tab--active', btn.dataset.filter === 'all');
     });

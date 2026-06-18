@@ -4207,7 +4207,7 @@ ul, ol {
   gap: 8px;
   padding: 24px 32px;
   text-align: center;
-  flex: 1;
+  flex: 3;
   min-width: 0;
   background: var(--gri-surface);
   border: 2px dashed var(--gri-border);

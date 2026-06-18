@@ -3980,9 +3980,16 @@ ul, ol {
 }
 
 /* ── 상세 본문 ── */
+#recruitDetailContent {
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
 .rd-body {
   display: flex;
   flex-direction: column;
+  flex: 1;
   gap: 0;
   padding: 6px 8px;
   background: var(--gri-bg);
@@ -4209,8 +4216,9 @@ ul, ol {
 .rd-paper-badge {
   white-space: nowrap !important;
   width: auto !important;
-  padding: 1px 5px !important;
+  padding: 4px 8px !important;
   height: auto !important;
+  line-height: 1.4 !important;
 }
 
 /* ── 상단 고정 행: 업로드 + 대시보드 ── */

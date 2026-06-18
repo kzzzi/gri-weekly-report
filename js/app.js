@@ -1932,11 +1932,16 @@ const RecruitModule = {
   },
 
   _updateTabCounts() {
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
+    if (!this._hasUploaded) {
+      set('rtcAll', 0); set('rtcPending', 0); set('rtcDone', 0);
+      set('rdTotal', 0); set('rdPending', 0); set('rdDone', 0);
+      return;
+    }
     const total = AppState.candidates.length;
     const done = AppState.candidates.filter(c => c.reviewStatus === 'completed').length;
     const pending = AppState.candidates.filter(c => this._isAnomalous(c) && c.reviewStatus !== 'completed').length;
     const inReview = total - done;
-    const set = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
     set('rtcAll', total); set('rtcPending', pending); set('rtcDone', done);
     set('rdTotal', total); set('rdPending', inReview); set('rdDone', done);
   },

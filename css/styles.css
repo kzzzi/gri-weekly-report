@@ -3828,32 +3828,70 @@ ul, ol {
   color: var(--gri-text-muted);
 }
 
-/* ── 지원자 행 (카드 스타일) ── */
+/* ── 테이블 그리드 공통 컬럼 정의 ── */
+.rc-table-header,
 .rc-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: 24px 1fr 36px 36px 50px 52px;
   align-items: center;
-  gap: 8px;
-  padding: 7px 10px;
   border-bottom: 1px solid var(--gri-border-light);
+}
+
+/* ── 헤더 행 ── */
+.rc-table-header {
+  background: var(--gri-bg);
+  border-bottom: 1px solid var(--gri-border);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+.rc-th {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--gri-text-muted);
+  padding: 5px 0;
+  text-align: center;
+}
+.rc-th--num { padding-left: 6px; text-align: left; }
+.rc-th--name { text-align: left; padding-left: 8px; }
+
+/* ── 데이터 행 ── */
+.rc-row {
   cursor: pointer;
   transition: background 0.1s;
 }
-
 .rc-row:hover { background: rgba(var(--gri-primary-rgb), 0.03); }
 .rc-row--selected { background: rgba(var(--gri-primary-rgb), 0.07) !important; }
-.rc-row--anomaly { }
 
-.rc-row-num {
-  width: 20px;
+/* ── 셀 ── */
+.rc-td {
+  padding: 7px 0;
+  font-size: 0.82rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  border-left: 1px solid var(--gri-border-light);
+}
+.rc-td--num {
   font-size: 0.7rem;
   color: var(--gri-text-muted);
   font-weight: 600;
-  flex-shrink: 0;
-  text-align: center;
+  justify-content: center;
+  border-left: none;
+  padding-left: 6px;
 }
-
-.rc-row-body { flex: 1; min-width: 0; }
-
+.rc-td--name {
+  justify-content: flex-start;
+  padding-left: 8px;
+  font-weight: 700;
+  color: var(--gri-text-primary);
+  border-left: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rc-td--status { padding-right: 6px; }
 .rc-cand-name {
   font-size: 0.9rem;
   font-weight: 700;
@@ -3897,8 +3935,7 @@ ul, ol {
 .rc-status--pending { background: var(--gri-border-light); color: var(--gri-text-muted); }
 
 /* ── O/X 컬럼 ── */
-.rc-ox-group { display: flex; gap: 3px; align-items: center; flex-shrink: 0; }
-.rc-ox { font-size: 0.72rem; font-weight: 700; width: 16px; text-align: center; }
+.rc-ox { font-size: 0.78rem; font-weight: 700; }
 .rc-ox--ok { color: var(--gri-primary); }
 .rc-ox--bad { color: var(--gri-error); }
 .rc-ox--na { color: var(--gri-text-muted); }

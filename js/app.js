@@ -2072,31 +2072,44 @@ const RecruitModule = {
       container.innerHTML = `<div class="rc-empty">해당하는 지원자가 없습니다</div>`;
       return;
     }
+    // 헤더행
+    const header = document.createElement('div');
+    header.className = 'rc-table-header';
+    header.innerHTML = `
+      <span class="rc-th rc-th--num">#</span>
+      <span class="rc-th rc-th--name">지원자</span>
+      <span class="rc-th rc-th--ox">서류</span>
+      <span class="rc-th rc-th--ox">논문</span>
+      <span class="rc-th rc-th--ox">블라인드</span>
+      <span class="rc-th rc-th--status">상태</span>
+    `;
+    container.appendChild(header);
+
     list.forEach((c, idx) => {
       const anomaly = this._isAnomalous(c);
       const isSelected = this._selectedId === c.id;
       let statusHtml;
       if (c.reviewStatus === 'completed') {
-        statusHtml = '<span class="rc-status rc-status--done">검수완료</span>';
+        statusHtml = '<span class="rc-status rc-status--done">완료</span>';
       } else if (anomaly) {
-        statusHtml = '<span class="rc-status rc-status--anomaly">확인필요</span>';
+        statusHtml = '<span class="rc-status rc-status--anomaly">검토</span>';
       } else {
-        statusHtml = '<span class="rc-status rc-status--pending">검수대기</span>';
+        statusHtml = '<span class="rc-status rc-status--pending">대기</span>';
       }
 
       const row = document.createElement('div');
       row.className = `rc-row${isSelected ? ' rc-row--selected' : ''}`;
       row.onclick = () => this.selectCandidate(c.id);
       const docOx = (c.verification.documents.status === 'ok' || c.verification.documents.status === 'pending') ? '<span class="rc-ox rc-ox--ok">○</span>' : '<span class="rc-ox rc-ox--bad">✕</span>';
-      const paperOx = !c.verification.paper.applicable ? '<span class="rc-ox rc-ox--na">-</span>' : (c.verification.paper.status === 'ok' || c.verification.paper.status === 'na') ? '<span class="rc-ox rc-ox--ok">○</span>' : '<span class="rc-ox rc-ox--bad">✕</span>';
+      const paperOx = !c.verification.paper.applicable ? '<span class="rc-ox rc-ox--na">–</span>' : (c.verification.paper.status === 'ok' || c.verification.paper.status === 'na') ? '<span class="rc-ox rc-ox--ok">○</span>' : '<span class="rc-ox rc-ox--bad">✕</span>';
       const blindOx = (!c.verification.blind.issues || c.verification.blind.issues.length === 0) ? '<span class="rc-ox rc-ox--ok">○</span>' : '<span class="rc-ox rc-ox--bad">✕</span>';
       row.innerHTML = `
-        <span class="rc-row-num">${idx + 1}</span>
-        <div class="rc-row-body">
-          <div class="rc-cand-name">${c.name}</div>
-        </div>
-        <div class="rc-ox-group">${docOx}${paperOx}${blindOx}</div>
-        ${statusHtml}
+        <span class="rc-td rc-td--num">${idx + 1}</span>
+        <span class="rc-td rc-td--name">${c.name}</span>
+        <span class="rc-td rc-td--ox">${docOx}</span>
+        <span class="rc-td rc-td--ox">${paperOx}</span>
+        <span class="rc-td rc-td--ox">${blindOx}</span>
+        <span class="rc-td rc-td--status">${statusHtml}</span>
       `;
       container.appendChild(row);
     });

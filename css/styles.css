@@ -3520,7 +3520,6 @@ ul, ol {
   gap: 10px;
   height: calc(100vh - 104px);
   overflow: hidden;
-  max-width: 1200px;
   width: 100%;
   margin: 0 auto;
 }
@@ -3832,7 +3831,7 @@ ul, ol {
 .rc-table-header,
 .rc-row {
   display: grid;
-  grid-template-columns: 24px 1fr 36px 36px 50px 52px;
+  grid-template-columns: 24px 1fr 36px 36px 50px 52px 28px;
   align-items: center;
   border-bottom: 1px solid var(--gri-border-light);
 }
@@ -3894,10 +3893,6 @@ ul, ol {
 }
 .rc-del-btn {
   display: none;
-  position: absolute;
-  right: 4px;
-  top: 50%;
-  transform: translateY(-50%);
   background: none;
   border: none;
   color: var(--gri-text-muted);
@@ -3908,6 +3903,7 @@ ul, ol {
 }
 .rc-del-btn:hover { color: var(--gri-error); }
 .rc-row:hover .rc-del-btn { display: block; }
+.rc-td--del { justify-content: center; padding: 0; }
 .rc-td--status { padding-right: 6px; }
 .rc-cand-name {
   font-size: 0.9rem;
@@ -4048,8 +4044,102 @@ ul, ol {
   color: var(--gri-text-secondary) !important;
 }
 
+/* ── Detail panel 2-tab ── */
+.rd-detail-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--gri-border-light);
+  margin: 0;
+  flex-shrink: 0;
+  background: var(--gri-surface);
+  position: sticky;
+  top: 44px;
+  z-index: 1;
+  padding: 0 12px;
+}
+.rd-detail-tab {
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gri-text-secondary);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  transition: color .15s, border-color .15s;
+}
+.rd-detail-tab:hover { color: var(--gri-text-primary); }
+.rd-detail-tab--active {
+  color: var(--gri-primary);
+  border-bottom-color: var(--gri-primary);
+}
+.rd-tab-panel--verify,
+.rd-tab-panel--info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.rd-tab-panel--info {
+  background: var(--gri-bg);
+}
+
+/* ── 상세정보 패널 ── */
+.rd-info-body {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.rd-info-section {
+  background: var(--gri-surface);
+  border: 1px solid var(--gri-border-light);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.rd-info-section-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gri-text-secondary);
+  background: var(--gri-bg);
+  padding: 6px 14px;
+  border-bottom: 1px solid var(--gri-border-light);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.rd-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.rd-info-grid--single {
+  grid-template-columns: 1fr;
+}
+.rd-info-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 7px 14px;
+  border-bottom: 1px solid var(--gri-border-light);
+  font-size: 13px;
+}
+.rd-info-row:last-child,
+.rd-info-grid:not(.rd-info-grid--single) .rd-info-row:nth-last-child(2):not(:nth-child(odd)) { border-bottom: none; }
+.rd-info-label {
+  color: var(--gri-text-secondary);
+  font-size: 11px;
+  white-space: nowrap;
+  min-width: 80px;
+  flex-shrink: 0;
+}
+.rd-info-value {
+  color: var(--gri-text-primary);
+  font-size: 13px;
+  word-break: break-all;
+}
+
 /* ── 상세 본문 ── */
 #recruitDetailContent {
+  display: flex;
   flex: 1;
   flex-direction: column;
   min-height: 0;
@@ -4886,23 +4976,25 @@ ul, ol {
 /* ── 상위 탭 (채용검증/평가위원검증) ── */
 .rc-page-tabs {
   display: flex;
-  gap: 4px;
+  gap: 8px;
   flex-shrink: 0;
-  border-bottom: 2px solid var(--gri-border);
-  padding-bottom: 0;
+  padding: 0;
+  border-bottom: none;
 }
 .rc-page-tab {
-  padding: 6px 16px;
+  padding: 7px 18px;
   font-size: 0.85rem;
   font-weight: 600;
-  border: none;
-  background: none;
-  color: var(--gri-text-muted);
+  border: 1.5px solid var(--gri-border);
+  background: var(--gri-surface);
+  color: var(--gri-text-secondary);
   cursor: pointer;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -2px;
+  border-radius: 8px;
+  margin-bottom: 0;
+  transition: all .15s;
 }
-.rc-page-tab--active { color: var(--gri-primary); border-bottom-color: var(--gri-primary); }
+.rc-page-tab:hover { border-color: var(--gri-primary); color: var(--gri-primary); }
+.rc-page-tab--active { background: var(--gri-primary); color: #fff; border-color: var(--gri-primary); }
 
 /* ── 평가위원 테이블 ── */
 .rc-eval-toolbar {
@@ -4924,7 +5016,7 @@ ul, ol {
 .rc-eval-table-header,
 .rc-eval-row {
   display: grid;
-  grid-template-columns: 1fr 1.6fr 70px 60px 60px 36px;
+  grid-template-columns: 90px 1.6fr 1fr 65px 65px 65px 36px;
   align-items: center;
 }
 .rc-eval-table-header {
@@ -4950,6 +5042,7 @@ ul, ol {
 }
 .rc-eval-td:first-child { border-left: none; text-align: left; font-weight: 600; }
 .rc-eval-td--affil { font-size: 0.78rem; color: var(--gri-text-secondary); text-align: left; }
+.rc-eval-td--field { font-size: 0.78rem; color: var(--gri-text-secondary); text-align: left; }
 .rc-eval-td--score { font-weight: 700; }
 .rc-eval-td--high { color: var(--gri-primary); }
 .rc-eval-td--low { color: var(--gri-error); }
@@ -5000,7 +5093,7 @@ ul, ol {
   min-height: 0;
 }
 .rc-session-sidebar {
-  width: 150px;
+  width: 220px;
   flex-shrink: 0;
   background: var(--gri-surface);
   border: 1px solid var(--gri-border);
@@ -5036,3 +5129,84 @@ ul, ol {
 .rc-session-item--active { background: rgba(var(--gri-primary-rgb),0.08); }
 .rc-session-name { font-size: 0.78rem; font-weight: 600; color: var(--gri-text-primary); }
 .rc-session-date { font-size: 0.68rem; color: var(--gri-text-muted); margin-top: 2px; }
+
+/* ── 평가위원 추가 모달 입력 ── */
+.eval-add-input {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid var(--gri-border);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: var(--gri-text-primary);
+  background: var(--gri-bg);
+  box-sizing: border-box;
+  outline: none;
+}
+.eval-add-input:focus { border-color: var(--gri-primary); }
+
+/* ── 블라인드 원본보기 모달 ── */
+.blind-orig-modal {
+  background: var(--gri-surface);
+  border-radius: 12px;
+  border: 1px solid var(--gri-border);
+  width: 600px;
+  max-width: 92vw;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.blind-orig-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--gri-border);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--gri-text-primary);
+  flex-shrink: 0;
+}
+.blind-orig-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.bo-doc-text {
+  flex: 1;
+  padding: 20px 24px;
+  font-size: 0.85rem;
+  line-height: 1.9;
+  color: var(--gri-text-primary);
+  background: var(--gri-bg);
+  white-space: pre-wrap;
+  word-break: keep-all;
+}
+.bo-highlight {
+  background: rgba(239, 68, 68, 0.18);
+  color: #dc2626;
+  border-bottom: 2px solid #dc2626;
+  border-radius: 2px;
+  padding: 0 2px;
+}
+.bo-issue-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  background: rgba(239, 68, 68, 0.06);
+  border-top: 1px solid rgba(239, 68, 68, 0.2);
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+.bo-issue-type {
+  background: #dc2626;
+  color: #fff;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-weight: 700;
+  font-size: 0.75rem;
+}
+.bo-issue-note { color: var(--gri-text-secondary); }

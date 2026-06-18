@@ -2086,6 +2086,7 @@ const RecruitModule = {
       <span class="rc-th rc-th--ox">논문</span>
       <span class="rc-th rc-th--ox">블라인드</span>
       <span class="rc-th rc-th--status">상태</span>
+      <span class="rc-th"></span>
     `;
     container.appendChild(header);
 
@@ -2108,13 +2109,17 @@ const RecruitModule = {
       const docCats = c.verification.documents.categories || [];
       const docTotal = docCats.length;
       const docBad = docCats.filter(cat => cat.status !== 'ok' && cat.status !== 'na').length;
-      const docCell = docTotal > 0 ? (docBad > 0 ? `<span class="rc-cnt rc-cnt--bad">${docBad}/${docTotal}</span>` : `<span class="rc-cnt rc-cnt--ok">${docTotal}건</span>`) : '<span class="rc-cnt rc-cnt--na">–</span>';
+      const docCell = docTotal > 0
+        ? (docBad > 0 ? `<span class="rc-cnt rc-cnt--bad">${docBad}건</span>` : `<span class="rc-cnt rc-cnt--ok">0건</span>`)
+        : `<span class="rc-cnt rc-cnt--na">–</span>`;
 
-      // 논문: 오류건수/전체건수
+      // 논문: 오류건수만
       const paperItems = c.verification.paper.items || [];
       const paperTotal = paperItems.length;
       const paperBad = paperItems.filter(p => p.status !== 'ok').length;
-      const paperCell = !c.verification.paper.applicable ? '<span class="rc-cnt rc-cnt--na">–</span>' : paperTotal === 0 ? '<span class="rc-cnt rc-cnt--na">–</span>' : (paperBad > 0 ? `<span class="rc-cnt rc-cnt--bad">${paperBad}/${paperTotal}</span>` : `<span class="rc-cnt rc-cnt--ok">${paperTotal}건</span>`);
+      const paperCell = !c.verification.paper.applicable || paperTotal === 0
+        ? `<span class="rc-cnt rc-cnt--na">–</span>`
+        : (paperBad > 0 ? `<span class="rc-cnt rc-cnt--bad">${paperBad}건</span>` : `<span class="rc-cnt rc-cnt--ok">0건</span>`);
 
       // 블라인드: 건수만
       const blindCount = (c.verification.blind.issues || []).length;
@@ -2124,12 +2129,14 @@ const RecruitModule = {
         <span class="rc-td rc-td--num">${idx + 1}</span>
         <span class="rc-td rc-td--name">
           <span class="rc-cand-name-text">${c.name}</span>
-          <button class="rc-del-btn" onclick="event.stopPropagation();RecruitModule.deleteCandidate(${c.id})" title="삭제">×</button>
         </span>
         <span class="rc-td rc-td--ox">${docCell}</span>
         <span class="rc-td rc-td--ox">${paperCell}</span>
         <span class="rc-td rc-td--ox">${blindCell}</span>
         <span class="rc-td rc-td--status">${statusHtml}</span>
+        <span class="rc-td rc-td--del">
+          <button class="rc-del-btn" onclick="event.stopPropagation();RecruitModule.deleteCandidate(${c.id})" title="삭제">×</button>
+        </span>
       `;
       container.appendChild(row);
     });
@@ -2226,13 +2233,13 @@ const RecruitModule = {
     if (blindIssues.length === 0) {
       blindHtml = `<div class="rd-blind-clear" style="color:#111;font-weight:400;">위반문구 미탐지</div>`;
     } else {
-      blindHtml = blindIssues.map(issue => `
+      blindHtml = blindIssues.map((issue, bi) => `
         <div class="rd-blind-item rd-blind-item--${issue.severity}">
           <div class="rd-blind-main">
             <span class="rd-blind-type">${issue.type}</span>
             <span class="rd-blind-excerpt">${issue.excerpt}</span>
           </div>
-          <button class="rd-blind-orig-btn" onclick="RecruitModule.openOriginalDoc(event)" title="원본보기">원본보기</button>
+          <button class="rd-blind-orig-btn" onclick="event.stopPropagation();RecruitModule.openBlindOriginal(${c.id}, ${bi})" title="원본보기">원본보기</button>
         </div>`).join('');
     }
 
@@ -2315,6 +2322,57 @@ const RecruitModule = {
     const blindCount = blindIssues.length;
     const blindProgress = blindCount > 0 ? `<span class="rd-progress rd-progress--warn">${blindCount}건 언급</span>` : '';
 
+    // ── 상세정보 데이터 생성 ──
+    const ph = c.candidateProfile || {};
+    const pid = String(c.id).padStart(4, '0');
+    const phones = ['010-2341-','010-5872-','010-9123-','010-3456-','010-7788-'];
+    const phone = phones[c.id % phones.length] + (1000 + c.id * 73 % 9000);
+    const tel = `02-${2000 + c.id * 37 % 8000}-${1000 + c.id * 19 % 9000}`;
+    const emailDomains = ['gmail.com','naver.com','kakao.com','daum.net'];
+    const email = `applicant${pid}@${emailDomains[c.id % emailDomains.length]}`;
+    const eduLevels = ['박사수료','박사졸업','석사졸업','석사수료'];
+    const edu = ph.school ? `${ph.school} ${ph.dept || ''} ${eduLevels[c.id % eduLevels.length]}` : '정보 없음';
+    const stages = ['서류전형','1차 면접','2차 면접','최종합격 대기'];
+    const stage = stages[c.id % stages.length];
+    const certs = [['기술사','정보처리기사'],['도시계획기사','교통기사'],['환경기사'],['경제학석사 학위'],['정책학 박사 학위']][c.id % 5];
+
+    const infoSection = (title, rows, single) => `
+      <div class="rd-info-section">
+        <div class="rd-info-section-title">${title}</div>
+        <div class="rd-info-grid${single ? ' rd-info-grid--single' : ''}">
+          ${rows.map(([label, val]) => `
+            <div class="rd-info-row">
+              <span class="rd-info-label">${label}</span>
+              <span class="rd-info-value">${val || '해당없음'}</span>
+            </div>`).join('')}
+        </div>
+      </div>`;
+
+    const infoHtml =
+      infoSection('기본 정보', [
+        ['수험번호', `GRI-2025-${pid}`], ['모집분야', c.field],
+        ['성명', c.name], ['휴대폰', phone],
+        ['전화', tel], ['이메일', email],
+        ['최종학력', edu], ['전형단계', stage],
+      ]) +
+      infoSection('보훈 · 장애 · 기타', [
+        ['취업지원대상', c.id % 7 === 0 ? '해당' : '해당없음'],
+        ['국가유공자관계', c.id % 7 === 0 ? '본인' : '해당없음'],
+        ['보훈번호', c.id % 7 === 0 ? `${12345 + c.id}-${c.id}` : '—'],
+        ['보훈가점비율', c.id % 7 === 0 ? '10%' : '—'],
+        ['보훈사유', c.id % 7 === 0 ? '국가유공자' : '—'],
+        ['보훈등급', c.id % 7 === 0 ? '3급' : '—'],
+        ['장애대상', c.id % 11 === 0 ? '해당' : '해당없음'],
+        ['장애내용', c.id % 11 === 0 ? '지체장애' : '—'],
+        ['장애등록일', c.id % 11 === 0 ? '2018-03-15' : '—'],
+        ['새터민', '해당없음'],
+      ]) +
+      infoSection('학력 · 경력 · 자격증', [
+        ['출신학교', ph.school || '—'], ['학과', ph.dept || '—'],
+        ['최근 직장', ph.company || '—'], ['지역', ph.region || '—'],
+        ['자격증', certs.join(', ')],
+      ], true);
+
     content.innerHTML = `
       <div class="rd-header">
         <div class="rd-header-info">
@@ -2325,33 +2383,30 @@ const RecruitModule = {
           ? `<button class="btn btn--ghost btn--sm rd-btn-inactive" onclick="RecruitModule.cancelReviewed(${c.id})">완료취소</button>`
           : `<button class="btn btn--primary btn--sm" onclick="RecruitModule.markReviewed(${c.id})">검수완료</button>`}
       </div>
-      ${summaryHtml}
-      <div class="rd-body">
-        <div class="rd-section">
-          <div class="rd-section-label">
-            서류 검증
-            ${badge(docIssue, missingDocs || '서류 미비 항목 있음')}
-            ${docProgress}
+      <div class="rd-detail-tabs">
+        <button class="rd-detail-tab rd-detail-tab--active" onclick="RecruitModule.switchDetailTab('verify',this)">검증</button>
+        <button class="rd-detail-tab" onclick="RecruitModule.switchDetailTab('info',this)">상세정보</button>
+      </div>
+      <div class="rd-tab-panel rd-tab-panel--verify">
+        ${summaryHtml}
+        <div class="rd-body">
+          <div class="rd-section">
+            <div class="rd-section-label">서류 검증 ${docProgress}</div>
+            <div class="rd-doc-list">${docRows}</div>
           </div>
-          <div class="rd-doc-list">${docRows}</div>
-        </div>
-        <div class="rd-section">
-          <div class="rd-section-label">
-            논문 검증
-            ${badge(paperIssue, paperIssueItems.join(', ') || '논문 등재 확인 필요')}
-            ${paperProgress}
+          <div class="rd-section">
+            <div class="rd-section-label">논문 검증 ${paperProgress}</div>
+            ${paperHtml}
           </div>
-          ${paperHtml}
-        </div>
-        <div class="rd-section">
-          <div class="rd-section-label">
-            블라인드 검토
-            ${badge(blindIssue, blindIssues.map(i => i.type).join(', ') || '블라인드 위반 항목 있음')}
-            ${blindProgress}
+          <div class="rd-section">
+            <div class="rd-section-label">블라인드 검토 ${blindProgress}</div>
+            ${blindHtml}
           </div>
-          ${blindHtml}
+          ${c.reviewNote ? `<div class="rd-note"><strong>메모</strong> ${c.reviewNote}</div>` : ''}
         </div>
-        ${c.reviewNote ? `<div class="rd-note"><strong>메모</strong> ${c.reviewNote}</div>` : ''}
+      </div>
+      <div class="rd-tab-panel rd-tab-panel--info" style="display:none;">
+        <div class="rd-info-body">${infoHtml}</div>
       </div>
     `;
     lucide.createIcons();
@@ -2435,9 +2490,38 @@ const RecruitModule = {
     document.getElementById('evalOverlay').classList.remove('eval-overlay--active');
   },
 
-  openOriginalDoc(e) {
-    e.stopPropagation();
-    alert('원본 문서 뷰어는 실제 파일 업로드 후 사용 가능합니다.');
+  openBlindOriginal(candId, issueIdx) {
+    const c = AppState.candidates.find(a => a.id === candId);
+    if (!c) return;
+    const issue = (c.verification.blind.issues || [])[issueIdx];
+    if (!issue) return;
+    const excerptRaw = issue.excerpt.replace(/"/g, '');
+    const dummyParagraphs = [
+      '경기연구원 채용공고 자기소개서',
+      '',
+      '1. 지원동기',
+      '경기연구원의 공공정책 연구 역량과 지역 발전에 대한 기여 가능성에 큰 매력을 느꼈습니다. 석사 과정 이후 다양한 연구 프로젝트에 참여하며 정책 분석 및 데이터 기반 연구에 깊은 흥미를 가지게 되었습니다.',
+      '',
+      '2. 주요 경력 및 역량',
+      '재직 기간 동안 정책 분석, 도시 계획, 환경 정책 등 다양한 분야에서 연구 활동을 수행하였습니다. ' + excerptRaw + ' 이를 바탕으로 연구의 질적 향상에 기여할 자신이 있습니다.',
+      '',
+      '3. 입사 후 포부',
+      '경기연구원의 일원으로서 연구 역량을 십분 발휘하여 경기도 정책 수립에 실질적으로 기여하고자 합니다.',
+    ];
+    const rawText = dummyParagraphs.join('\n');
+    const safeExcerpt = excerptRaw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const highlighted = rawText.replace(new RegExp(safeExcerpt, 'g'), `<mark class="bo-highlight">${excerptRaw}</mark>`);
+    document.getElementById('blindOrigContent').innerHTML = `
+      <div class="bo-doc-text">${highlighted.replace(/\n/g, '<br>')}</div>
+      <div class="bo-issue-bar">
+        <span class="bo-issue-type">${issue.type}</span>
+        <span class="bo-issue-note">개인 식별 가능 문구 탐지 — "${excerptRaw}"</span>
+      </div>`;
+    document.getElementById('blindOrigModal').style.display = 'flex';
+  },
+
+  closeBlindOrigModal() {
+    document.getElementById('blindOrigModal').style.display = 'none';
   },
 
   markReviewed(id) {
@@ -2447,6 +2531,17 @@ const RecruitModule = {
     this._updateTabCounts();
     this.renderTable();
     this.renderDetail(c);
+  },
+
+  switchDetailTab(tab, btn) {
+    const content = document.getElementById('recruitDetailContent');
+    if (!content) return;
+    content.querySelectorAll('.rd-detail-tab').forEach(b => b.classList.remove('rd-detail-tab--active'));
+    if (btn) btn.classList.add('rd-detail-tab--active');
+    const vp = content.querySelector('.rd-tab-panel--verify');
+    const ip = content.querySelector('.rd-tab-panel--info');
+    if (vp) vp.style.display = tab === 'verify' ? '' : 'none';
+    if (ip) ip.style.display = tab === 'info' ? '' : 'none';
   },
 
   cancelReviewed(id) {
@@ -2498,9 +2593,10 @@ const RecruitModule = {
       <div class="rc-eval-row">
         <span class="rc-eval-td">${ev.name}</span>
         <span class="rc-eval-td rc-eval-td--affil">${ev.affil}</span>
-        <span class="rc-eval-td rc-eval-td--score">${ev.similarity}%</span>
-        <span class="rc-eval-td rc-eval-td--score rc-eval-td--high">${ev.max}</span>
-        <span class="rc-eval-td rc-eval-td--score rc-eval-td--low">${ev.min}</span>
+        <span class="rc-eval-td rc-eval-td--field">${ev.field || '—'}</span>
+        <span class="rc-eval-td rc-eval-td--score">${ev.relevance}%</span>
+        <span class="rc-eval-td rc-eval-td--score rc-eval-td--high">${ev.max}점</span>
+        <span class="rc-eval-td rc-eval-td--score rc-eval-td--low">${ev.min}점</span>
         <span class="rc-eval-td rc-eval-td--action">
           <button class="rc-eval-del" onclick="RecruitModule.removeEvaluator(${i})" title="삭제">×</button>
         </span>
@@ -2510,22 +2606,37 @@ const RecruitModule = {
   _buildEvalList() {
     // 기존 EVAL_PROFILES에서 샘플 데이터 생성
     const names = Object.keys(EVAL_PROFILES).slice(0, 8);
-    this._evalList = names.map(name => {
+    const fields = ['도시계획','교통정책','환경정책','재정분석','경제학','행정학','사회정책'];
+    this._evalList = names.map((name, i) => {
       const p = EVAL_PROFILES[name];
-      const sim = Math.floor(65 + Math.random() * 30);
-      const max = (7.5 + Math.random() * 2).toFixed(1);
-      const min = (5.5 + Math.random() * 1.5).toFixed(1);
-      return { name, affil: p.company || '', similarity: sim, max: parseFloat(max), min: parseFloat(min) };
+      const rel = Math.floor(55 + (i * 7 + 13) % 40);
+      const max = Math.floor(75 + (i * 11 + 7) % 20);
+      const min = Math.floor(40 + (i * 9 + 5) % 30);
+      return { name, affil: p.company || '', field: fields[i % fields.length], relevance: rel, max, min };
     });
     return this._evalList;
   },
 
   addEvaluator() {
-    const name = prompt('추가할 심사위원 이름을 입력하세요:');
-    if (!name || !name.trim()) return;
+    document.getElementById('evalAddModal').style.display = 'flex';
+  },
+
+  submitEvaluatorAdd() {
+    const name = document.getElementById('evalAddName').value.trim();
+    const affil = document.getElementById('evalAddAffil').value.trim();
+    const field = document.getElementById('evalAddField').value.trim();
+    if (!name) { alert('이름을 입력하세요.'); return; }
     if (!this._evalList) this._buildEvalList();
-    this._evalList.push({ name: name.trim(), affil: '소속 미입력', similarity: 0, max: 0, min: 0 });
+    this._evalList.push({ name, affil: affil || '소속 미입력', field: field || '—', relevance: 0, max: 0, min: 0 });
+    document.getElementById('evalAddModal').style.display = 'none';
+    document.getElementById('evalAddName').value = '';
+    document.getElementById('evalAddAffil').value = '';
+    document.getElementById('evalAddField').value = '';
     this.renderEvalTable();
+  },
+
+  closeEvalAddModal() {
+    document.getElementById('evalAddModal').style.display = 'none';
   },
 
   removeEvaluator(idx) {

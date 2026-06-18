@@ -276,7 +276,8 @@
                 <div class="rc-eval-table-header">
                   <span class="rc-eval-th">이름</span>
                   <span class="rc-eval-th">소속</span>
-                  <span class="rc-eval-th">유사도</span>
+                  <span class="rc-eval-th">전문분야</span>
+                  <span class="rc-eval-th">연관성</span>
                   <span class="rc-eval-th">최고</span>
                   <span class="rc-eval-th">최저</span>
                   <span class="rc-eval-th"></span>
@@ -297,6 +298,31 @@
             </div>
             <div class="ontology-modal-body">
               <svg id="ontologySvg" width="520" height="360" viewBox="0 0 520 360"></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- 평가위원 추가 모달 -->
+        <div id="evalAddModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;" onclick="if(event.target===this)RecruitModule.closeEvalAddModal()">
+          <div style="background:var(--gri-surface);border-radius:12px;padding:24px;width:360px;max-width:90vw;border:1px solid var(--gri-border);">
+            <div style="font-size:0.95rem;font-weight:700;color:var(--gri-text-primary);margin-bottom:16px;">평가위원 추가</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div>
+                <label style="font-size:0.78rem;color:var(--gri-text-secondary);display:block;margin-bottom:4px;">이름 *</label>
+                <input id="evalAddName" type="text" placeholder="홍길동" class="eval-add-input">
+              </div>
+              <div>
+                <label style="font-size:0.78rem;color:var(--gri-text-secondary);display:block;margin-bottom:4px;">소속기관</label>
+                <input id="evalAddAffil" type="text" placeholder="경기연구원" class="eval-add-input">
+              </div>
+              <div>
+                <label style="font-size:0.78rem;color:var(--gri-text-secondary);display:block;margin-bottom:4px;">전문분야</label>
+                <input id="evalAddField" type="text" placeholder="도시계획" class="eval-add-input">
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:20px;">
+              <button onclick="RecruitModule.closeEvalAddModal()" class="btn btn--ghost btn--sm">취소</button>
+              <button onclick="RecruitModule.submitEvaluatorAdd()" class="btn btn--primary btn--sm">추가</button>
             </div>
           </div>
         </div>
@@ -464,6 +490,17 @@
         </button>
       </div>
       <div class="eval-panel-body" id="evalPanelBody"></div>
+    </div>
+  </div>
+
+  <!-- 블라인드 원본보기 모달 -->
+  <div id="blindOrigModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;" onclick="if(event.target===this)RecruitModule.closeBlindOrigModal()">
+    <div class="blind-orig-modal">
+      <div class="blind-orig-header">
+        <span>원본 문서 미리보기</span>
+        <button onclick="RecruitModule.closeBlindOrigModal()" style="background:none;border:none;cursor:pointer;font-size:1.1rem;color:var(--gri-text-muted);">×</button>
+      </div>
+      <div id="blindOrigContent" class="blind-orig-body"></div>
     </div>
   </div>
 

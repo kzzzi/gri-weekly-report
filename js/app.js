@@ -2013,10 +2013,16 @@ const RecruitModule = {
   renderTable() {
     const container = document.getElementById('recruitTableBody');
     if (!container) return;
+    const tabbar = document.getElementById('recruitTabs') && document.querySelector('.rc-tabbar');
+    const filterBar = document.getElementById('rcFilterBar');
     if (!this._hasUploaded) {
-      container.innerHTML = `<div class="rc-empty" style="color:var(--gri-text-muted);padding:32px 0;">파일을 업로드하면 지원자 목록이 표시됩니다</div>`;
+      if (tabbar) tabbar.style.display = 'none';
+      if (filterBar) filterBar.style.display = 'none';
+      container.innerHTML = `<div class="rc-empty" style="color:var(--gri-text-muted);padding:32px 0;text-align:center;">파일을 업로드하면 지원자 목록이 표시됩니다</div>`;
       return;
     }
+    if (tabbar) tabbar.style.display = '';
+    if (filterBar) filterBar.style.display = '';
     const list = this._filtered();
     // 검토필요 먼저, 그다음 이름 가나다순
     list.sort((a, b) => {
@@ -2200,8 +2206,8 @@ const RecruitModule = {
           <div class="rd-cand-meta">${c.position} · ${c.field}</div>
         </div>
         ${c.reviewStatus === 'completed'
-          ? `<button class="btn btn--primary btn--sm" onclick="RecruitModule.cancelReviewed(${c.id})">완료취소</button>`
-          : `<button class="btn btn--ghost btn--sm rd-btn-inactive" onclick="RecruitModule.markReviewed(${c.id})">검수완료</button>`}
+          ? `<button class="btn btn--ghost btn--sm rd-btn-inactive" onclick="RecruitModule.cancelReviewed(${c.id})">완료취소</button>`
+          : `<button class="btn btn--primary btn--sm" onclick="RecruitModule.markReviewed(${c.id})">검수완료</button>`}
       </div>
       <div class="rd-body">
         <div class="rd-section">

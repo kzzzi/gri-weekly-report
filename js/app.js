@@ -1744,6 +1744,9 @@ const RecruitModule = {
   _filterPosition: [],
   _filterField: [],
   _filterCategory: null,
+  _pageTab: 'recruit',
+  _sessions: [],
+  _currentSessionId: null,
 
   init() {
     const layout = document.getElementById('recruitMainLayout');
@@ -1755,6 +1758,7 @@ const RecruitModule = {
     this._renderFieldFilters();
     this._updateTabCounts();
     this.renderTable();
+    this._initSessions();
   },
 
   _showView(uploaded) {
@@ -2100,15 +2104,31 @@ const RecruitModule = {
       const row = document.createElement('div');
       row.className = `rc-row${isSelected ? ' rc-row--selected' : ''}`;
       row.onclick = () => this.selectCandidate(c.id);
-      const docOx = (c.verification.documents.status === 'ok' || c.verification.documents.status === 'pending') ? '<span class="rc-ox rc-ox--ok">○</span>' : '<span class="rc-ox rc-ox--bad">✕</span>';
-      const paperOx = !c.verification.paper.applicable ? '<span class="rc-ox rc-ox--na">–</span>' : (c.verification.paper.status === 'ok' || c.verification.paper.status === 'na') ? '<span class="rc-ox rc-ox--ok">○</span>' : '<span class="rc-ox rc-ox--bad">✕</span>';
-      const blindOx = (!c.verification.blind.issues || c.verification.blind.issues.length === 0) ? '<span class="rc-ox rc-ox--ok">○</span>' : '<span class="rc-ox rc-ox--bad">✕</span>';
+      // 서류: 오류건수/전체건수
+      const docCats = c.verification.documents.categories || [];
+      const docTotal = docCats.length;
+      const docBad = docCats.filter(cat => cat.status !== 'ok' && cat.status !== 'na').length;
+      const docCell = docTotal > 0 ? (docBad > 0 ? `<span class="rc-cnt rc-cnt--bad">${docBad}/${docTotal}</span>` : `<span class="rc-cnt rc-cnt--ok">${docTotal}건</span>`) : '<span class="rc-cnt rc-cnt--na">–</span>';
+
+      // 논문: 오류건수/전체건수
+      const paperItems = c.verification.paper.items || [];
+      const paperTotal = paperItems.length;
+      const paperBad = paperItems.filter(p => p.status !== 'ok').length;
+      const paperCell = !c.verification.paper.applicable ? '<span class="rc-cnt rc-cnt--na">–</span>' : paperTotal === 0 ? '<span class="rc-cnt rc-cnt--na">–</span>' : (paperBad > 0 ? `<span class="rc-cnt rc-cnt--bad">${paperBad}/${paperTotal}</span>` : `<span class="rc-cnt rc-cnt--ok">${paperTotal}건</span>`);
+
+      // 블라인드: 건수만
+      const blindCount = (c.verification.blind.issues || []).length;
+      const blindCell = blindCount > 0 ? `<span class="rc-cnt rc-cnt--bad">${blindCount}건</span>` : `<span class="rc-cnt rc-cnt--ok">0건</span>`;
+
       row.innerHTML = `
         <span class="rc-td rc-td--num">${idx + 1}</span>
-        <span class="rc-td rc-td--name">${c.name}</span>
-        <span class="rc-td rc-td--ox">${docOx}</span>
-        <span class="rc-td rc-td--ox">${paperOx}</span>
-        <span class="rc-td rc-td--ox">${blindOx}</span>
+        <span class="rc-td rc-td--name">
+          <span class="rc-cand-name-text">${c.name}</span>
+          <button class="rc-del-btn" onclick="event.stopPropagation();RecruitModule.deleteCandidate(${c.id})" title="삭제">×</button>
+        </span>
+        <span class="rc-td rc-td--ox">${docCell}</span>
+        <span class="rc-td rc-td--ox">${paperCell}</span>
+        <span class="rc-td rc-td--ox">${blindCell}</span>
         <span class="rc-td rc-td--status">${statusHtml}</span>
       `;
       container.appendChild(row);
@@ -2259,20 +2279,27 @@ const RecruitModule = {
       : '';
 
     // ── 요약 메시지 생성 ──
-    const missingDocsCount = c.verification.documents.categories.filter(cat => cat.status !== 'ok' && cat.status !== 'na').length;
+    let summaryText = '';
     const summaryParts = [];
-    if (missingDocsCount > 0) summaryParts.push(`서류 ${missingDocsCount}건 미비`);
-    if (c.verification.paper.applicable && c.verification.paper.status !== 'ok' && c.verification.paper.status !== 'na') {
-      const badPapers = (c.verification.paper.items || []).filter(p => p.status !== 'ok').length;
-      if (badPapers > 0) summaryParts.push(`논문 ${badPapers}건 확인 필요`);
-    }
-    if (blindIssues.length > 0) summaryParts.push(`블라인드 ${blindIssues.length}건 탐지`);
-    const allEvalConflict = allEvals.filter(x => x.cf.verdict === '검증필요').length;
-    if (allEvalConflict > 0) summaryParts.push(`심사위원 ${allEvalConflict}명 검증 필요`);
+    const docBadCount = c.verification.documents.categories
+      ? c.verification.documents.categories.filter(cat => cat.status !== 'ok' && cat.status !== 'na').length : 0;
+    const paperBadCount = c.verification.paper.applicable
+      ? (c.verification.paper.items || []).filter(p => p.status !== 'ok').length : 0;
+    const blindCount2 = (c.verification.blind.issues || []).length;
 
-    const summaryText = summaryParts.length > 0
-      ? `${summaryParts.join(', ')}로 추가 검토가 필요합니다.`
-      : `서류·논문·블라인드 검증에서 이상이 발견되지 않았습니다. 검수 완료를 권장합니다.`;
+    if (docBadCount > 0) summaryParts.push(`doc:${docBadCount}`);
+    if (paperBadCount > 0) summaryParts.push(`paper:${paperBadCount}`);
+    if (blindCount2 > 0) summaryParts.push(`blind:${blindCount2}`);
+
+    if (summaryParts.length === 0) {
+      summaryText = '서류·논문·블라인드 검증에서 이상이 발견되지 않았습니다. 검수 완료를 권장합니다.';
+    } else {
+      const parts = [];
+      if (docBadCount > 0) parts.push(`누락 서류가 ${docBadCount}건 확인되었습니다. 서류 보완 후 다시 한번 검토해 주시길 바랍니다.`);
+      if (paperBadCount > 0) parts.push(`일부 논문(${paperBadCount}건)은 등재 확인이 필요합니다. 해당 논문의 게재 여부를 재확인해 주세요.`);
+      if (blindCount2 > 0) parts.push(`블라인드 검토에서 ${blindCount2}건의 개인 식별 가능 문구가 탐지되었습니다. 해당 문단을 검토해 주세요.`);
+      summaryText = parts.join(' ');
+    }
     const summaryHtml = `<div class="rd-summary"><span class="rd-summary-icon">✦</span><span class="rd-summary-text">${summaryText}</span></div>`;
 
     // ── 섹션 진행 카운터 ──
@@ -2429,6 +2456,181 @@ const RecruitModule = {
     this._updateTabCounts();
     this.renderTable();
     this.renderDetail(c);
+  },
+
+  deleteCandidate(id) {
+    if (!confirm('이 지원자를 목록에서 삭제하시겠습니까?')) return;
+    const idx = AppState.candidates.findIndex(c => c.id === id);
+    if (idx === -1) return;
+    AppState.candidates.splice(idx, 1);
+    if (this._selectedId === id) {
+      this._selectedId = null;
+      const empty = document.getElementById('recruitDetailEmpty');
+      const content = document.getElementById('recruitDetailContent');
+      if (empty) empty.style.display = '';
+      if (content) content.style.display = 'none';
+    }
+    this._updateTabCounts();
+    this.renderTable();
+  },
+
+  switchPageTab(tab) {
+    this._pageTab = tab;
+    document.querySelectorAll('.rc-page-tab').forEach(btn => {
+      btn.classList.toggle('rc-page-tab--active', btn.getAttribute('onclick').includes(`'${tab}'`));
+    });
+    const r = document.getElementById('rcPageRecruit');
+    const e = document.getElementById('rcPageEval');
+    if (r) r.style.display = tab === 'recruit' ? 'flex' : 'none';
+    if (e) e.style.display = tab === 'eval' ? 'flex' : 'none';
+    if (tab === 'eval') this.renderEvalTable();
+  },
+
+  renderEvalTable() {
+    const body = document.getElementById('rcEvalTableBody');
+    if (!body) return;
+    const evalList = this._evalList || this._buildEvalList();
+    if (evalList.length === 0) {
+      body.innerHTML = '<div class="rc-empty" style="padding:32px 0;">평가위원이 없습니다</div>';
+      return;
+    }
+    body.innerHTML = evalList.map((ev, i) => `
+      <div class="rc-eval-row">
+        <span class="rc-eval-td">${ev.name}</span>
+        <span class="rc-eval-td rc-eval-td--affil">${ev.affil}</span>
+        <span class="rc-eval-td rc-eval-td--score">${ev.similarity}%</span>
+        <span class="rc-eval-td rc-eval-td--score rc-eval-td--high">${ev.max}</span>
+        <span class="rc-eval-td rc-eval-td--score rc-eval-td--low">${ev.min}</span>
+        <span class="rc-eval-td rc-eval-td--action">
+          <button class="rc-eval-del" onclick="RecruitModule.removeEvaluator(${i})" title="삭제">×</button>
+        </span>
+      </div>`).join('');
+  },
+
+  _buildEvalList() {
+    // 기존 EVAL_PROFILES에서 샘플 데이터 생성
+    const names = Object.keys(EVAL_PROFILES).slice(0, 8);
+    this._evalList = names.map(name => {
+      const p = EVAL_PROFILES[name];
+      const sim = Math.floor(65 + Math.random() * 30);
+      const max = (7.5 + Math.random() * 2).toFixed(1);
+      const min = (5.5 + Math.random() * 1.5).toFixed(1);
+      return { name, affil: p.company || '', similarity: sim, max: parseFloat(max), min: parseFloat(min) };
+    });
+    return this._evalList;
+  },
+
+  addEvaluator() {
+    const name = prompt('추가할 심사위원 이름을 입력하세요:');
+    if (!name || !name.trim()) return;
+    if (!this._evalList) this._buildEvalList();
+    this._evalList.push({ name: name.trim(), affil: '소속 미입력', similarity: 0, max: 0, min: 0 });
+    this.renderEvalTable();
+  },
+
+  removeEvaluator(idx) {
+    if (!this._evalList) return;
+    this._evalList.splice(idx, 1);
+    this.renderEvalTable();
+  },
+
+  openOntologyMap() {
+    const overlay = document.getElementById('ontologyOverlay');
+    if (!overlay) return;
+    overlay.style.display = 'flex';
+    this._drawOntologyMap();
+  },
+
+  closeOntologyMap(e) {
+    if (e && e.target !== document.getElementById('ontologyOverlay')) return;
+    const overlay = document.getElementById('ontologyOverlay');
+    if (overlay) overlay.style.display = 'none';
+  },
+
+  _drawOntologyMap() {
+    const svg = document.getElementById('ontologySvg');
+    if (!svg) return;
+    // 샘플 노드와 엣지
+    const nodes = [
+      { id: 0, x: 260, y: 180, label: '지원자', r: 28, color: '#2563eb' },
+      { id: 1, x: 120, y: 80,  label: '교통계획', r: 22, color: '#64748b' },
+      { id: 2, x: 400, y: 80,  label: '도시정책', r: 22, color: '#64748b' },
+      { id: 3, x: 80,  y: 240, label: '환경정책', r: 22, color: '#64748b' },
+      { id: 4, x: 440, y: 240, label: '재정분석', r: 22, color: '#64748b' },
+      { id: 5, x: 200, y: 300, label: '강민철', r: 18, color: '#10b981' },
+      { id: 6, x: 320, y: 300, label: '이준호', r: 18, color: '#10b981' },
+      { id: 7, x: 150, y: 150, label: '박성은', r: 18, color: '#10b981' },
+      { id: 8, x: 370, y: 150, label: '최현우', r: 18, color: '#f59e0b' },
+    ];
+    const edges = [[0,1],[0,2],[0,3],[0,4],[1,5],[1,7],[2,6],[2,8],[3,5],[4,6]];
+    svg.innerHTML = edges.map(([a,b]) => {
+      const na = nodes[a], nb = nodes[b];
+      return `<line x1="${na.x}" y1="${na.y}" x2="${nb.x}" y2="${nb.y}" stroke="#e2e8f0" stroke-width="2"/>`;
+    }).join('') + nodes.map(n => `
+      <circle cx="${n.x}" cy="${n.y}" r="${n.r}" fill="${n.color}" opacity="0.9"/>
+      <text x="${n.x}" y="${n.y}" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="white" font-weight="600">${n.label}</text>
+    `).join('');
+  },
+
+  _initSessions() {
+    try {
+      this._sessions = JSON.parse(localStorage.getItem('gri_recruit_sessions') || '[]');
+    } catch(e) { this._sessions = []; }
+    if (this._sessions.length === 0) {
+      this._sessions.push({ id: Date.now(), name: '채용 세션 1', savedAt: new Date().toISOString(), candidateCount: 0 });
+      this._saveSessions();
+    }
+    this._currentSessionId = this._sessions[0].id;
+    this.renderSessionList();
+  },
+
+  _saveSessions() {
+    localStorage.setItem('gri_recruit_sessions', JSON.stringify(this._sessions));
+  },
+
+  newSession() {
+    const n = this._sessions.length + 1;
+    const sess = { id: Date.now(), name: `채용 세션 ${n}`, savedAt: new Date().toISOString(), candidateCount: 0 };
+    this._sessions.unshift(sess);
+    this._saveSessions();
+    this._currentSessionId = sess.id;
+    // reset state
+    this._hasUploaded = false;
+    this._selectedId = null;
+    this._filter = 'all';
+    this._filterPosition = [];
+    this._filterField = [];
+    this._filterCategory = null;
+    const layout = document.getElementById('recruitMainLayout');
+    if (layout) {
+      layout.classList.remove('recruit-main--loaded');
+    }
+    this.renderSessionList();
+    this._updateTabCounts();
+    this.renderTable();
+    const empty = document.getElementById('recruitDetailEmpty');
+    const content = document.getElementById('recruitDetailContent');
+    if (empty) empty.style.display = '';
+    if (content) content.style.display = 'none';
+  },
+
+  renderSessionList() {
+    const list = document.getElementById('rcSessionList');
+    if (!list || !this._sessions) return;
+    list.innerHTML = this._sessions.map(s => {
+      const date = new Date(s.savedAt);
+      const dateStr = `${date.getMonth()+1}/${date.getDate()} ${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
+      const isActive = s.id === this._currentSessionId;
+      return `<div class="rc-session-item${isActive ? ' rc-session-item--active' : ''}" onclick="RecruitModule.loadSession(${s.id})">
+        <div class="rc-session-name">${s.name}</div>
+        <div class="rc-session-date">${dateStr}</div>
+      </div>`;
+    }).join('');
+  },
+
+  loadSession(id) {
+    this._currentSessionId = id;
+    this.renderSessionList();
   },
 
   downloadExcel() {

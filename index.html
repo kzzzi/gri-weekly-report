@@ -138,106 +138,169 @@
       <!-- ===== RECRUITMENT PAGE ===== -->
       <div id="page-recruitment" style="display:none;">
 
-        <!-- 상단 고정: 업로드 + 대시보드 카드 -->
-        <div class="recruit-top-row">
-          <div class="recruit-upload-card" id="recruitUploadZone"
-            ondragover="RecruitModule.onDragOver(event)"
-            ondragleave="RecruitModule.onDragLeave(event)"
-            ondrop="RecruitModule.onDrop(event)">
-            <div class="recruit-upload-icon">
-              <i data-lucide="upload" style="width:22px;height:22px;color:var(--gri-text-muted)"></i>
-            </div>
-            <div class="recruit-upload-title">파일을 드래그하거나 클릭하여 업로드</div>
-            <div class="recruit-upload-desc">PDF · HWP · HWPX · DOCX 파일이 포함된 폴더</div>
-            <label class="btn btn--secondary btn--sm" for="recruitFolderInput" style="cursor:pointer;margin-top:4px;">
-              폴더 선택
-            </label>
-            <input type="file" id="recruitFolderInput" webkitdirectory multiple hidden
-              onchange="RecruitModule.handleUpload(this.files)">
+        <!-- 상위 탭: 채용검증 / 평가위원검증 -->
+        <div class="rc-page-tabs">
+          <button class="rc-page-tab rc-page-tab--active" onclick="RecruitModule.switchPageTab('recruit')">채용검증</button>
+          <button class="rc-page-tab" onclick="RecruitModule.switchPageTab('eval')">평가위원검증</button>
+        </div>
+
+        <div class="rc-page-body">
+          <!-- 세션 사이드바 -->
+          <div class="rc-session-sidebar">
+            <button class="rc-session-new" onclick="RecruitModule.newSession()">
+              <i data-lucide="plus" style="width:13px;height:13px;"></i> 새 채용
+            </button>
+            <div class="rc-session-list" id="rcSessionList"></div>
           </div>
-          <div class="rc-dashboard rc-dashboard--side">
-            <div class="rc-dash-card rc-dash-card--col rc-dash-cat-card" onclick="RecruitModule.setCategoryFilter('doc')" style="cursor:pointer;">
-              <div class="rc-dash-icon"><i data-lucide="file-text" style="width:18px;height:18px;"></i></div>
-              <div class="rc-dash-num" id="rdDoc">0</div>
-              <div class="rc-dash-label">서류</div>
+
+          <!-- 메인 콘텐츠 영역 -->
+          <div class="rc-page-main">
+
+            <div id="rcPageRecruit" style="display:flex;flex-direction:column;flex:1;min-height:0;gap:10px;">
+
+              <!-- 상단 고정: 업로드 + 대시보드 카드 -->
+              <div class="recruit-top-row">
+                <div class="recruit-upload-card" id="recruitUploadZone"
+                  ondragover="RecruitModule.onDragOver(event)"
+                  ondragleave="RecruitModule.onDragLeave(event)"
+                  ondrop="RecruitModule.onDrop(event)">
+                  <div class="recruit-upload-icon">
+                    <i data-lucide="upload" style="width:22px;height:22px;color:var(--gri-text-muted)"></i>
+                  </div>
+                  <div class="recruit-upload-title">파일을 드래그하거나 클릭하여 업로드</div>
+                  <div class="recruit-upload-desc">PDF · HWP · HWPX · DOCX 파일이 포함된 폴더</div>
+                  <label class="btn btn--secondary btn--sm" for="recruitFolderInput" style="cursor:pointer;margin-top:4px;">
+                    폴더 선택
+                  </label>
+                  <input type="file" id="recruitFolderInput" webkitdirectory multiple hidden
+                    onchange="RecruitModule.handleUpload(this.files)">
+                </div>
+                <div class="rc-dashboard rc-dashboard--side">
+                  <div class="rc-dash-card rc-dash-card--col rc-dash-cat-card" onclick="RecruitModule.setCategoryFilter('doc')" style="cursor:pointer;">
+                    <div class="rc-dash-icon"><i data-lucide="file-text" style="width:18px;height:18px;"></i></div>
+                    <div class="rc-dash-num" id="rdDoc">0</div>
+                    <div class="rc-dash-label">서류</div>
+                  </div>
+                  <div class="rc-dash-card rc-dash-card--col rc-dash-cat-card" onclick="RecruitModule.setCategoryFilter('paper')" style="cursor:pointer;">
+                    <div class="rc-dash-icon"><i data-lucide="book-open" style="width:18px;height:18px;"></i></div>
+                    <div class="rc-dash-num" id="rdPaper">0</div>
+                    <div class="rc-dash-label">논문</div>
+                  </div>
+                  <div class="rc-dash-card rc-dash-card--col rc-dash-cat-card" onclick="RecruitModule.setCategoryFilter('blind')" style="cursor:pointer;">
+                    <div class="rc-dash-icon"><i data-lucide="eye-off" style="width:18px;height:18px;"></i></div>
+                    <div class="rc-dash-num" id="rdBlind">0</div>
+                    <div class="rc-dash-label">블라인드</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 지원자 목록 + 상세 패널 (항상 표시, 업로드 전 빈 상태) -->
+              <div class="recruit-main" id="recruitMainLayout">
+
+                <!-- 2분할 레이아웃 -->
+                <div class="recruit-layout">
+
+                <!-- LEFT: 지원자 목록 -->
+                <div class="recruit-list-col">
+                  <div id="recruitListView" style="display:flex;flex-direction:column;flex:1;min-height:0;">
+
+                    <!-- 상단 탭바 -->
+                    <div class="rc-tabbar">
+                      <div class="rc-tabs" id="recruitTabs">
+                        <button class="rc-tab rc-tab--active" data-filter="all" onclick="RecruitModule.setFilter('all')">
+                          전체 <span class="rc-tab-cnt" id="rtcAll">0</span>
+                        </button>
+                        <button class="rc-tab" data-filter="pending" onclick="RecruitModule.setFilter('pending')">
+                          검토 <span class="rc-tab-cnt" id="rtcPending">0</span>
+                        </button>
+                        <button class="rc-tab" data-filter="done" onclick="RecruitModule.setFilter('done')">
+                          완료 <span class="rc-tab-cnt" id="rtcDone">0</span>
+                        </button>
+                      </div>
+                      <div class="rc-tabbar-actions">
+                        <button class="btn btn--icon btn--ghost" onclick="RecruitModule.downloadExcel()" title="Excel 내보내기">
+                          <i data-lucide="file-spreadsheet" style="width:14px;height:14px"></i>
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- 드롭다운 필터 -->
+                    <div class="rc-filter-bar" id="rcFilterBar">
+                      <div class="rc-dd-wrap" id="rcPosDrop">
+                        <button class="rc-dd-btn" id="rcPosBtn" onclick="RecruitModule.toggleDropdown('position')">
+                          직책 <i data-lucide="chevron-down" style="width:11px;height:11px;"></i>
+                        </button>
+                        <div class="rc-dd-menu" id="rcPosMenu"></div>
+                      </div>
+                      <div class="rc-dd-wrap" id="rcFieldDrop">
+                        <button class="rc-dd-btn" id="rcFieldBtn" onclick="RecruitModule.toggleDropdown('field')">
+                          분야 <i data-lucide="chevron-down" style="width:11px;height:11px;"></i>
+                        </button>
+                        <div class="rc-dd-menu" id="rcFieldMenu"></div>
+                      </div>
+                    </div>
+
+                    <!-- 지원자 목록 -->
+                    <div class="rc-list-scroll">
+                      <div id="recruitTableBody"></div>
+                    </div>
+                  </div>
+                </div><!-- /recruit-list-col -->
+
+                <!-- RIGHT: 상세 패널 -->
+                <div class="recruit-detail-col" id="recruitDetailCol">
+                  <div class="recruit-detail-empty" id="recruitDetailEmpty">
+                    <i data-lucide="mouse-pointer-click" style="width:28px;height:28px;opacity:0.15"></i>
+                    <span>지원자를 선택하면<br>상세 검증 결과가 표시됩니다</span>
+                  </div>
+                  <div id="recruitDetailContent" style="display:none;"></div>
+                </div>
+
+                </div><!-- /recruit-layout -->
+              </div><!-- /recruit-main -->
+
+            </div><!-- /#rcPageRecruit -->
+
+            <!-- 평가위원검증 패널 -->
+            <div id="rcPageEval" style="display:none;flex-direction:column;flex:1;min-height:0;gap:10px;">
+              <div class="rc-eval-toolbar">
+                <button class="btn btn--sm btn--secondary" onclick="RecruitModule.openOntologyMap()">
+                  <i data-lucide="share-2" style="width:13px;height:13px;"></i> Map
+                </button>
+                <div style="flex:1;"></div>
+                <button class="btn btn--sm btn--primary" onclick="RecruitModule.addEvaluator()">
+                  <i data-lucide="plus" style="width:13px;height:13px;"></i> 추가
+                </button>
+              </div>
+              <div class="rc-eval-table-wrap">
+                <div class="rc-eval-table-header">
+                  <span class="rc-eval-th">이름</span>
+                  <span class="rc-eval-th">소속</span>
+                  <span class="rc-eval-th">유사도</span>
+                  <span class="rc-eval-th">최고</span>
+                  <span class="rc-eval-th">최저</span>
+                  <span class="rc-eval-th"></span>
+                </div>
+                <div id="rcEvalTableBody"></div>
+              </div>
             </div>
-            <div class="rc-dash-card rc-dash-card--col rc-dash-cat-card" onclick="RecruitModule.setCategoryFilter('paper')" style="cursor:pointer;">
-              <div class="rc-dash-icon"><i data-lucide="book-open" style="width:18px;height:18px;"></i></div>
-              <div class="rc-dash-num" id="rdPaper">0</div>
-              <div class="rc-dash-label">논문</div>
+
+          </div><!-- /.rc-page-main -->
+        </div><!-- /.rc-page-body -->
+
+        <!-- 온톨로지 맵 오버레이 -->
+        <div id="ontologyOverlay" onclick="RecruitModule.closeOntologyMap(event)" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
+          <div class="ontology-modal" onclick="event.stopPropagation()">
+            <div class="ontology-modal-header">
+              <span>온톨로지 맵 (샘플)</span>
+              <button onclick="RecruitModule.closeOntologyMap()" style="background:none;border:none;cursor:pointer;font-size:1.2rem;color:var(--gri-text-muted);">×</button>
             </div>
-            <div class="rc-dash-card rc-dash-card--col rc-dash-cat-card" onclick="RecruitModule.setCategoryFilter('blind')" style="cursor:pointer;">
-              <div class="rc-dash-icon"><i data-lucide="eye-off" style="width:18px;height:18px;"></i></div>
-              <div class="rc-dash-num" id="rdBlind">0</div>
-              <div class="rc-dash-label">블라인드</div>
+            <div class="ontology-modal-body">
+              <svg id="ontologySvg" width="520" height="360" viewBox="0 0 520 360"></svg>
             </div>
           </div>
         </div>
 
-        <!-- 지원자 목록 + 상세 패널 (항상 표시, 업로드 전 빈 상태) -->
-        <div class="recruit-main" id="recruitMainLayout">
-
-          <!-- 2분할 레이아웃 -->
-          <div class="recruit-layout">
-
-          <!-- LEFT: 지원자 목록 -->
-          <div class="recruit-list-col">
-            <div id="recruitListView" style="display:flex;flex-direction:column;flex:1;min-height:0;">
-
-              <!-- 상단 탭바 -->
-              <div class="rc-tabbar">
-                <div class="rc-tabs" id="recruitTabs">
-                  <button class="rc-tab rc-tab--active" data-filter="all" onclick="RecruitModule.setFilter('all')">
-                    전체 <span class="rc-tab-cnt" id="rtcAll">0</span>
-                  </button>
-                  <button class="rc-tab" data-filter="pending" onclick="RecruitModule.setFilter('pending')">
-                    검토 <span class="rc-tab-cnt" id="rtcPending">0</span>
-                  </button>
-                  <button class="rc-tab" data-filter="done" onclick="RecruitModule.setFilter('done')">
-                    완료 <span class="rc-tab-cnt" id="rtcDone">0</span>
-                  </button>
-                </div>
-                <div class="rc-tabbar-actions">
-                  <button class="btn btn--icon btn--ghost" onclick="RecruitModule.downloadExcel()" title="Excel 내보내기">
-                    <i data-lucide="file-spreadsheet" style="width:14px;height:14px"></i>
-                  </button>
-                </div>
-              </div>
-
-              <!-- 드롭다운 필터 -->
-              <div class="rc-filter-bar" id="rcFilterBar">
-                <div class="rc-dd-wrap" id="rcPosDrop">
-                  <button class="rc-dd-btn" id="rcPosBtn" onclick="RecruitModule.toggleDropdown('position')">
-                    직책 <i data-lucide="chevron-down" style="width:11px;height:11px;"></i>
-                  </button>
-                  <div class="rc-dd-menu" id="rcPosMenu"></div>
-                </div>
-                <div class="rc-dd-wrap" id="rcFieldDrop">
-                  <button class="rc-dd-btn" id="rcFieldBtn" onclick="RecruitModule.toggleDropdown('field')">
-                    분야 <i data-lucide="chevron-down" style="width:11px;height:11px;"></i>
-                  </button>
-                  <div class="rc-dd-menu" id="rcFieldMenu"></div>
-                </div>
-              </div>
-
-              <!-- 지원자 목록 -->
-              <div class="rc-list-scroll">
-                <div id="recruitTableBody"></div>
-              </div>
-            </div>
-          </div><!-- /recruit-list-col -->
-
-          <!-- RIGHT: 상세 패널 -->
-          <div class="recruit-detail-col" id="recruitDetailCol">
-            <div class="recruit-detail-empty" id="recruitDetailEmpty">
-              <i data-lucide="mouse-pointer-click" style="width:28px;height:28px;opacity:0.15"></i>
-              <span>지원자를 선택하면<br>상세 검증 결과가 표시됩니다</span>
-            </div>
-            <div id="recruitDetailContent" style="display:none;"></div>
-          </div>
-
-          </div><!-- /recruit-layout -->
-        </div><!-- /recruit-main -->
       </div><!-- /page-recruitment -->
 
     </main><!-- /main-content -->

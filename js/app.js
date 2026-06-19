@@ -1980,7 +1980,7 @@ const RecruitModule = {
     const set = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
     if (!this._hasUploaded) {
       set('rtcAll', 0); set('rtcPending', 0); set('rtcDone', 0);
-      set('rdDoc', 0); set('rdPaper', 0); set('rdBlind', 0);
+      set('rdTotal', '0명'); set('rdDoc', '0명'); set('rdPaper', '0명'); set('rdBlind', '0명');
       return;
     }
     const total = AppState.candidates.length;
@@ -1988,11 +1988,12 @@ const RecruitModule = {
     const pending = AppState.candidates.filter(c => c.reviewStatus !== 'completed').length;
     const inReview = total - done;
     set('rtcAll', total); set('rtcPending', pending); set('rtcDone', done);
+    set('rdTotal', total + '명');
     const docIssues = AppState.candidates.filter(c => c.verification.documents.status !== 'ok' && c.verification.documents.status !== 'pending').length;
     const paperIssues = AppState.candidates.filter(c => c.verification.paper.applicable && c.verification.paper.status !== 'ok' && c.verification.paper.status !== 'na').length;
     const blindIssues = AppState.candidates.filter(c => c.verification.blind.issues && c.verification.blind.issues.length > 0).length;
     const set2 = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
-    set2('rdDoc', docIssues); set2('rdPaper', paperIssues); set2('rdBlind', blindIssues);
+    set2('rdDoc', docIssues + '명'); set2('rdPaper', paperIssues + '명'); set2('rdBlind', blindIssues + '명');
   },
 
   // ── 폴더 드래그앤드롭 ──
@@ -2396,7 +2397,7 @@ const RecruitModule = {
         </div>
         ${c.reviewStatus === 'completed'
           ? `<button class="btn btn--ghost btn--sm rd-btn-inactive" onclick="RecruitModule.cancelReviewed(${c.id})">완료해제</button>`
-          : `<button class="btn btn--primary btn--sm" onclick="RecruitModule.markReviewed(${c.id})">검수완료</button>`}
+          : `<button class="btn btn--primary btn--sm" onclick="RecruitModule.markReviewed(${c.id})">검토완료</button>`}
       </div>
       <div class="rd-detail-tabs">
         <button class="rd-detail-tab rd-detail-tab--active" onclick="RecruitModule.switchDetailTab('verify',this)">검증</button>
@@ -2621,12 +2622,9 @@ const RecruitModule = {
         <span class="rc-eval-td">${ev.name}</span>
         <span class="rc-eval-td rc-eval-td--affil">${ev.affil}</span>
         <span class="rc-eval-td rc-eval-td--field">${ev.field || '—'}</span>
-        <span class="rc-eval-td rc-eval-td--score">${ev.relevance}%</span>
-        <span class="rc-eval-td rc-eval-td--score rc-eval-td--high">${ev.max}%</span>
-        <span class="rc-eval-td rc-eval-td--score rc-eval-td--low">${ev.min}%</span>
-        <span class="rc-eval-td rc-eval-td--action">
-          <button class="rc-eval-del" onclick="RecruitModule.removeEvaluator(${i})" title="삭제">×</button>
-        </span>
+        <span class="rc-eval-td rc-eval-td--score">${(ev.relevance/100).toFixed(2)}</span>
+        <span class="rc-eval-td rc-eval-td--score">${(ev.max/100).toFixed(2)}</span>
+        <span class="rc-eval-td rc-eval-td--score">${(ev.min/100).toFixed(2)}</span>
       </div>`).join('');
   },
 
@@ -2733,6 +2731,38 @@ const RecruitModule = {
     this.renderEvalTable();
     this.closeEvalAddModal();
     this.switchEvalAddTab('manual');
+  },
+
+  handleEvalUploadDirect(file) {
+    if (!file) return;
+    if (!window.XLSX) { alert('엑셀 라이브러리를 불러오는 중입니다. 잠시 후 다시 시도하세요.'); return; }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const wb = XLSX.read(e.target.result, { type: 'array' });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+        const dataRows = rows.filter((r, i) => {
+          if (i === 0 && typeof r[0] === 'string' && ['이름','name','성명'].includes((r[0]||'').toLowerCase().trim())) return false;
+          return r[0] && String(r[0]).trim();
+        });
+        if (dataRows.length === 0) { alert('데이터가 없습니다. A열에 이름을 입력하세요.'); return; }
+        const parsed = dataRows.map(r => ({
+          name: String(r[0] || '').trim(),
+          affil: String(r[1] || '').trim() || '소속 미입력',
+          field: String(r[2] || '').trim() || '—',
+          relevance: 0, max: 0, min: 0,
+        })).filter(p => p.name);
+        if (!this._evalList) this._buildEvalList();
+        this._evalList.push(...parsed);
+        this.renderEvalTable();
+        const status = document.getElementById('evalUploadStatus');
+        if (status) { status.textContent = `${parsed.length}명 추가됨`; setTimeout(() => { status.textContent = ''; }, 3000); }
+      } catch (err) {
+        alert('파일을 읽을 수 없습니다. 올바른 엑셀 파일인지 확인하세요.');
+      }
+    };
+    reader.readAsArrayBuffer(file);
   },
 
   removeEvaluator(idx) {
@@ -2941,12 +2971,24 @@ const RecruitModule = {
   },
 
   newSession() {
-    const n = this._sessions.length + 1;
-    const sess = { id: Date.now(), name: `채용 세션 ${n}`, savedAt: new Date().toISOString(), candidateCount: 0 };
+    const modal = document.getElementById('newSessionModal');
+    if (modal) {
+      const input = document.getElementById('newSessionNameInput');
+      if (input) input.value = '';
+      modal.style.display = 'flex';
+      setTimeout(() => { if (input) input.focus(); }, 50);
+    }
+  },
+
+  confirmNewSession() {
+    const input = document.getElementById('newSessionNameInput');
+    const name = (input ? input.value.trim() : '') || `채용 세션 ${this._sessions.length + 1}`;
+    const modal = document.getElementById('newSessionModal');
+    if (modal) modal.style.display = 'none';
+    const sess = { id: Date.now(), name, savedAt: new Date().toISOString(), candidateCount: 0 };
     this._sessions.unshift(sess);
     this._saveSessions();
     this._currentSessionId = sess.id;
-    // reset state
     this._hasUploaded = false;
     this._selectedId = null;
     this._filter = 'all';
@@ -2954,9 +2996,7 @@ const RecruitModule = {
     this._filterField = [];
     this._filterCategory = null;
     const layout = document.getElementById('recruitMainLayout');
-    if (layout) {
-      layout.classList.remove('recruit-main--loaded');
-    }
+    if (layout) layout.classList.remove('recruit-main--loaded');
     this.renderSessionList();
     this._updateTabCounts();
     this.renderTable();
@@ -2964,6 +3004,11 @@ const RecruitModule = {
     const content = document.getElementById('recruitDetailContent');
     if (empty) empty.style.display = '';
     if (content) content.style.display = 'none';
+  },
+
+  closeNewSessionModal() {
+    const modal = document.getElementById('newSessionModal');
+    if (modal) modal.style.display = 'none';
   },
 
   renderSessionList() {

@@ -5038,7 +5038,7 @@ ul, ol {
 .rc-eval-table-header,
 .rc-eval-row {
   display: grid;
-  grid-template-columns: 90px 1.6fr 1fr 65px 65px 65px 36px;
+  grid-template-columns: 90px 1.6fr 1fr 65px 65px 65px;
   align-items: center;
 }
 .rc-eval-table-header {
@@ -5066,8 +5066,8 @@ ul, ol {
 .rc-eval-td--affil { font-size: 0.78rem; color: var(--gri-text-secondary); text-align: left; }
 .rc-eval-td--field { font-size: 0.78rem; color: var(--gri-text-secondary); text-align: left; }
 .rc-eval-td--score { font-weight: 700; }
-.rc-eval-td--high { color: var(--gri-primary); }
-.rc-eval-td--low { color: var(--gri-error); }
+.rc-eval-td--high { color: var(--gri-text-primary); }
+.rc-eval-td--low { color: var(--gri-text-primary); }
 .rc-eval-td--action { padding: 4px; }
 .rc-eval-del {
   background: none;
@@ -5078,6 +5078,25 @@ ul, ol {
   padding: 2px 6px;
 }
 .rc-eval-del:hover { color: var(--gri-error); }
+
+.rc-eval-upload-label {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.81rem;
+  color: var(--gri-text-secondary);
+  padding: 5px 12px;
+  border: 1px dashed var(--gri-border);
+  border-radius: var(--gri-radius);
+  background: var(--gri-bg);
+  transition: border-color 0.15s, background 0.15s;
+}
+.rc-eval-upload-label:hover {
+  border-color: var(--gri-primary);
+  background: rgba(var(--gri-primary-rgb), 0.03);
+  color: var(--gri-primary);
+}
 
 /* ── 온톨로지 맵 모달 ── */
 .ontology-modal {

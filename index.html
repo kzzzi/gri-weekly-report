@@ -177,19 +177,24 @@
                     onchange="RecruitModule.handleUpload(this.files)">
                 </div>
                 <div class="rc-dashboard rc-dashboard--side">
+                  <div class="rc-dash-card rc-dash-card--col">
+                    <div class="rc-dash-icon"><i data-lucide="users" style="width:18px;height:18px;"></i></div>
+                    <div class="rc-dash-num" id="rdTotal">0명</div>
+                    <div class="rc-dash-label">총 인원</div>
+                  </div>
                   <div class="rc-dash-card rc-dash-card--col rc-dash-cat-card" onclick="RecruitModule.setCategoryFilter('doc')" style="cursor:pointer;">
                     <div class="rc-dash-icon"><i data-lucide="file-text" style="width:18px;height:18px;"></i></div>
-                    <div class="rc-dash-num" id="rdDoc">0</div>
+                    <div class="rc-dash-num" id="rdDoc">0명</div>
                     <div class="rc-dash-label">서류</div>
                   </div>
                   <div class="rc-dash-card rc-dash-card--col rc-dash-cat-card" onclick="RecruitModule.setCategoryFilter('paper')" style="cursor:pointer;">
                     <div class="rc-dash-icon"><i data-lucide="book-open" style="width:18px;height:18px;"></i></div>
-                    <div class="rc-dash-num" id="rdPaper">0</div>
+                    <div class="rc-dash-num" id="rdPaper">0명</div>
                     <div class="rc-dash-label">논문</div>
                   </div>
                   <div class="rc-dash-card rc-dash-card--col rc-dash-cat-card" onclick="RecruitModule.setCategoryFilter('blind')" style="cursor:pointer;">
                     <div class="rc-dash-icon"><i data-lucide="eye-off" style="width:18px;height:18px;"></i></div>
-                    <div class="rc-dash-num" id="rdBlind">0</div>
+                    <div class="rc-dash-num" id="rdBlind">0명</div>
                     <div class="rc-dash-label">블라인드</div>
                   </div>
                 </div>
@@ -265,12 +270,15 @@
             <!-- 평가위원검증 패널 -->
             <div id="rcPageEval" style="display:none;flex-direction:column;flex:1;min-height:0;gap:10px;">
               <div class="rc-eval-toolbar">
+                <label class="rc-eval-upload-label">
+                  <i data-lucide="upload" style="width:13px;height:13px;color:var(--gri-text-muted);"></i>
+                  <span>평가위원 명단 업로드 (Excel)</span>
+                  <input type="file" accept=".xlsx,.xls,.csv" hidden onchange="RecruitModule.handleEvalUploadDirect(this.files[0]);this.value=''">
+                </label>
+                <span id="evalUploadStatus" style="font-size:0.74rem;color:var(--gri-primary);margin-left:8px;"></span>
+                <div style="flex:1;"></div>
                 <button class="btn btn--sm btn--secondary" onclick="RecruitModule.openOntologyMap()">
                   <i data-lucide="share-2" style="width:13px;height:13px;"></i> Map
-                </button>
-                <div style="flex:1;"></div>
-                <button class="btn btn--sm btn--primary" onclick="RecruitModule.addEvaluator()">
-                  <i data-lucide="plus" style="width:13px;height:13px;"></i> 추가
                 </button>
               </div>
               <div class="rc-eval-table-wrap">
@@ -278,10 +286,9 @@
                   <span class="rc-eval-th">이름</span>
                   <span class="rc-eval-th">소속</span>
                   <span class="rc-eval-th">전문분야</span>
-                  <span class="rc-eval-th">연관성</span>
+                  <span class="rc-eval-th">연관성 지수</span>
                   <span class="rc-eval-th">최고</span>
                   <span class="rc-eval-th">최저</span>
-                  <span class="rc-eval-th"></span>
                 </div>
                 <div id="rcEvalTableBody"></div>
               </div>
@@ -533,6 +540,18 @@
         <button onclick="RecruitModule.closeBlindOrigModal()" style="background:none;border:none;cursor:pointer;font-size:1.1rem;color:var(--gri-text-muted);">×</button>
       </div>
       <div id="blindOrigContent" class="blind-orig-body"></div>
+    </div>
+  </div>
+
+  <!-- 새 채용 세션 이름 입력 모달 -->
+  <div id="newSessionModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:10000;align-items:center;justify-content:center;" onclick="if(event.target===this)RecruitModule.closeNewSessionModal()">
+    <div style="background:var(--gri-surface);border-radius:var(--gri-radius-lg);padding:24px 24px 20px;width:320px;box-shadow:var(--gri-shadow-lg);border:1px solid var(--gri-border);">
+      <div style="font-size:0.92rem;font-weight:700;color:var(--gri-text-primary);margin-bottom:14px;">새 채용 세션</div>
+      <input id="newSessionNameInput" type="text" class="eval-add-input" placeholder="세션 이름 (예: 2026년 하반기 채용)" style="width:100%;box-sizing:border-box;margin-bottom:16px;" onkeydown="if(event.key==='Enter')RecruitModule.confirmNewSession()">
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        <button class="btn btn--ghost btn--sm" onclick="RecruitModule.closeNewSessionModal()">취소</button>
+        <button class="btn btn--primary btn--sm" onclick="RecruitModule.confirmNewSession()">만들기</button>
+      </div>
     </div>
   </div>
 

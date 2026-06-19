@@ -2801,57 +2801,46 @@ const RecruitModule = {
   _drawOntologyMap() {
     const svg = document.getElementById('ontologySvg');
     if (!svg) return;
-
     const ns = 'http://www.w3.org/2000/svg';
 
-    // 지원자: 작은 점 r=9, 불규칙 y배치
-    const candidates = [
-      { id:'c0', x:68,  y:38,  r:9,  label:'김도현', color:'#2563eb' },
-      { id:'c1', x:62,  y:88,  r:9,  label:'이서연', color:'#2563eb' },
-      { id:'c2', x:74,  y:138, r:9,  label:'박준혁', color:'#2563eb' },
-      { id:'c3', x:60,  y:183, r:9,  label:'최수진', color:'#2563eb' },
-      { id:'c4', x:72,  y:233, r:9,  label:'홍길동', color:'#2563eb' },
-      { id:'c5', x:64,  y:278, r:9,  label:'윤지현', color:'#2563eb' },
-      { id:'c6', x:76,  y:325, r:9,  label:'강민서', color:'#2563eb' },
-      { id:'c7', x:62,  y:372, r:9,  label:'신예준', color:'#2563eb' },
-    ];
-    // 분야 토픽: 중간, 불규칙 배치
-    const topics = [
-      { id:'t0', x:248, y:52,  r:15, label:'교통계획', color:'#64748b' },
-      { id:'t1', x:355, y:105, r:15, label:'도시정책', color:'#64748b' },
-      { id:'t2', x:252, y:175, r:15, label:'환경정책', color:'#64748b' },
-      { id:'t3', x:360, y:238, r:15, label:'경제분석', color:'#64748b' },
-      { id:'t4', x:248, y:308, r:15, label:'복지정책', color:'#64748b' },
-      { id:'t5', x:355, y:368, r:15, label:'에너지정책', color:'#64748b' },
-    ];
-    // 심사위원: 크게 r=26, 4명
+    // ── 색상 상수 ──
+    const COL_EVAL_DEFAULT  = '#059669';  // 심사위원 기본 (초록)
+    const COL_EVAL_HOVER    = '#6D28D9';  // 심사위원 호버 (보라)
+    const COL_CAND_DEFAULT  = '#94A3B8';  // 지원자 기본 (회색)
+    const COL_CAND_ACTIVE   = '#2563EB';  // 지원자 연결됨 (파랑)
+    const COL_EDGE_DEFAULT  = '#CBD5E1';  // 엣지 기본
+    const COL_EDGE_ACTIVE   = '#3B82F6';  // 엣지 활성
+
+    // ── 심사위원 (큰 원, 분산 배치) ──
     const evaluators = [
-      { id:'e0', x:572, y:78,  r:26, label:'강민철', color:'#059669' },
-      { id:'e1', x:566, y:188, r:26, label:'이준호', color:'#059669' },
-      { id:'e2', x:574, y:298, r:26, label:'박성은', color:'#059669' },
-      { id:'e3', x:562, y:385, r:26, label:'최현우', color:'#059669' },
+      { id:'e0', x:195, y:145, r:26, label:'강민철' },
+      { id:'e1', x:420, y:108, r:26, label:'이준호' },
+      { id:'e2', x:168, y:298, r:26, label:'박성은' },
+      { id:'e3', x:448, y:308, r:26, label:'최현우' },
     ];
 
-    const allNodes = [...candidates, ...topics, ...evaluators];
+    // ── 지원자 (작은 원, 외곽 분산) ──
+    const candidates = [
+      { id:'c0', x:60,  y:50,  r:9,  label:'김도현', lx:-12, ly:-1, anchor:'end' },
+      { id:'c1', x:285, y:38,  r:9,  label:'이서연', lx:0,   ly:-14, anchor:'middle' },
+      { id:'c2', x:565, y:55,  r:9,  label:'박준혁', lx:13,  ly:-1, anchor:'start' },
+      { id:'c3', x:72,  y:210, r:9,  label:'최수진', lx:-14, ly:0,  anchor:'end' },
+      { id:'c4', x:318, y:215, r:9,  label:'홍길동', lx:13,  ly:0,  anchor:'start' },
+      { id:'c5', x:588, y:195, r:9,  label:'윤지현', lx:13,  ly:0,  anchor:'start' },
+      { id:'c6', x:128, y:390, r:9,  label:'강민서', lx:0,   ly:14, anchor:'middle' },
+      { id:'c7', x:378, y:395, r:9,  label:'신예준', lx:0,   ly:14, anchor:'middle' },
+      { id:'c8', x:535, y:390, r:9,  label:'오지훈', lx:13,  ly:0,  anchor:'start' },
+    ];
 
-    // 불규칙 연결: 지원자마다 1~3개 분야, 분야마다 1~3명 심사위원
+    // ── 직접 연결 (심사위원 ↔ 지원자, 불규칙) ──
     const edges = [
-      ['c0','t0'],
-      ['c1','t0'], ['c1','t1'],
-      ['c2','t1'], ['c2','t2'], ['c2','t3'],
-      ['c3','t2'],
-      ['c4','t3'], ['c4','t4'],
-      ['c5','t1'], ['c5','t4'],
-      ['c6','t4'], ['c6','t5'],
-      ['c7','t3'], ['c7','t5'],
-      ['t0','e0'],
-      ['t1','e0'], ['t1','e1'],
-      ['t2','e1'], ['t2','e2'],
-      ['t3','e1'], ['t3','e3'],
-      ['t4','e2'], ['t4','e3'],
-      ['t5','e2'], ['t5','e3'],
+      ['e0','c0'], ['e0','c1'], ['e0','c3'], ['e0','c4'],
+      ['e1','c1'], ['e1','c2'], ['e1','c4'], ['e1','c5'],
+      ['e2','c0'], ['e2','c3'], ['e2','c6'], ['e2','c7'],
+      ['e3','c4'], ['e3','c5'], ['e3','c7'], ['e3','c8'],
     ];
 
+    const allNodes = [...evaluators, ...candidates];
     const nodeMap = {};
     allNodes.forEach(n => { nodeMap[n.id] = n; });
 
@@ -2861,108 +2850,166 @@ const RecruitModule = {
 
     svg.innerHTML = '';
 
-    // 엣지
+    // 배경
+    const bg = document.createElementNS(ns, 'rect');
+    bg.setAttribute('x','0'); bg.setAttribute('y','0');
+    bg.setAttribute('width','640'); bg.setAttribute('height','420');
+    bg.setAttribute('fill','#F8FAFF');
+    svg.appendChild(bg);
+
+    // ── 엣지 ──
     const edgeEls = [];
     edges.forEach(([a, b]) => {
       const na = nodeMap[a], nb = nodeMap[b];
-      const mx = (na.x + nb.x) / 2;
-      const bend = (na.y - nb.y) * 0.18;
-      const path = document.createElementNS(ns, 'path');
-      path.setAttribute('d', `M${na.x},${na.y} C${mx + bend},${na.y} ${mx - bend},${nb.y} ${nb.x},${nb.y}`);
-      path.setAttribute('stroke', '#cbd5e1');
-      path.setAttribute('stroke-width', '1.2');
-      path.setAttribute('fill', 'none');
-      path.setAttribute('class', 'ont-edge');
-      path.dataset.a = a; path.dataset.b = b;
-      svg.appendChild(path);
-      edgeEls.push(path);
+      const line = document.createElementNS(ns, 'line');
+      line.setAttribute('x1', na.x); line.setAttribute('y1', na.y);
+      line.setAttribute('x2', nb.x); line.setAttribute('y2', nb.y);
+      line.setAttribute('stroke', COL_EDGE_DEFAULT);
+      line.setAttribute('stroke-width', '1');
+      line.setAttribute('opacity', '0.7');
+      line.setAttribute('class', 'ont-edge');
+      line.dataset.a = a; line.dataset.b = b;
+      svg.appendChild(line);
+      edgeEls.push(line);
     });
 
-    // 노드
+    // ── 노드 ──
     const nodeEls = {};
-    allNodes.forEach(n => {
+
+    // 지원자 먼저 (뒤에 렌더)
+    candidates.forEach(n => {
       const g = document.createElementNS(ns, 'g');
-      g.setAttribute('class', 'ont-node');
       g.dataset.id = n.id;
-      g.style.cursor = 'pointer';
+      g.style.cursor = 'default';
 
       const circle = document.createElementNS(ns, 'circle');
       circle.setAttribute('cx', n.x); circle.setAttribute('cy', n.y);
       circle.setAttribute('r', n.r);
-      circle.setAttribute('fill', n.color);
-      circle.setAttribute('opacity', '0.88');
+      circle.setAttribute('fill', COL_CAND_DEFAULT);
       g.appendChild(circle);
 
-      if (n.id.startsWith('e')) {
-        // 심사위원: 이름 안에
-        const txt = document.createElementNS(ns, 'text');
-        txt.setAttribute('x', n.x); txt.setAttribute('y', n.y);
-        txt.setAttribute('text-anchor', 'middle'); txt.setAttribute('dominant-baseline', 'middle');
-        txt.setAttribute('font-size', '9.5'); txt.setAttribute('fill', 'white');
-        txt.setAttribute('font-weight', '700'); txt.setAttribute('pointer-events', 'none');
-        txt.textContent = n.label;
-        g.appendChild(txt);
-      } else if (n.id.startsWith('t')) {
-        // 분야: 이름 아래
-        const txt = document.createElementNS(ns, 'text');
-        txt.setAttribute('x', n.x); txt.setAttribute('y', n.y + n.r + 9);
-        txt.setAttribute('text-anchor', 'middle');
-        txt.setAttribute('font-size', '8.5'); txt.setAttribute('fill', '#475569');
-        txt.setAttribute('font-weight', '500'); txt.setAttribute('pointer-events', 'none');
-        txt.textContent = n.label;
-        g.appendChild(txt);
-      } else {
-        // 지원자: 이름 왼쪽
-        const txt = document.createElementNS(ns, 'text');
-        txt.setAttribute('x', n.x - n.r - 4); txt.setAttribute('y', n.y);
-        txt.setAttribute('text-anchor', 'end'); txt.setAttribute('dominant-baseline', 'middle');
-        txt.setAttribute('font-size', '8'); txt.setAttribute('fill', '#475569');
-        txt.setAttribute('pointer-events', 'none');
-        txt.textContent = n.label;
-        g.appendChild(txt);
-      }
+      const txt = document.createElementNS(ns, 'text');
+      txt.setAttribute('x', n.x + n.lx); txt.setAttribute('y', n.y + n.ly);
+      txt.setAttribute('text-anchor', n.anchor);
+      txt.setAttribute('dominant-baseline', 'middle');
+      txt.setAttribute('font-size', '8.5'); txt.setAttribute('fill', '#64748B');
+      txt.setAttribute('pointer-events', 'none');
+      txt.textContent = n.label;
+      g.appendChild(txt);
 
       svg.appendChild(g);
-      nodeEls[n.id] = { g, circle };
+      nodeEls[n.id] = { g, circle, txt };
+    });
+
+    // 심사위원 (앞에 렌더, 클릭 가능)
+    evaluators.forEach(n => {
+      const g = document.createElementNS(ns, 'g');
+      g.dataset.id = n.id;
+      g.style.cursor = 'pointer';
+
+      // 외곽 글로우 링
+      const ring = document.createElementNS(ns, 'circle');
+      ring.setAttribute('cx', n.x); ring.setAttribute('cy', n.y);
+      ring.setAttribute('r', n.r + 5);
+      ring.setAttribute('fill', 'none');
+      ring.setAttribute('stroke', COL_EVAL_HOVER);
+      ring.setAttribute('stroke-width', '2');
+      ring.setAttribute('opacity', '0');
+      g.appendChild(ring);
+
+      const circle = document.createElementNS(ns, 'circle');
+      circle.setAttribute('cx', n.x); circle.setAttribute('cy', n.y);
+      circle.setAttribute('r', n.r);
+      circle.setAttribute('fill', COL_EVAL_DEFAULT);
+      g.appendChild(circle);
+
+      const txt = document.createElementNS(ns, 'text');
+      txt.setAttribute('x', n.x); txt.setAttribute('y', n.y);
+      txt.setAttribute('text-anchor', 'middle');
+      txt.setAttribute('dominant-baseline', 'middle');
+      txt.setAttribute('font-size', '9.5'); txt.setAttribute('fill', 'white');
+      txt.setAttribute('font-weight', '700'); txt.setAttribute('pointer-events', 'none');
+      txt.textContent = n.label;
+      g.appendChild(txt);
+
+      svg.appendChild(g);
+      nodeEls[n.id] = { g, circle, ring, txt };
 
       g.addEventListener('mouseenter', () => {
         const connected = adj[n.id];
-        const hColor = n.id.startsWith('e') ? '#059669' : n.id.startsWith('t') ? '#475569' : '#2563eb';
+        // 엣지
         edgeEls.forEach(ep => {
           const isConn = (ep.dataset.a === n.id || ep.dataset.b === n.id);
-          ep.setAttribute('stroke', isConn ? hColor : '#e2e8f0');
-          ep.setAttribute('stroke-width', isConn ? '2' : '0.8');
-          ep.setAttribute('opacity', isConn ? '1' : '0.25');
+          ep.setAttribute('stroke', isConn ? COL_EDGE_ACTIVE : COL_EDGE_DEFAULT);
+          ep.setAttribute('stroke-width', isConn ? '2' : '0.6');
+          ep.setAttribute('opacity', isConn ? '1' : '0.12');
         });
-        allNodes.forEach(nd => {
-          const isDim = nd.id !== n.id && !connected.has(nd.id);
-          nodeEls[nd.id].circle.setAttribute('opacity', isDim ? '0.15' : '1');
+        // 심사위원
+        evaluators.forEach(ev => {
+          const el = nodeEls[ev.id];
+          if (ev.id === n.id) {
+            el.circle.setAttribute('fill', COL_EVAL_HOVER);
+            el.ring.setAttribute('opacity', '0.35');
+          } else {
+            el.circle.setAttribute('opacity', '0.18');
+            el.txt.setAttribute('opacity', '0.18');
+          }
+        });
+        // 지원자
+        candidates.forEach(cd => {
+          const el = nodeEls[cd.id];
+          if (connected.has(cd.id)) {
+            el.circle.setAttribute('fill', COL_CAND_ACTIVE);
+            el.circle.setAttribute('r', '11');
+            el.txt.setAttribute('fill', '#1D4ED8');
+            el.txt.setAttribute('font-weight', '700');
+          } else {
+            el.circle.setAttribute('opacity', '0.1');
+            el.txt.setAttribute('opacity', '0.1');
+          }
         });
       });
+
       g.addEventListener('mouseleave', () => {
         edgeEls.forEach(ep => {
-          ep.setAttribute('stroke', '#cbd5e1');
-          ep.setAttribute('stroke-width', '1.2');
-          ep.setAttribute('opacity', '1');
+          ep.setAttribute('stroke', COL_EDGE_DEFAULT);
+          ep.setAttribute('stroke-width', '1');
+          ep.setAttribute('opacity', '0.7');
         });
-        allNodes.forEach(nd => {
-          nodeEls[nd.id].circle.setAttribute('opacity', '0.88');
+        evaluators.forEach(ev => {
+          const el = nodeEls[ev.id];
+          el.circle.setAttribute('fill', COL_EVAL_DEFAULT);
+          el.circle.setAttribute('opacity', '1');
+          el.txt.setAttribute('opacity', '1');
+          if (el.ring) el.ring.setAttribute('opacity', '0');
+        });
+        candidates.forEach(cd => {
+          const el = nodeEls[cd.id];
+          el.circle.setAttribute('fill', COL_CAND_DEFAULT);
+          el.circle.setAttribute('r', cd.r);
+          el.circle.setAttribute('opacity', '1');
+          el.txt.setAttribute('fill', '#64748B');
+          el.txt.setAttribute('font-weight', 'normal');
+          el.txt.setAttribute('opacity', '1');
         });
       });
     });
 
-    // 범례
+    // ── 범례 ──
     const legendY = 410;
-    [{ color:'#2563eb', label:'지원자', r:5 }, { color:'#64748b', label:'분야', r:8 }, { color:'#059669', label:'심사위원', r:11 }].forEach((item, i) => {
-      const gx = 175 + i * 110;
+    [
+      { color: COL_EVAL_DEFAULT, r: 11, label: '심사위원 (호버 시 보라색)' },
+      { color: COL_CAND_DEFAULT, r: 6,  label: '지원자 (호버 시 파란색)' },
+    ].forEach((item, i) => {
+      const gx = 185 + i * 220;
       const lc = document.createElementNS(ns, 'circle');
       lc.setAttribute('cx', gx); lc.setAttribute('cy', legendY);
-      lc.setAttribute('r', item.r); lc.setAttribute('fill', item.color); lc.setAttribute('opacity', '0.88');
+      lc.setAttribute('r', item.r); lc.setAttribute('fill', item.color);
       svg.appendChild(lc);
       const lt = document.createElementNS(ns, 'text');
-      lt.setAttribute('x', gx + item.r + 6); lt.setAttribute('y', legendY);
+      lt.setAttribute('x', gx + item.r + 7); lt.setAttribute('y', legendY);
       lt.setAttribute('dominant-baseline', 'middle');
-      lt.setAttribute('font-size', '9.5'); lt.setAttribute('fill', '#64748b');
+      lt.setAttribute('font-size', '9'); lt.setAttribute('fill', '#94A3B8');
       lt.textContent = item.label;
       svg.appendChild(lt);
     });

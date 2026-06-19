@@ -3615,6 +3615,13 @@ ul, ol {
   color: var(--gri-text-muted);
   margin-top: 2px;
 }
+.rc-dash-unit {
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--gri-text-muted);
+  margin-left: 1px;
+  vertical-align: baseline;
+}
 
 .rc-dash-card--pending .rc-dash-icon { background: rgba(var(--gri-error-rgb), 0.08); color: var(--gri-error); }
 .rc-dash-card--pending .rc-dash-num  { color: var(--gri-error); }

@@ -1980,7 +1980,9 @@ const RecruitModule = {
     const set = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
     if (!this._hasUploaded) {
       set('rtcAll', 0); set('rtcPending', 0); set('rtcDone', 0);
-      set('rdTotal', '0'); set('rdDoc', '0명'); set('rdPaper', '0명'); set('rdBlind', '0명');
+      set('rdTotal', '0');
+      const z = `0<span class="rc-dash-unit">명</span>`;
+      ['rdDoc','rdPaper','rdBlind'].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = z; });
       return;
     }
     const total = AppState.candidates.length;
@@ -1992,8 +1994,9 @@ const RecruitModule = {
     const docIssues = AppState.candidates.filter(c => c.verification.documents.status !== 'ok' && c.verification.documents.status !== 'pending').length;
     const paperIssues = AppState.candidates.filter(c => c.verification.paper.applicable && c.verification.paper.status !== 'ok' && c.verification.paper.status !== 'na').length;
     const blindIssues = AppState.candidates.filter(c => c.verification.blind.issues && c.verification.blind.issues.length > 0).length;
-    const set2 = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
-    set2('rdDoc', docIssues + '명'); set2('rdPaper', paperIssues + '명'); set2('rdBlind', blindIssues + '명');
+    const fmt = n => `${n}<span class="rc-dash-unit">명</span>`;
+    const set2 = (id, v) => { const el = document.getElementById(id); if (el) el.innerHTML = v; };
+    set2('rdDoc', fmt(docIssues)); set2('rdPaper', fmt(paperIssues)); set2('rdBlind', fmt(blindIssues));
   },
 
   // ── 폴더 드래그앤드롭 ──

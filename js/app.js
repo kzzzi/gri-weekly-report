@@ -1980,7 +1980,7 @@ const RecruitModule = {
     const set = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
     if (!this._hasUploaded) {
       set('rtcAll', 0); set('rtcPending', 0); set('rtcDone', 0);
-      set('rdTotal', '0'); set('rdDoc', '0'); set('rdPaper', '0'); set('rdBlind', '0');
+      set('rdTotal', '0'); set('rdDoc', '0명'); set('rdPaper', '0명'); set('rdBlind', '0명');
       return;
     }
     const total = AppState.candidates.length;
@@ -1993,7 +1993,7 @@ const RecruitModule = {
     const paperIssues = AppState.candidates.filter(c => c.verification.paper.applicable && c.verification.paper.status !== 'ok' && c.verification.paper.status !== 'na').length;
     const blindIssues = AppState.candidates.filter(c => c.verification.blind.issues && c.verification.blind.issues.length > 0).length;
     const set2 = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
-    set2('rdDoc', docIssues); set2('rdPaper', paperIssues); set2('rdBlind', blindIssues);
+    set2('rdDoc', docIssues + '명'); set2('rdPaper', paperIssues + '명'); set2('rdBlind', blindIssues + '명');
   },
 
   // ── 폴더 드래그앤드롭 ──

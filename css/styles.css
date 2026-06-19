@@ -5038,7 +5038,7 @@ ul, ol {
 .rc-eval-table-header,
 .rc-eval-row {
   display: grid;
-  grid-template-columns: 90px 1.6fr 1fr 65px 65px 65px;
+  grid-template-columns: 90px 1.6fr 1fr 90px 65px 65px;
   align-items: center;
 }
 .rc-eval-table-header {

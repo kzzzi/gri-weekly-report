@@ -2803,213 +2803,231 @@ const RecruitModule = {
     if (!svg) return;
     const ns = 'http://www.w3.org/2000/svg';
 
-    // ── 색상 상수 ──
-    const COL_EVAL_DEFAULT  = '#059669';  // 심사위원 기본 (초록)
-    const COL_EVAL_HOVER    = '#6D28D9';  // 심사위원 호버 (보라)
-    const COL_CAND_DEFAULT  = '#94A3B8';  // 지원자 기본 (회색)
-    const COL_CAND_ACTIVE   = '#2563EB';  // 지원자 연결됨 (파랑)
-    const COL_EDGE_DEFAULT  = '#CBD5E1';  // 엣지 기본
-    const COL_EDGE_ACTIVE   = '#3B82F6';  // 엣지 활성
+    const COL_EVAL_DEFAULT = '#6D28D9';
+    const COL_EVAL_HOVER   = '#6D28D9';
+    const COL_CAND_DEFAULT = '#94A3B8';
+    const COL_CAND_ACTIVE  = '#2563EB';
+    const COL_EDGE_DEFAULT = '#CBD5E1';
+    const COL_EDGE_ACTIVE  = '#3B82F6';
 
-    // ── 심사위원 (큰 원, 분산 배치) ──
+    // 시드 난수 (항상 동일한 레이아웃)
+    let _s = 7919;
+    const rnd = () => { _s = (_s * 1664525 + 1013904223) >>> 0; return _s / 0xFFFFFFFF; };
+
+    // 심사위원 4명 — 중앙 불규칙 클러스터 (구역 분할 방지)
     const evaluators = [
-      { id:'e0', x:195, y:145, r:26, label:'강민철' },
-      { id:'e1', x:420, y:108, r:26, label:'이준호' },
-      { id:'e2', x:168, y:298, r:26, label:'박성은' },
-      { id:'e3', x:448, y:308, r:26, label:'최현우' },
+      { id:'e0', x:262, y:185, r:26, label:'강민철' },
+      { id:'e1', x:358, y:155, r:26, label:'이준호' },
+      { id:'e2', x:248, y:258, r:26, label:'박성은' },
+      { id:'e3', x:372, y:248, r:26, label:'최현우' },
     ];
 
-    // ── 지원자 (작은 원, 외곽 분산) ──
-    const candidates = [
-      { id:'c0', x:60,  y:50,  r:9,  label:'김도현', lx:-12, ly:-1, anchor:'end' },
-      { id:'c1', x:285, y:38,  r:9,  label:'이서연', lx:0,   ly:-14, anchor:'middle' },
-      { id:'c2', x:565, y:55,  r:9,  label:'박준혁', lx:13,  ly:-1, anchor:'start' },
-      { id:'c3', x:72,  y:210, r:9,  label:'최수진', lx:-14, ly:0,  anchor:'end' },
-      { id:'c4', x:318, y:215, r:9,  label:'홍길동', lx:13,  ly:0,  anchor:'start' },
-      { id:'c5', x:588, y:195, r:9,  label:'윤지현', lx:13,  ly:0,  anchor:'start' },
-      { id:'c6', x:128, y:390, r:9,  label:'강민서', lx:0,   ly:14, anchor:'middle' },
-      { id:'c7', x:378, y:395, r:9,  label:'신예준', lx:0,   ly:14, anchor:'middle' },
-      { id:'c8', x:535, y:390, r:9,  label:'오지훈', lx:13,  ly:0,  anchor:'start' },
-    ];
+    const SN = ['김','이','박','최','정','강','조','윤','장','임','한','오','서','신','권','황','안','송','류','전'];
+    const GN = ['민준','서연','도현','지우','하준','준서','수빈','지민','예린','서현','지후','하윤','유진','은서','태양','소율','민서','현우','다은','예준'];
+    const TOTAL = 218;
+    const candidates = [];
+    for (let i = 0; i < TOTAL; i++) {
+      let x, y, ok, tries = 0;
+      do {
+        x = 18 + rnd() * 604;
+        y = 18 + rnd() * 382;
+        ok = evaluators.every(e => Math.hypot(x - e.x, y - e.y) > 44);
+        tries++;
+      } while (!ok && tries < 18);
+      const r = 3.2 + rnd() * 2.8; // 크기 다양화로 유기적 질감
+      candidates.push({ id:`c${i}`, x, y, r, label: SN[i % SN.length] + GN[i % GN.length] });
+    }
 
-    // ── 직접 연결 (심사위원 ↔ 지원자, 불규칙) ──
-    const edges = [
-      ['e0','c0'], ['e0','c1'], ['e0','c3'], ['e0','c4'],
-      ['e1','c1'], ['e1','c2'], ['e1','c4'], ['e1','c5'],
-      ['e2','c0'], ['e2','c3'], ['e2','c6'], ['e2','c7'],
-      ['e3','c4'], ['e3','c5'], ['e3','c7'], ['e3','c8'],
-    ];
+    // 엣지: 완전 랜덤 배정 + 연관도 값 (seeded)
+    const edges = []; // { eId, cId, rel }
+    const evalAdj = {};
+    const relMap = {}; // relMap[eId][cId] = rel
+    evaluators.forEach(e => { evalAdj[e.id] = new Set(); relMap[e.id] = {}; });
 
-    const allNodes = [...evaluators, ...candidates];
-    const nodeMap = {};
-    allNodes.forEach(n => { nodeMap[n.id] = n; });
-
-    const adj = {};
-    allNodes.forEach(n => { adj[n.id] = new Set(); });
-    edges.forEach(([a, b]) => { adj[a].add(b); adj[b].add(a); });
+    candidates.forEach(c => {
+      const pri = Math.floor(rnd() * 4);
+      const rel1 = parseFloat((0.42 + rnd() * 0.53).toFixed(2));
+      edges.push({ eId: evaluators[pri].id, cId: c.id, rel: rel1 });
+      evalAdj[evaluators[pri].id].add(c.id);
+      relMap[evaluators[pri].id][c.id] = rel1;
+      if (rnd() < 0.33) {
+        const sec = (pri + 1 + Math.floor(rnd() * 3)) % 4;
+        if (!evalAdj[evaluators[sec].id].has(c.id)) {
+          const rel2 = parseFloat((0.42 + rnd() * 0.53).toFixed(2));
+          edges.push({ eId: evaluators[sec].id, cId: c.id, rel: rel2 });
+          evalAdj[evaluators[sec].id].add(c.id);
+          relMap[evaluators[sec].id][c.id] = rel2;
+        }
+      }
+    });
 
     svg.innerHTML = '';
 
-    // 배경
-    const bg = document.createElementNS(ns, 'rect');
-    bg.setAttribute('x','0'); bg.setAttribute('y','0');
-    bg.setAttribute('width','640'); bg.setAttribute('height','420');
-    bg.setAttribute('fill','#F8FAFF');
-    svg.appendChild(bg);
+    // 블러 필터 정의
+    const defs = document.createElementNS(ns, 'defs');
+    const flt = document.createElementNS(ns, 'filter');
+    flt.setAttribute('id', 'ont-blur');
+    flt.setAttribute('x', '-40%'); flt.setAttribute('y', '-40%');
+    flt.setAttribute('width', '180%'); flt.setAttribute('height', '180%');
+    const fgb = document.createElementNS(ns, 'feGaussianBlur');
+    fgb.setAttribute('stdDeviation', '2'); fgb.setAttribute('in', 'SourceGraphic');
+    flt.appendChild(fgb); defs.appendChild(flt); svg.appendChild(defs);
 
-    // ── 엣지 ──
-    const edgeEls = [];
-    edges.forEach(([a, b]) => {
-      const na = nodeMap[a], nb = nodeMap[b];
+    const bgRect = document.createElementNS(ns, 'rect');
+    bgRect.setAttribute('width','640'); bgRect.setAttribute('height','460');
+    bgRect.setAttribute('fill','#F8FAFF');
+    svg.appendChild(bgRect);
+
+    const edgeByEval = {};
+    evaluators.forEach(e => { edgeByEval[e.id] = []; });
+
+    edges.forEach(({ eId, cId, rel }) => {
+      const ev = evaluators.find(e => e.id === eId);
+      const cd = candidates.find(c => c.id === cId);
+      const mx = (ev.x + cd.x) / 2;
+      const my = (ev.y + cd.y) / 2;
+
       const line = document.createElementNS(ns, 'line');
-      line.setAttribute('x1', na.x); line.setAttribute('y1', na.y);
-      line.setAttribute('x2', nb.x); line.setAttribute('y2', nb.y);
+      line.setAttribute('x1', ev.x); line.setAttribute('y1', ev.y);
+      line.setAttribute('x2', cd.x); line.setAttribute('y2', cd.y);
       line.setAttribute('stroke', COL_EDGE_DEFAULT);
-      line.setAttribute('stroke-width', '1');
-      line.setAttribute('opacity', '0.7');
-      line.setAttribute('class', 'ont-edge');
-      line.dataset.a = a; line.dataset.b = b;
+      line.setAttribute('stroke-width', '0.7');
+      line.setAttribute('opacity', '0.3');
       svg.appendChild(line);
-      edgeEls.push(line);
+
+      const relLbl = document.createElementNS(ns, 'text');
+      relLbl.setAttribute('x', mx); relLbl.setAttribute('y', my);
+      relLbl.setAttribute('text-anchor', 'middle'); relLbl.setAttribute('dominant-baseline', 'middle');
+      relLbl.setAttribute('font-size', '7.5'); relLbl.setAttribute('fill', '#1D4ED8');
+      relLbl.setAttribute('font-weight', '700');
+      relLbl.setAttribute('opacity', '0'); relLbl.setAttribute('pointer-events', 'none');
+      relLbl.textContent = rel.toFixed(2);
+      svg.appendChild(relLbl);
+
+      edgeByEval[eId].push({ line, relLbl, cId, rel });
     });
 
-    // ── 노드 ──
-    const nodeEls = {};
-
-    // 지원자 먼저 (뒤에 렌더)
-    candidates.forEach(n => {
-      const g = document.createElementNS(ns, 'g');
-      g.dataset.id = n.id;
-      g.style.cursor = 'default';
-
+    // ── 지원자 노드 ──
+    const candEls = {};
+    candidates.forEach(c => {
       const circle = document.createElementNS(ns, 'circle');
-      circle.setAttribute('cx', n.x); circle.setAttribute('cy', n.y);
-      circle.setAttribute('r', n.r);
+      circle.setAttribute('cx', c.x); circle.setAttribute('cy', c.y);
+      circle.setAttribute('r', c.r);
       circle.setAttribute('fill', COL_CAND_DEFAULT);
-      g.appendChild(circle);
+      circle.setAttribute('opacity', '0.75');
+      svg.appendChild(circle);
 
-      const txt = document.createElementNS(ns, 'text');
-      txt.setAttribute('x', n.x + n.lx); txt.setAttribute('y', n.y + n.ly);
-      txt.setAttribute('text-anchor', n.anchor);
-      txt.setAttribute('dominant-baseline', 'middle');
-      txt.setAttribute('font-size', '8.5'); txt.setAttribute('fill', '#64748B');
-      txt.setAttribute('pointer-events', 'none');
-      txt.textContent = n.label;
-      g.appendChild(txt);
+      const nameLbl = document.createElementNS(ns, 'text');
+      nameLbl.setAttribute('x', c.x + 7); nameLbl.setAttribute('y', c.y);
+      nameLbl.setAttribute('dominant-baseline', 'middle');
+      nameLbl.setAttribute('font-size', '7.5'); nameLbl.setAttribute('fill', '#475569');
+      nameLbl.setAttribute('opacity', '0'); nameLbl.setAttribute('pointer-events', 'none');
+      nameLbl.textContent = c.label;
+      svg.appendChild(nameLbl);
 
-      svg.appendChild(g);
-      nodeEls[n.id] = { g, circle, txt };
+      candEls[c.id] = { circle, nameLbl };
     });
 
-    // 심사위원 (앞에 렌더, 클릭 가능)
-    evaluators.forEach(n => {
+    // ── 하이라이트 / 리셋 함수 ──
+    const doHighlight = (evId) => {
+      const ev = evaluators.find(e => e.id === evId);
+      if (!ev || !ev._gEl) return;
+      // 평가위원: 선택된 것만 선명, 나머지 블러
+      evaluators.forEach(e2 => {
+        if (!e2._gEl) return;
+        const isActive = e2.id === evId;
+        e2._gEl._ring.setAttribute('opacity', isActive ? '0.55' : '0');
+        if (isActive) {
+          e2._gEl._g.removeAttribute('filter');
+          e2._gEl._g.setAttribute('opacity', '1');
+        } else {
+          e2._gEl._g.setAttribute('filter', 'url(#ont-blur)');
+          e2._gEl._g.setAttribute('opacity', '0.35');
+        }
+      });
+      // 엣지 + 선 중간 연관도 라벨
+      evaluators.forEach(e2 => {
+        const isActive = e2.id === evId;
+        edgeByEval[e2.id].forEach(({ line, relLbl }) => {
+          line.setAttribute('stroke', isActive ? COL_EDGE_ACTIVE : COL_EDGE_DEFAULT);
+          line.setAttribute('stroke-width', isActive ? '1.4' : '0.5');
+          line.setAttribute('opacity', isActive ? '0.85' : '0.04');
+          relLbl.setAttribute('opacity', isActive ? '1' : '0');
+        });
+      });
+      // 지원자: 연결된 것 선명+이름, 나머지 블러
+      candidates.forEach(c => {
+        const cel = candEls[c.id];
+        if (evalAdj[evId].has(c.id)) {
+          cel.circle.removeAttribute('filter');
+          cel.circle.setAttribute('fill', COL_CAND_ACTIVE);
+          cel.circle.setAttribute('r', '7');
+          cel.circle.setAttribute('opacity', '1');
+          cel.nameLbl.setAttribute('opacity', '1');
+        } else {
+          cel.circle.setAttribute('filter', 'url(#ont-blur)');
+          cel.circle.setAttribute('fill', COL_CAND_DEFAULT);
+          cel.circle.setAttribute('r', c.r);
+          cel.circle.setAttribute('opacity', '0.3');
+          cel.nameLbl.setAttribute('opacity', '0');
+        }
+      });
+    };
+
+    const doReset = () => doHighlight('e0');
+
+    // ── 심사위원 노드 ──
+    evaluators.forEach(ev => {
       const g = document.createElementNS(ns, 'g');
-      g.dataset.id = n.id;
       g.style.cursor = 'pointer';
 
-      // 외곽 글로우 링
       const ring = document.createElementNS(ns, 'circle');
-      ring.setAttribute('cx', n.x); ring.setAttribute('cy', n.y);
-      ring.setAttribute('r', n.r + 5);
+      ring.setAttribute('cx', ev.x); ring.setAttribute('cy', ev.y);
+      ring.setAttribute('r', ev.r + 6);
       ring.setAttribute('fill', 'none');
       ring.setAttribute('stroke', COL_EVAL_HOVER);
-      ring.setAttribute('stroke-width', '2');
+      ring.setAttribute('stroke-width', '2.5');
       ring.setAttribute('opacity', '0');
       g.appendChild(ring);
 
       const circle = document.createElementNS(ns, 'circle');
-      circle.setAttribute('cx', n.x); circle.setAttribute('cy', n.y);
-      circle.setAttribute('r', n.r);
+      circle.setAttribute('cx', ev.x); circle.setAttribute('cy', ev.y);
+      circle.setAttribute('r', ev.r);
       circle.setAttribute('fill', COL_EVAL_DEFAULT);
       g.appendChild(circle);
 
       const txt = document.createElementNS(ns, 'text');
-      txt.setAttribute('x', n.x); txt.setAttribute('y', n.y);
-      txt.setAttribute('text-anchor', 'middle');
-      txt.setAttribute('dominant-baseline', 'middle');
-      txt.setAttribute('font-size', '9.5'); txt.setAttribute('fill', 'white');
+      txt.setAttribute('x', ev.x); txt.setAttribute('y', ev.y);
+      txt.setAttribute('text-anchor', 'middle'); txt.setAttribute('dominant-baseline', 'middle');
+      txt.setAttribute('font-size', '10'); txt.setAttribute('fill', 'white');
       txt.setAttribute('font-weight', '700'); txt.setAttribute('pointer-events', 'none');
-      txt.textContent = n.label;
+      txt.textContent = ev.label;
       g.appendChild(txt);
-
       svg.appendChild(g);
-      nodeEls[n.id] = { g, circle, ring, txt };
 
-      g.addEventListener('mouseenter', () => {
-        const connected = adj[n.id];
-        // 엣지
-        edgeEls.forEach(ep => {
-          const isConn = (ep.dataset.a === n.id || ep.dataset.b === n.id);
-          ep.setAttribute('stroke', isConn ? COL_EDGE_ACTIVE : COL_EDGE_DEFAULT);
-          ep.setAttribute('stroke-width', isConn ? '2' : '0.6');
-          ep.setAttribute('opacity', isConn ? '1' : '0.12');
-        });
-        // 심사위원
-        evaluators.forEach(ev => {
-          const el = nodeEls[ev.id];
-          if (ev.id === n.id) {
-            el.circle.setAttribute('fill', COL_EVAL_HOVER);
-            el.ring.setAttribute('opacity', '0.35');
-          } else {
-            el.circle.setAttribute('opacity', '0.18');
-            el.txt.setAttribute('opacity', '0.18');
-          }
-        });
-        // 지원자
-        candidates.forEach(cd => {
-          const el = nodeEls[cd.id];
-          if (connected.has(cd.id)) {
-            el.circle.setAttribute('fill', COL_CAND_ACTIVE);
-            el.circle.setAttribute('r', '11');
-            el.txt.setAttribute('fill', '#1D4ED8');
-            el.txt.setAttribute('font-weight', '700');
-          } else {
-            el.circle.setAttribute('opacity', '0.1');
-            el.txt.setAttribute('opacity', '0.1');
-          }
-        });
-      });
+      ev._gEl = { _circle: circle, _ring: ring, _txt: txt, _g: g };
 
-      g.addEventListener('mouseleave', () => {
-        edgeEls.forEach(ep => {
-          ep.setAttribute('stroke', COL_EDGE_DEFAULT);
-          ep.setAttribute('stroke-width', '1');
-          ep.setAttribute('opacity', '0.7');
-        });
-        evaluators.forEach(ev => {
-          const el = nodeEls[ev.id];
-          el.circle.setAttribute('fill', COL_EVAL_DEFAULT);
-          el.circle.setAttribute('opacity', '1');
-          el.txt.setAttribute('opacity', '1');
-          if (el.ring) el.ring.setAttribute('opacity', '0');
-        });
-        candidates.forEach(cd => {
-          const el = nodeEls[cd.id];
-          el.circle.setAttribute('fill', COL_CAND_DEFAULT);
-          el.circle.setAttribute('r', cd.r);
-          el.circle.setAttribute('opacity', '1');
-          el.txt.setAttribute('fill', '#64748B');
-          el.txt.setAttribute('font-weight', 'normal');
-          el.txt.setAttribute('opacity', '1');
-        });
-      });
+      g.addEventListener('mouseenter', () => doHighlight(ev.id));
+      g.addEventListener('mouseleave', doReset);
     });
 
+    // ── 기본값: e0 하이라이트 ──
+    doHighlight('e0');
+
     // ── 범례 ──
-    const legendY = 410;
-    [
-      { color: COL_EVAL_DEFAULT, r: 11, label: '심사위원 (호버 시 보라색)' },
-      { color: COL_CAND_DEFAULT, r: 6,  label: '지원자 (호버 시 파란색)' },
+    const ly = 443;
+    [{ color: COL_EVAL_DEFAULT, r:11, label:`평가위원 ${evaluators.length}명` },
+     { color: COL_CAND_DEFAULT, r:5,  label:`지원자 ${candidates.length}명` }
     ].forEach((item, i) => {
-      const gx = 185 + i * 220;
+      const gx = 200 + i * 200;
       const lc = document.createElementNS(ns, 'circle');
-      lc.setAttribute('cx', gx); lc.setAttribute('cy', legendY);
+      lc.setAttribute('cx', gx); lc.setAttribute('cy', ly);
       lc.setAttribute('r', item.r); lc.setAttribute('fill', item.color);
       svg.appendChild(lc);
       const lt = document.createElementNS(ns, 'text');
-      lt.setAttribute('x', gx + item.r + 7); lt.setAttribute('y', legendY);
-      lt.setAttribute('dominant-baseline', 'middle');
-      lt.setAttribute('font-size', '9'); lt.setAttribute('fill', '#94A3B8');
+      lt.setAttribute('x', gx + item.r + 7); lt.setAttribute('y', ly);
+      lt.setAttribute('dominant-baseline','middle');
+      lt.setAttribute('font-size','9'); lt.setAttribute('fill','#94A3B8');
       lt.textContent = item.label;
       svg.appendChild(lt);
     });

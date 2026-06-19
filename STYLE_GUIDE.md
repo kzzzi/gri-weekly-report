@@ -38,7 +38,6 @@
 | `--gri-primary-light` | `#3b82f6` | 그라디언트 끝색 |
 | `--gri-primary-50` | `#eff6ff` | 배경 틴트 |
 | `--gri-primary-100` | `#dbeafe` | 배경 틴트 진한 것 |
-| `--gri-accent` | `#F5A623` | 강조 포인트 (선택) |
 
 ### 텍스트 컬러
 

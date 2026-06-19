@@ -2738,6 +2738,18 @@ const RecruitModule = {
 
   handleEvalUploadDirect(file) {
     if (!file) return;
+    const ext = file.name.split('.').pop().toLowerCase();
+    const isExcel = ['xlsx', 'xls', 'csv'].includes(ext);
+    const status = document.getElementById('evalUploadStatus');
+
+    if (!isExcel) {
+      // 비-Excel 파일: 업로드 확인 후 기존 목록 유지
+      if (!this._evalList) this._buildEvalList();
+      this.renderEvalTable();
+      if (status) { status.textContent = `${file.name} 업로드됨`; setTimeout(() => { status.textContent = ''; }, 3000); }
+      return;
+    }
+
     if (!window.XLSX) { alert('엑셀 라이브러리를 불러오는 중입니다. 잠시 후 다시 시도하세요.'); return; }
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -2759,7 +2771,6 @@ const RecruitModule = {
         if (!this._evalList) this._buildEvalList();
         this._evalList.push(...parsed);
         this.renderEvalTable();
-        const status = document.getElementById('evalUploadStatus');
         if (status) { status.textContent = `${parsed.length}명 추가됨`; setTimeout(() => { status.textContent = ''; }, 3000); }
       } catch (err) {
         alert('파일을 읽을 수 없습니다. 올바른 엑셀 파일인지 확인하세요.');
